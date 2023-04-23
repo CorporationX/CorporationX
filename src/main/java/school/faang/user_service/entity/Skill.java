@@ -41,4 +41,12 @@ public class Skill {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void addGuarantees(List<User> users) {
+        guarantees.addAll(users);
+    }
+
+    public void addGuarantee(User user) {
+        guarantees.add(user);
+    }
 }

@@ -29,12 +29,12 @@ public class SkillController {
         return skillService.getUserSkills(userId, page, pageSize);
     }
 
-    @GetMapping("/skill/offered/{userId}")
+    @GetMapping("/skill/{userId}/offered")
     public List<SkillCandidateDto> getOfferedSkills(@PathVariable long userId, @RequestParam int page, @RequestParam int pageSize) {
         return skillService.getOfferedSkills(userId, page, pageSize);
     }
 
-    @PostMapping("/skill/{id}/acquired/{userId}")
+    @PostMapping("/skill/{userId}/offered/{skillId}")
     public SkillDto acquireSkillFromOffers(@PathVariable long skillId, @PathVariable long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
     }

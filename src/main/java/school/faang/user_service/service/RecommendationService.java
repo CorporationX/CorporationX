@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.mapper.RecommendationMapper;
@@ -16,7 +17,9 @@ import school.faang.user_service.repository.SkillOfferRepository;
 import school.faang.user_service.validator.RecommendationValidator;
 import school.faang.user_service.validator.SkillOfferValidator;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +84,19 @@ public class RecommendationService {
         skillOffers.forEach(offer -> {
             SkillOffer savedOffer = skillOfferRepository.create(offer.getSkillId(), entity.getId());
             entity.addSkillOffer(savedOffer);
+            provideGuaranteesIfSkillExists(entity, skillOffers);
         });
+    }
+
+    private void provideGuaranteesIfSkillExists(Recommendation entity, List<SkillOfferDto> skillOffers) {
+        Set<Skill> skills = new HashSet<>(entity.getReceiver().getSkills());
+        skillOffers.forEach(offer -> skills.stream()
+                .filter(skill -> skill.getId() == offer.getSkillId())
+                .findFirst()
+                .ifPresent(skill -> {
+                    if (!skill.getGuarantees().contains(entity.getAuthor())) {
+                        skill.addGuarantee(entity.getAuthor());
+                    }
+                }));
     }
 }

@@ -30,6 +30,9 @@ public class User {
     @Column(name = "email", length = 64, nullable = false, unique = true)
     private String email;
 
+    @Column(name = "phone", length = 18, nullable = false, unique = true)
+    private String phone;
+
     @Column(name = "password", length = 128, nullable = false, unique = true)
     private String password;
 
@@ -38,6 +41,16 @@ public class User {
 
     @Column(name = "about_me", length = 4096)
     private String aboutMe;
+
+    @ManyToOne
+    @JoinColumn(name = "country_id", nullable = false)
+    private Country country;
+
+    @Column(name = "city", length = 64)
+    private String city;
+
+    @Column(name = "experience")
+    private int experience;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -50,7 +63,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @ManyToMany
-    @JoinTable(name = "followers",
+    @JoinTable(name = "subscription",
             joinColumns = @JoinColumn(name = "followee_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
     private List<User> followers;
 

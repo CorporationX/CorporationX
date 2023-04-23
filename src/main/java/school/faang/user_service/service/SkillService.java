@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillOfferRepository;
@@ -65,16 +68,27 @@ public class SkillService {
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
         return skillRepository.findUserSkill(skillId, userId)
                 .map(skillMapper::toDto)
-                .orElseGet(() -> {
-                    int offersAmount = skillOfferRepository.countAllOffersOfSkill(skillId, userId);
-                    if (offersAmount >= MIN_SKILL_OFFERS) {
-                        return skillRepository.findById(skillId)
-                                .map(skill -> {
-                                    skillRepository.assignSkillToUser(skillId, userId);
-                                    return skillMapper.toDto(skill);
-                                }).orElseThrow(() -> new IllegalArgumentException("There is no skill with id " + skillId));
-                    }
-                    throw new DataValidationException("At least " + MIN_SKILL_OFFERS + " skill offers are required to acquire a skill");
-                });
+                .orElseGet(() -> acquireSkill(skillId, userId));
+    }
+
+    private SkillDto acquireSkill(long skillId, long userId) {
+        List<SkillOffer> offers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
+        if (offers.size() >= MIN_SKILL_OFFERS) {
+            return skillRepository.findById(skillId)
+                    .map(skill -> {
+                        skillRepository.assignSkillToUser(skillId, userId);
+                        addGuarantees(skill, offers);
+                        return skillMapper.toDto(skill);
+                    }).orElseThrow(() -> new IllegalArgumentException("There is no skill with id " + skillId));
+        }
+        throw new DataValidationException("At least " + MIN_SKILL_OFFERS + " skill offers are required to acquire a skill");
+    }
+
+    private void addGuarantees(Skill skill, List<SkillOffer> offers) {
+        List<User> guarantors = offers.stream()
+                .map(SkillOffer::getRecommendation)
+                .map(Recommendation::getAuthor)
+                .toList();
+        skill.addGuarantees(guarantors);
     }
 }

@@ -13,6 +13,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillOfferRepository;
 import school.faang.user_service.repository.SkillRepository;
@@ -36,7 +37,7 @@ public class SkillService {
             Skill entity = skillRepository.create(skill.getTitle());
             return skillMapper.toDto(entity);
         }
-        throw new DataValidationException("A skill with the title " + skill.getTitle() + " already exists");
+        throw new DataValidationException(ErrorMessage.SKILL_ALREADY_EXISTS, skill.getTitle());
     }
 
     @Transactional(readOnly = true)
@@ -81,7 +82,7 @@ public class SkillService {
                         return skillMapper.toDto(skill);
                     }).orElseThrow(() -> new IllegalArgumentException("There is no skill with id " + skillId));
         }
-        throw new DataValidationException("At least " + MIN_SKILL_OFFERS + " skill offers are required to acquire a skill");
+        throw new DataValidationException(ErrorMessage.NOT_ENOUGH_SKILL_OFFERS, MIN_SKILL_OFFERS);
     }
 
     private void addGuarantees(Skill skill, List<SkillOffer> offers) {

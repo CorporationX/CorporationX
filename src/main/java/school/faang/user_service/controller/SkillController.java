@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.SkillService;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class SkillController {
         if (validateSkill(skill)) {
             return skillService.create(skill);
         }
-        throw new DataValidationException("Invalid skill is provided for creation");
+        throw new DataValidationException(ErrorMessage.INVALID_SKILL_PROVIDED);
     }
 
     @GetMapping("/skill/{userId}")
@@ -40,6 +41,6 @@ public class SkillController {
     }
 
     private boolean validateSkill(SkillDto skill) {
-        return true;
+        return skill.getTitle() != null && !skill.getTitle().isBlank();
     }
 }

@@ -1,10 +1,6 @@
 package school.faang.user_service.controller;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,9 +11,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.exception.ErrorResponse;
-import school.faang.user_service.repository.SkillOfferRepository;
-import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.SkillService;
 
 import static org.mockito.Mockito.when;
@@ -64,7 +58,7 @@ class SkillControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value("Invalid skill is provided for creation"));
+                        .value(ErrorMessage.INVALID_SKILL_PROVIDED));
     }
 
     @Test
@@ -80,7 +74,7 @@ class SkillControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value("Invalid skill is provided for creation"));
+                        .value(ErrorMessage.INVALID_SKILL_PROVIDED));
     }
 
     @Test

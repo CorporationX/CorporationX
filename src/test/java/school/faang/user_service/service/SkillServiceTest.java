@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 
@@ -62,6 +63,7 @@ class SkillServiceTest {
                 skillService.create(skillDto)
         );
 
-        assertEquals("A skill with the title "  + skillDto.getTitle() +  " already exists", dataValidationException.getMessage());
+        assertEquals((String.format(ErrorMessage.SKILL_ALREADY_EXISTS.getMessage(), skillDto.getTitle())),
+                dataValidationException.getMessage());
     }
 }

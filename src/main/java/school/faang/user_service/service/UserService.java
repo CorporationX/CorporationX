@@ -8,7 +8,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.service.filter.UserFilter;
+import school.faang.user_service.service.filter.user.UserFilter;
 
 import java.util.List;
 import java.util.stream.Stream;

@@ -1,19 +1,19 @@
-package school.faang.user_service.service.filter;
+package school.faang.user_service.service.filter.user;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
 @Component
-public class UsernameFilter extends UserFilter {
+public class PhonePattern extends UserFilter {
 
     @Override
     protected boolean applyFilter(User user, UserFilterDto filter) {
-        return user.getUsername().contains(filter.getNamePattern());
+        return user.getPhone().contains(filter.getPhonePattern());
     }
 
     @Override
     public boolean isApplicable(UserFilterDto filter) {
-        return !filter.getNamePattern().isBlank();
+        return !filter.getPhonePattern().isBlank();
     }
 }

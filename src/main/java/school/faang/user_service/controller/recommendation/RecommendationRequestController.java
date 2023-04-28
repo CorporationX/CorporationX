@@ -1,12 +1,14 @@
 package school.faang.user_service.controller.recommendation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +22,16 @@ public class RecommendationRequestController {
             return recommendationRequestService.create(recommendationRequest);
         }
         throw new DataValidationException("Invalid recommendation request data is provided");
+    }
+
+    @PostMapping("/recommendation/request/list")
+    public List<RecommendationRequestDto> getRecommendationRequests(@RequestBody RequestFilterDto filter) {
+        return recommendationRequestService.getRequests(filter);
+    }
+
+    @GetMapping("/recommendation/request/{id}")
+    public RecommendationRequestDto getRecommendationRequest(@PathVariable long id) {
+        return recommendationRequestService.getRequest(id);
     }
 
     private boolean validateRecommendationRequest(RecommendationRequestDto recommendationRequest) {

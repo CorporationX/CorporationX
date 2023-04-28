@@ -1,4 +1,4 @@
-package school.faang.user_service.repository;
+package school.faang.user_service.repository.recommendation;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

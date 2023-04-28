@@ -5,6 +5,6 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SkillOfferDto extends SkillCandidate {
+public class SkillRequestDto extends SkillCandidate {
 
 }

@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public abstract class AbstractUserService {
 
     private final List<UserFilter> filters;
-    private final UserMapper userMapper;
+    protected final UserMapper userMapper;
 
     protected List<UserDto> filterUsers(Stream<User> users, UserFilterDto filter) {
         filters.stream()

@@ -1,11 +1,11 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.controller.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.RecommendationService;
+import school.faang.user_service.service.recommendation.RecommendationService;
 
 @RestController
 @RequiredArgsConstructor

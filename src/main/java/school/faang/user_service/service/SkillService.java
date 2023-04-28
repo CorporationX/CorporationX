@@ -15,7 +15,7 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.SkillMapper;
-import school.faang.user_service.repository.SkillOfferRepository;
+import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.SkillRepository;
 
 import java.util.List;

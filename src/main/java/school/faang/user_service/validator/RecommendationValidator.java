@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.repository.RecommendationRepository;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
 import java.time.LocalDateTime;
 

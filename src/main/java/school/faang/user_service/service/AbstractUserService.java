@@ -5,7 +5,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.service.filter.UserFilter;
+import school.faang.user_service.service.filter.user.UserFilter;
 
 import java.util.List;
 import java.util.stream.Stream;

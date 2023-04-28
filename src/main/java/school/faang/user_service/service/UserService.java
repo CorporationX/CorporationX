@@ -7,7 +7,7 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.service.filter.UserFilter;
+import school.faang.user_service.service.filter.user.UserFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -27,5 +27,13 @@ public class UserService extends AbstractUserService {
     public List<UserDto> getUsers(UserFilterDto filter) {
         Stream<User> users = StreamSupport.stream(userRepository.findAll().spliterator(), false);
         return filterUsers(users, filter);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean areOwnedSkills(long userId, List<Long> skillIds) {
+        if (skillIds.isEmpty()) {
+            return true;
+        }
+        return userRepository.countOwnedSkills(userId, skillIds) == skillIds.size();
     }
 }

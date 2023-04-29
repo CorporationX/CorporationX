@@ -1,4 +1,4 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.controller.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -7,7 +7,7 @@ import school.faang.user_service.dto.mentorship.Rejection;
 import school.faang.user_service.dto.mentorship.RequestFilter;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.service.MentorshipRequestService;
+import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import java.util.List;
 

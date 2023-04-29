@@ -8,14 +8,14 @@ import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.entity.recommendation.RequestStatus;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
-import school.faang.user_service.service.filter.recommendation.RequestFilter;
+import school.faang.user_service.service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.validator.RecommendationRequestValidator;
 import school.faang.user_service.validator.SkillCandidateValidator;
 
@@ -32,7 +32,7 @@ public class RecommendationRequestService {
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final RecommendationRequestValidator recommendationRequestValidator;
     private final SkillCandidateValidator skillCandidateValidator;
-    private final List<RequestFilter> filters;
+    private final List<RecommendationRequestFilter> filters;
 
     @Transactional
     public RecommendationRequestDto create(RecommendationRequestDto recommendationRequest) {

@@ -5,7 +5,7 @@ import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 @Component
-public class StatusFilter extends RequestFilter {
+public class StatusFilter extends RecommendationRequestFilter {
     @Override
     protected boolean applyFilter(RecommendationRequest req, RequestFilterDto filter) {
         return filter.getStatus().equals(req.getStatus());

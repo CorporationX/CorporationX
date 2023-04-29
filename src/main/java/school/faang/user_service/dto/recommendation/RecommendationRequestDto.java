@@ -1,7 +1,7 @@
 package school.faang.user_service.dto.recommendation;
 
 import lombok.Data;
-import school.faang.user_service.entity.recommendation.RequestStatus;
+import school.faang.user_service.entity.RequestStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

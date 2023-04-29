@@ -6,7 +6,7 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 
 @Component
-public class SkillFilter extends RequestFilter {
+public class SkillFilter extends RecommendationRequestFilter {
     @Override
     protected boolean applyFilter(RecommendationRequest req, RequestFilterDto filter) {
         return req.getSkills().stream()

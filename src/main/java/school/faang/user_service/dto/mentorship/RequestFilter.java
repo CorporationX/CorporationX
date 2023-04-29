@@ -1,15 +1,15 @@
-package school.faang.user_service.dto.recommendation;
+package school.faang.user_service.dto.mentorship;
 
 import lombok.Data;
 import school.faang.user_service.entity.RequestStatus;
 
-import java.util.Set;
-
 @Data
-public class RequestFilterDto {
+public class RequestFilter {
+    private String descriptionPattern;
+    private String requesterNamePattern;
+    private String receiverNamePattern;
     private Long requesterId;
     private Long receiverId;
-    private Set<Long> skills;
     private RequestStatus status;
     private int page;
     private int pageSize;

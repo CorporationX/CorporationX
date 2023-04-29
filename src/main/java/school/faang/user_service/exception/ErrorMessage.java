@@ -8,6 +8,7 @@ public enum ErrorMessage {
     RECOMMENDATION_REQUEST_ALREADY_EXISTS("Recommendation request from requester with id %d to receiver with id %d already exists. " +
             "The next one can be sent %s months after the previous one"),
     RECOMMENDATION_REQUEST_NOT_FOUND("There's no recommendation request with id %d"),
+    INVALID_MENTORSHIP_REQUEST("Invalid mentorship request"),
     ;
     private final String message;
 

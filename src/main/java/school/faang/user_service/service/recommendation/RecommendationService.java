@@ -26,6 +26,7 @@ import java.util.Set;
 public class RecommendationService {
 
     private final RecommendationRepository recommendationRepository;
+    private final RecommendationRequestService recommendationRequestService;
     private final SkillOfferRepository skillOfferRepository;
     private final RecommendationMapper recommendationMapper;
     private final RecommendationValidator recommendationValidator;
@@ -40,6 +41,7 @@ public class RecommendationService {
                 recommendation.getContent()
         );
         saveSkillOffers(entity, recommendation.getSkillOffers());
+        recommendationRequestService.acceptRequestIfNecessary(entity);
         return recommendationMapper.toDto(entity);
     }
 

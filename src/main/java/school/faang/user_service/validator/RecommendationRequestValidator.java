@@ -33,7 +33,7 @@ public class RecommendationRequestValidator {
     }
 
     private void checkForPrevious(RecommendationRequestDto req) {
-        recommendationRequestRepository.findByRequesterIdAndReceiverId(req.getRequesterId(), req.getReceiverId())
+        recommendationRequestRepository.findLatestPendingRequest(req.getRequesterId(), req.getReceiverId())
                 .ifPresent(existing -> {
                     if (existing.getCreatedAt().plusMonths(REQUEST_INTERVAL_MONTHS).isAfter(LocalDateTime.now())) {
                         throw new DataValidationException(String.format(

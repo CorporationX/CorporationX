@@ -38,6 +38,9 @@ public class Recommendation {
     @OneToMany(mappedBy = "recommendation", cascade = CascadeType.ALL)
     private List<SkillOffer> skillOffers;
 
+    @OneToOne(mappedBy = "recommendation")
+    private RecommendationRequest request;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")

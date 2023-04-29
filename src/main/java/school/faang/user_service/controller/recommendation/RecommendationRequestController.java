@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
@@ -32,6 +33,11 @@ public class RecommendationRequestController {
     @GetMapping("/recommendation/request/{id}")
     public RecommendationRequestDto getRecommendationRequest(@PathVariable long id) {
         return recommendationRequestService.getRequest(id);
+    }
+
+    @PostMapping("/recommendation/request/{id}")
+    public RecommendationRequestDto rejectRequest(@PathVariable long id, @RequestBody RejectionDto rejection) {
+        return recommendationRequestService.rejectRequest(id, rejection);
     }
 
     private boolean validateRecommendationRequest(RecommendationRequestDto recommendationRequest) {

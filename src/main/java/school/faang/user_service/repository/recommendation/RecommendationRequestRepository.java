@@ -11,7 +11,13 @@ import java.util.Optional;
 @Repository
 public interface RecommendationRequestRepository extends CrudRepository<RecommendationRequest, Long> {
 
-    Optional<RecommendationRequest> findByRequesterIdAndReceiverId(long requesterId, long receiverId);
+    @Query(nativeQuery = true, value = """
+            SELECT * FROM recommendation_request
+            WHERE requester_id = :requesterId AND receiver_id = :receiverId AND status = 1
+            ORDER BY created_at DESC
+            LIMIT 1
+            """)
+    Optional<RecommendationRequest> findLatestPendingRequest(long requesterId, long receiverId);
 
     @Query(nativeQuery = true, value = """
                 INSERT INTO recommendation_request (requester_id, receiver_id, message, status, created_at, updated_at)

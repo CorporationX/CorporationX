@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
+import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.RequestStatus;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
@@ -58,8 +61,29 @@ public class RecommendationRequestService {
 
     @Transactional(readOnly = true)
     public RecommendationRequestDto getRequest(long id) {
+        return recommendationRequestMapper.toDto(findRequest(id));
+    }
+
+    @Transactional
+    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
+        RecommendationRequest request = findRequest(id);
+        if (RequestStatus.PENDING.equals(request.getStatus())) {
+            request.setStatus(RequestStatus.REJECTED);
+            request.setRejectionReason(rejection.getReason());
+        }
+        return recommendationRequestMapper.toDto(request);
+    }
+
+    void acceptRequestIfNecessary(Recommendation recommendation) {
+        recommendationRequestRepository.findLatestPendingRequest(recommendation.getReceiver().getId(), recommendation.getAuthor().getId())
+                .ifPresent(req -> {
+                    req.setStatus(RequestStatus.ACCEPTED);
+                    req.setRecommendation(recommendation);
+                });
+    }
+
+    private RecommendationRequest findRequest(long id) {
         return recommendationRequestRepository.findById(id)
-                .map(recommendationRequestMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(
                         ErrorMessage.RECOMMENDATION_REQUEST_NOT_FOUND.getMessage(),
                         id

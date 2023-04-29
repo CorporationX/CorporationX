@@ -35,6 +35,9 @@ public class MentorshipRequest {
     @Enumerated(EnumType.ORDINAL)
     private RequestStatus status;
 
+    @Column(name = "rejection_reason", length = 4096)
+    private String rejectionReason;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false)

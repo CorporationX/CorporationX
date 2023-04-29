@@ -4,8 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship.Rejection;
 import school.faang.user_service.dto.mentorship.RequestFilter;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.filter.mentorship.MentorshipRequestFilter;
@@ -44,5 +49,31 @@ public class MentorshipRequestService {
                 .limit(filter.getPageSize())
                 .map(mentorshipRequestMapper::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public MentorshipRequestDto acceptRequest(long id) {
+        MentorshipRequest req = find(id);
+        List<User> mentors = req.getRequester().getMentors();
+        User mentor = req.getReceiver();
+        if (!mentors.contains(mentor)) {
+            mentors.add(mentor);
+            req.setStatus(RequestStatus.ACCEPTED);
+            return mentorshipRequestMapper.toDto(req);
+        }
+        throw new DataValidationException("User " + mentor.getId() + " is already a mentor of user " + req.getRequester().getId() + ".");
+    }
+
+    @Transactional
+    public MentorshipRequestDto rejectRequest(long id, Rejection rejection) {
+        MentorshipRequest req = find(id);
+        req.setStatus(RequestStatus.REJECTED);
+        req.setRejectionReason(rejection.getReason());
+        return mentorshipRequestMapper.toDto(req);
+    }
+
+    private MentorshipRequest find(long id) {
+        return mentorshipRequestRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("There is no mentorship request with id " + id + "."));
     }
 }

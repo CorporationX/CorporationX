@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,11 +11,11 @@ import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.repository.RecommendationRepository;
-import school.faang.user_service.repository.SkillOfferRepository;
+import school.faang.user_service.mapper.recommendation.RecommendationMapper;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.RecommendationValidator;
-import school.faang.user_service.validator.SkillOfferValidator;
+import school.faang.user_service.validator.SkillCandidateValidator;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,10 +26,11 @@ import java.util.Set;
 public class RecommendationService {
 
     private final RecommendationRepository recommendationRepository;
+    private final RecommendationRequestService recommendationRequestService;
     private final SkillOfferRepository skillOfferRepository;
     private final RecommendationMapper recommendationMapper;
     private final RecommendationValidator recommendationValidator;
-    private final SkillOfferValidator skillOfferValidator;
+    private final SkillCandidateValidator skillCandidateValidator;
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendation) {
@@ -40,6 +41,7 @@ public class RecommendationService {
                 recommendation.getContent()
         );
         saveSkillOffers(entity, recommendation.getSkillOffers());
+        recommendationRequestService.acceptRequestIfNecessary(entity);
         return recommendationMapper.toDto(entity);
     }
 
@@ -77,7 +79,7 @@ public class RecommendationService {
 
     private void validate(RecommendationDto recommendation) {
         recommendationValidator.validate(recommendation);
-        skillOfferValidator.validate(recommendation.getSkillOffers());
+        skillCandidateValidator.validate(recommendation.getSkillOffers());
     }
 
     private void saveSkillOffers(Recommendation entity, List<SkillOfferDto> skillOffers) {

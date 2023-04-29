@@ -2,6 +2,7 @@ package school.faang.user_service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.recommendation.SkillCandidate;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SkillService;
@@ -10,20 +11,20 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class SkillOfferValidator {
+public class SkillCandidateValidator {
 
     private final SkillService skillService;
 
-    public void validate(List<SkillOfferDto> skillOffers) {
-        List<Long> skillIds = retainUniqueOnly(skillOffers);
-        if (skillIds.size() != skillOffers.size() || skillService.areExistingSkills(skillIds)) {
+    public void validate(List<? extends SkillCandidate> skillCandidates) {
+        List<Long> skillIds = retainUniqueOnly(skillCandidates);
+        if (skillIds.size() != skillCandidates.size() || skillService.areExistingSkills(skillIds)) {
             throw new DataValidationException("Invalid skills offered within a recommendation");
         }
     }
 
-    private List<Long> retainUniqueOnly(List<SkillOfferDto> skillOffers) {
-        return skillOffers.stream()
-                .map(SkillOfferDto::getSkillId)
+    private List<Long> retainUniqueOnly(List<? extends SkillCandidate> skillCandidates) {
+        return skillCandidates.stream()
+                .map(SkillCandidate::getSkillId)
                 .distinct()
                 .toList();
     }

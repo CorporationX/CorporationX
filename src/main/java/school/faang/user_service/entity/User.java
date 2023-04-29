@@ -75,6 +75,19 @@ public class User {
     private List<Event> ownedEvents;
 
     @ManyToMany
+    @JoinTable(name = "mentorship", joinColumns = @JoinColumn(name = "mentor_id"), inverseJoinColumns = @JoinColumn(name = "mentee_id"))
+    private List<User> mentees;
+
+    @ManyToMany(mappedBy = "mentees")
+    private List<User> mentors;
+
+    @OneToMany(mappedBy = "receiver")
+    private List<MentorshipRequest> receivedMentorshipRequests;
+
+    @OneToMany(mappedBy = "requester")
+    private List<MentorshipRequest> sentMentorshipRequests;
+
+    @ManyToMany
     @JoinTable(
             name = "user_skill",
             joinColumns = @JoinColumn(name = "user_id"),

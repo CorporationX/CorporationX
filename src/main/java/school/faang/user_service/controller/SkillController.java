@@ -25,11 +25,6 @@ public class SkillController {
         throw new DataValidationException(ErrorMessage.INVALID_SKILL_PROVIDED);
     }
 
-    @DeleteMapping("/skill/{id}")
-    public void deleteSkill(@PathVariable long id) {
-        skillService.delete(id);
-    }
-
     @GetMapping("/skill/{userId}")
     public Page<SkillDto> getUserSkills(@PathVariable long userId, @RequestParam int page, @RequestParam int pageSize) {
         return skillService.getUserSkills(userId, page, pageSize);

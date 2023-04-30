@@ -11,7 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventParticipationController {
 
-    public final EventParticipationService eventParticipationService;
+    private final EventParticipationService eventParticipationService;
 
     @PostMapping("/{eventId}/register/{userId}")
     public void registerParticipant(@PathVariable Long eventId, @PathVariable Long userId) {
@@ -29,12 +29,7 @@ public class EventParticipationController {
     }
 
     @GetMapping("/{eventId}/participants/count")
-    public List<UserDto> getParticipantsCount(@PathVariable Long eventId) {
-        return eventParticipationService.getParticipants(eventId);
-    }
-
-    @GetMapping("/{eventId}/participants/count")
-    public long getFollowersCount(@PathVariable long eventId) {
+    public long getParticipantsCount(@PathVariable Long eventId) {
         return eventParticipationService.getParticipantsCount(eventId);
     }
 }

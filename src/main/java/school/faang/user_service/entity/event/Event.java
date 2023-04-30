@@ -51,14 +51,17 @@ public class Event {
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
-    @ManyToMany(mappedBy = "events")
+    @ManyToMany
+    @JoinTable(name = "event_skill",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> relatedSkills;
 
     @Column(name = "type", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private EventType type;
 
     @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private EventStatus status;
 }

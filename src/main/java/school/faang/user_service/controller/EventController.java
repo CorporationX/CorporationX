@@ -1,11 +1,9 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.EventService;
@@ -31,9 +29,9 @@ public class EventController {
         return eventService.getEvent(id);
     }
 
-    @GetMapping("/event/list")
-    public List<EventDto> getEvents(@RequestBody EventFilterDto filter) {
-        return eventService.getEvents(filter);
+    @PostMapping("/event/list")
+    public List<EventDto> getEventsByFilter(@RequestBody EventFilterDto filter) {
+        return eventService.getEventsByFilter(filter);
     }
 
     @DeleteMapping("/event/{id}")
@@ -42,27 +40,21 @@ public class EventController {
     }
 
     @PutMapping("/event/{id}")
-    public EventDto updateEvent(@PathVariable Long id, @RequestBody EventDto event) {
+    public EventDto updateEvent(@RequestBody EventDto event) {
         if (validateEvent(event)) {
-            return eventService.updateEvent(id, event);
+            return eventService.updateEvent(event);
         }
         throw new DataValidationException(ErrorMessage.INVALID_EVENT);
     }
 
     @GetMapping("/event/{userId}/owned")
-    public Page<EventDto> getOwnedEvents(@PathVariable long userId, @RequestParam int page, @RequestParam int pageSize) {
-        return eventService.getOwnedEvents(userId, page, pageSize);
+    public List<EventDto> getOwnedEvents(@PathVariable long userId) {
+        return eventService.getOwnedEvents(userId);
     }
 
     @GetMapping("/event/{userId}/participated")
-    public Page<EventDto> getParticipatedEvents(@PathVariable long userId, @RequestParam int page, @RequestParam int pageSize) {
-        return eventService.getParticipatedEvents(userId, page, pageSize);
-    }
-
-    @PostMapping("/{userId}/{eventId}/skills")
-    public void addSkillsToEvent(@PathVariable Long ownerId, @PathVariable Long eventId,
-                                     @RequestBody List<SkillDto> skills) {
-        eventService.addSkillsToEvent(ownerId, eventId, skills);
+    public List<EventDto> getParticipatedEvents(@PathVariable long userId) {
+        return eventService.getParticipatedEvents(userId);
     }
 
     private boolean validateEvent(EventDto event) {

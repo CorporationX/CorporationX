@@ -1,16 +1,13 @@
 package school.faang.user_service.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.exception.NotFoundException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.EventRepository;
 import school.faang.user_service.service.filter.event.EventFilter;
@@ -36,29 +33,28 @@ public class EventService extends AbstractEventService {
     }
 
     @Transactional
-    public EventDto create(EventDto event) {
-        eventValidator.validateSkills(event);
-        Event entity = eventRepository.create(
-                event.getTitle(),
-                event.getStartDate(),
-                event.getOwner().getId(),
-                event.getDescription(),
-                event.getEndDate(),
-                event.getLocation(),
-                event.getMaxAttendees()
-        );
-        return eventMapper.toDto(entity);
+    public EventDto create(EventDto eventDto) {
+        eventValidator.checkIfUserHasSkills(eventDto);
+        Event event = eventRepository.save(eventMapper.toEntity(eventDto));
+        return eventMapper.toDto(event);
     }
 
     @Transactional
+    public EventDto updateEvent(EventDto eventDto) {
+        eventValidator.checkIfUserHasSkills(eventDto);
+        Event event = eventRepository.save(eventMapper.toEntity(eventDto));
+        return eventMapper.toDto(event);
+    }
+
+    @Transactional(readOnly = true)
     public EventDto getEvent(long id) {
         Event entity = eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ErrorMessage.EVENT_NOT_FOUND, id));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.EVENT_NOT_FOUND, id));
         return eventMapper.toDto(entity);
     }
 
     @Transactional(readOnly = true)
-    public List<EventDto> getEvents(EventFilterDto filter) {
+    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
         Stream<Event> events = StreamSupport.stream(eventRepository.findAll().spliterator(), false);
         return filterEvents(events, filter);
     }
@@ -68,37 +64,13 @@ public class EventService extends AbstractEventService {
         eventRepository.deleteById(id);
     }
 
-    @Transactional
-    public EventDto updateEvent(long eventId, EventDto event) {
-        eventValidator.validateSkills(event);
-        Event entity = eventRepository.update(
-                eventId,
-                event.getTitle(),
-                event.getStartDate(),
-                event.getOwner().getId(),
-                event.getDescription(),
-                event.getEndDate(),
-                event.getLocation(),
-                event.getMaxAttendees()
-        );
-        return eventMapper.toDto(entity);
+    @Transactional(readOnly = true)
+    public List<EventDto> getOwnedEvents(long userId) {
+        return eventRepository.findAllByUserId(userId).stream().map(eventMapper::toDto).toList();
     }
 
-    @Transactional
-    public Page<EventDto> getOwnedEvents(long userId, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        return eventRepository.findAllByUserId(userId, pageable).map(eventMapper::toDto);
-    }
-
-    @Transactional
-    public Page<EventDto> getParticipatedEvents(long userId, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        return eventRepository.findParticipatedEventsByUserId(userId, pageable).map(eventMapper::toDto);
-    }
-
-    @Transactional
-    public void addSkillsToEvent(long ownerId, long eventId, List<SkillDto> skills) {
-        eventValidator.validate(ownerId, eventId, skills);
-        skills.forEach(skill -> eventRepository.addSkillsToEvent(skill.getId(), eventId));
+    @Transactional(readOnly = true)
+    public List<EventDto> getParticipatedEvents(long userId) {
+        return eventRepository.findParticipatedEventsByUserId(userId).stream().map(eventMapper::toDto).toList();
     }
 }

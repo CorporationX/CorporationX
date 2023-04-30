@@ -45,7 +45,7 @@ public class EventParticipationService extends AbstractEventService{
         eventParticipationRepository.unregister(eventId, userId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserDto> getParticipants(long eventId) {
         return eventParticipationRepository.findAllParticipantsByEventId(eventId)
                 .stream().map(userMapper::toDto).toList();

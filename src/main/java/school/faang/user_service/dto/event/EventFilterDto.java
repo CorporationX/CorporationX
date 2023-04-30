@@ -9,6 +9,8 @@ public class EventFilterDto {
     private String ownerPattern;
     private String locationPattern;
     private String skillsPattern;
+    private String type;
+    private String status;
     private int page;
     private int pageSize;
 }

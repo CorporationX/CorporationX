@@ -16,24 +16,37 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "skill")
-public class Skill {
+@Table(name = "goal")
+public class Goal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(name = "parent_id")
+    private Long parentId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private long userId;
+
     @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
 
-    @ManyToMany(mappedBy = "skills")
-    private List<User> users;
+    @Column(name = "description", length = 128, nullable = false, unique = true)
+    private String description;
 
-    @ManyToMany(mappedBy = "guaranteedSkills")
-    private List<User> guarantees;
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private GoalStatus status;
 
-    @ManyToMany(mappedBy = "skillsToAchieve")
-    private List<Goal> goals;
+    @ManyToMany
+    @JoinTable(
+            name = "goal_skill",
+            joinColumns = @JoinColumn(name = "goal_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private List<Skill> skillsToAchieve;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -44,12 +57,4 @@ public class Skill {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    public void addGuarantees(List<User> users) {
-        guarantees.addAll(users);
-    }
-
-    public void addGuarantee(User user) {
-        guarantees.add(user);
-    }
 }

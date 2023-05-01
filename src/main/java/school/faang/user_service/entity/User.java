@@ -83,6 +83,9 @@ public class User {
     @OneToMany(mappedBy = "requester")
     private List<MentorshipRequest> sentMentorshipRequests;
 
+    @OneToMany(mappedBy = "user")
+    private List<Goal> goals;
+
     @ManyToMany
     @JoinTable(
             name = "user_skill",

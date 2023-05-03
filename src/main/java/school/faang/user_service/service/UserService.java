@@ -40,4 +40,12 @@ public class UserService extends AbstractUserService {
     public boolean existsById(long id) {
         return userRepository.existsById(id);
     }
+
+    @Transactional(readOnly = true)
+    public boolean areOwnedSkills(long userId, List<Long> skillIds) {
+        if (skillIds.isEmpty()) {
+            return true;
+        }
+        return userRepository.countOwnedSkills(userId, skillIds) == skillIds.size();
+    }
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.event.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +32,9 @@ public class Skill {
 
     @ManyToMany(mappedBy = "guaranteedSkills")
     private List<User> guarantees;
+
+    @ManyToMany(mappedBy = "relatedSkills")
+    private List<Event> events;
 
     @ManyToMany(mappedBy = "skillsToAchieve")
     private List<Goal> goals;

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
 @RestController
@@ -18,7 +19,7 @@ public class RecommendationController {
         if (validateRecommendation(recommendation)) {
             return recommendationService.create(recommendation);
         }
-        throw new DataValidationException("Invalid recommendation data is provided");
+        throw new DataValidationException(ErrorMessage.INVALID_RECOMMENDATION);
     }
 
     @PutMapping("/recommendation/{id}")
@@ -26,7 +27,7 @@ public class RecommendationController {
         if (validateRecommendation(updated)) {
             return recommendationService.update(updated);
         }
-        throw new DataValidationException("Invalid recommendation data is provided");
+        throw new DataValidationException(ErrorMessage.INVALID_RECOMMENDATION);
     }
 
     @DeleteMapping("/recommendation/{id}")

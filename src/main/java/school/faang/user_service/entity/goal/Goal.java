@@ -1,4 +1,4 @@
-package school.faang.user_service.entity;
+package school.faang.user_service.entity.goal;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,10 +28,6 @@ public class Goal {
     @Column(name = "parent_id")
     private Long parentId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private long userId;
-
     @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
 
@@ -39,6 +37,12 @@ public class Goal {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private GoalStatus status;
+
+    @OneToMany(mappedBy = "goalId")
+    private List<GoalInvitation> invitations;
+
+    @ManyToMany(mappedBy = "goals")
+    private List<User> users;
 
     @ManyToMany
     @JoinTable(

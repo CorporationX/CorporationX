@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.service.GoalService;
+import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,6 +47,11 @@ public class GoalController {
     @PostMapping("/goal/{goalId}/subtasks")
     public List<GoalDto> getSubtasksByGoal(@PathVariable Long goalId, @RequestBody GoalFilterDto filter) {
         return goalService.findSubtasksByGoalId(goalId, filter);
+    }
+
+    @PostMapping("/goal/{goalId}/users")
+    public List<User> getUsersByGoal(@PathVariable Long goalId) {
+        return goalService.findUsersByGoalId(goalId);
     }
 
     private boolean validate(GoalDto goal) {

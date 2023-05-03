@@ -1,7 +1,7 @@
 package school.faang.user_service.service.filter.goal;
 
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.entity.Goal;
+import school.faang.user_service.entity.goal.Goal;
 
 import java.util.stream.Stream;
 

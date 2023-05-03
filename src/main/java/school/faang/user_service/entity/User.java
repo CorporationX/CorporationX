@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
@@ -87,7 +89,18 @@ public class User {
     @OneToMany(mappedBy = "requester")
     private List<MentorshipRequest> sentMentorshipRequests;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "inviter")
+    private List<GoalInvitation> sentGoalInvitations;
+
+    @OneToMany(mappedBy = "invited")
+    private List<GoalInvitation> receivedGoalInvitations;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_goal",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "goal_id")
+    )
     private List<Goal> goals;
 
     @ManyToMany

@@ -3,8 +3,10 @@ package school.faang.user_service.repository.goal;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import school.faang.user_service.entity.Goal;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.goal.Goal;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @Repository
@@ -34,4 +36,17 @@ public interface GoalRepository extends CrudRepository<Goal, Long> {
             SELECT * FROM subtasks WHERE id != :goalId
             """)
     Stream<Goal> findByParent(long goalId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(ug.user_id) FROM user_goal ug
+            WHERE ug.goal_id = :goalId
+            """)
+    int countUsersSharingGoal(long goalId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT * FROM user u
+            JOIN user_goal ug ON u.id = ug.user_id
+            WHERE ug.goal_id = :goalId
+            """)
+    List<User> findUsersByGoalId(long goalId);
 }

@@ -3,8 +3,8 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.entity.Goal;
-import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.service.filter.goal.GoalFilter;
 
 import java.util.List;

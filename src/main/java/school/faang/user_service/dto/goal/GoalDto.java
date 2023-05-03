@@ -2,8 +2,7 @@ package school.faang.user_service.dto.goal;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.entity.GoalStatus;
+import school.faang.user_service.entity.goal.GoalStatus;
 
 import java.util.List;
 
@@ -12,8 +11,8 @@ import java.util.List;
 public class GoalDto {
     private Long id;
     private Long parentId;
-    private Long userId;
+    private List<Long> userIds;
     private String title;
-    GoalStatus status;
-    List<Long> skillIds;
+    private GoalStatus status;
+    private List<Long> skillIds;
 }

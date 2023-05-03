@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
@@ -70,6 +71,9 @@ public class User {
     @ManyToMany(mappedBy = "followers")
     private List<User> followees;
 
+    @OneToMany(mappedBy = "owner")
+    private List<Event> ownedEvents;
+
     @ManyToMany
     @JoinTable(name = "mentorship", joinColumns = @JoinColumn(name = "mentor_id"), inverseJoinColumns = @JoinColumn(name = "mentee_id"))
     private List<User> mentees;
@@ -93,6 +97,14 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private List<Skill> guaranteedSkills;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_event",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private List<Event> participatedEvents;
 
     @OneToMany(mappedBy = "author")
     private List<Recommendation> recommendationsGiven;

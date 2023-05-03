@@ -37,6 +37,11 @@ public class SkillService {
         throw new DataValidationException(ErrorMessage.SKILL_ALREADY_EXISTS, skill.getTitle());
     }
 
+    @Transactional
+    public void delete(long id) {
+        skillRepository.deleteById(id);
+    }
+
     @Transactional(readOnly = true)
     public List<SkillDto> getUserSkills(long userId, int page, int pageSize) {
         return skillRepository.findAllByUserId(userId).stream()

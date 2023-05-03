@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 
@@ -23,10 +25,10 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "title", length = 64, nullable = false, unique = true)
+    @Column(name = "title", length = 64, nullable = false)
     private String title;
 
-    @Column(name = "description", length = 256, nullable = false, unique = true)
+    @Column(name = "description", length = 4096, nullable = false)
     private String description;
 
     @Column(name = "start_date", columnDefinition = "TIMESTAMP")
@@ -35,13 +37,13 @@ public class Event {
     @Column(name = "end_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime endDate;
 
-    @Column(name = "location", length = 64, unique = true)
+    @Column(name = "location", length = 128)
     private String location;
 
     @Column(name = "max_attendees")
     private int maxAttendees;
 
-    @ManyToMany(mappedBy = "events")
+    @ManyToMany(mappedBy = "participatedEvents")
     private List<User> attendees;
 
     @OneToMany(mappedBy = "event")
@@ -64,4 +66,14 @@ public class Event {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private EventStatus status;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

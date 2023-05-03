@@ -7,6 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.User;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -23,7 +28,7 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "comment", length = 256, unique = true)
+    @Column(name = "comment", length = 4096)
     private String comment;
 
     @Min(RATE_MIN_VALUE)
@@ -33,5 +38,19 @@ public class Rating {
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
-    public Event event;
+    private Event event;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

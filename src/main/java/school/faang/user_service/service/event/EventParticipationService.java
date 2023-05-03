@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.event;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,14 +7,15 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.repository.EventParticipationRepository;
+import school.faang.user_service.repository.event.EventParticipationRepository;
+import school.faang.user_service.service.AbstractEventService;
 import school.faang.user_service.service.filter.event.EventFilter;
 import school.faang.user_service.validator.EventValidator;
 
 import java.util.List;
 
 @Service
-public class EventParticipationService extends AbstractEventService{
+public class EventParticipationService extends AbstractEventService {
 
     private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
@@ -31,7 +32,7 @@ public class EventParticipationService extends AbstractEventService{
 
     @Transactional
     public void registerParticipant(long eventId, long userId) {
-        if (eventValidator.isUserRegistered(eventId, userId)) {
+        if (eventValidator.checkUserIsRegistered(eventId, userId)) {
             throw new DataValidationException(ErrorMessage.USER_ALREADY_REGISTERED);
         }
         eventParticipationRepository.register(eventId, userId);
@@ -39,7 +40,7 @@ public class EventParticipationService extends AbstractEventService{
 
     @Transactional
     public void unregisterParticipant(long eventId, long userId) {
-        if (!eventValidator.isUserRegistered(eventId, userId)) {
+        if (!eventValidator.checkUserIsRegistered(eventId, userId)) {
             throw new DataValidationException(ErrorMessage.USER_NOT_REGISTERED);
         }
         eventParticipationRepository.unregister(eventId, userId);

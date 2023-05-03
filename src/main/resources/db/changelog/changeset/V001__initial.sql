@@ -147,3 +147,51 @@ CREATE TABLE project_subscription (
 
     CONSTRAINT fk_project_follower_id FOREIGN KEY (follower_id) REFERENCES users (id)
 );
+
+CREATE TABLE event (
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    title varchar(64) NOT NULL,
+    description varchar(4096) NOT NULL,
+    start_date timestamptz NOT NULL,
+    end_date timestamptz NOT NULL,
+    location varchar(128) NOT NULL,
+    max_attendees int,
+    user_id bigint NOT NULL,
+    type smallint NOT NULL,
+    status smallint NOT NULL DEFAULT 0,
+    created_at timestamptz DEFAULT current_timestamp,
+    updated_at timestamptz DEFAULT current_timestamp,
+
+    CONSTRAINT fk_event_owner_id FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE event_skill (
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    event_id bigint NOT NULL,
+    skill_id bigint NOT NULL,
+
+    CONSTRAINT fk_event_skill_id FOREIGN KEY (event_id) REFERENCES event (id) ON DELETE CASCADE,
+    CONSTRAINT fk_skill_event_id FOREIGN KEY (skill_id) REFERENCES skill (id)
+);
+
+CREATE TABLE user_event (
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    user_id bigint NOT NULL,
+    event_id bigint NOT NULL,
+
+    CONSTRAINT fk_user_event_id FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_event_user_id FOREIGN KEY (event_id) REFERENCES event (id)
+);
+
+CREATE TABLE rating (
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    user_id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    rate smallint NOT NULL,
+    comment varchar(4096),
+    created_at timestamptz DEFAULT current_timestamp,
+    updated_at timestamptz DEFAULT current_timestamp,
+
+    CONSTRAINT fk_rater_id FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_event_rated_id FOREIGN KEY (event_id) REFERENCES event (id)
+);

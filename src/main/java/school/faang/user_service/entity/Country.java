@@ -20,7 +20,7 @@ public class Country {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "title", length = 32, nullable = false, unique = true)
+    @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
 
     @OneToMany(mappedBy = "country")

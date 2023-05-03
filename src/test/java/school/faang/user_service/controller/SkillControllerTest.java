@@ -17,7 +17,6 @@ import school.faang.user_service.service.SkillService;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @WebMvcTest(SkillController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class SkillControllerTest {
@@ -37,7 +36,7 @@ class SkillControllerTest {
         result.setTitle("SQL");
         when(skillService.create(skillDto)).thenReturn(result);
 
-        mvc.perform( MockMvcRequestBuilders
+        mvc.perform(MockMvcRequestBuilders
                         .post("/skill")
                         .content(asJsonString(skillDto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,7 +57,7 @@ class SkillControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value(ErrorMessage.INVALID_SKILL_PROVIDED));
+                        .value(ErrorMessage.INVALID_SKILL_PROVIDED.getMessage()));
     }
 
     @Test
@@ -74,7 +73,7 @@ class SkillControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value(ErrorMessage.INVALID_SKILL_PROVIDED));
+                        .value(ErrorMessage.INVALID_SKILL_PROVIDED.getMessage()));
     }
 
     @Test

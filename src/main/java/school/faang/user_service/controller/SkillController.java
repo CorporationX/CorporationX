@@ -1,7 +1,6 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -26,7 +25,7 @@ public class SkillController {
     }
 
     @GetMapping("/skill/{userId}")
-    public Page<SkillDto> getUserSkills(@PathVariable long userId, @RequestParam int page, @RequestParam int pageSize) {
+    public List<SkillDto> getUserSkills(@PathVariable long userId, @RequestParam int page, @RequestParam int pageSize) {
         return skillService.getUserSkills(userId, page, pageSize);
     }
 

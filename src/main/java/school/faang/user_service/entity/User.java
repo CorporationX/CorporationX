@@ -30,10 +30,10 @@ public class User {
     @Column(name = "email", length = 64, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone", length = 18, nullable = false, unique = true)
+    @Column(name = "phone", length = 32, unique = true)
     private String phone;
 
-    @Column(name = "password", length = 128, nullable = false, unique = true)
+    @Column(name = "password", length = 128, nullable = false)
     private String password;
 
     @Column(name = "active", nullable = false)
@@ -83,12 +83,7 @@ public class User {
     @OneToMany(mappedBy = "requester")
     private List<MentorshipRequest> sentMentorshipRequests;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_skill",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
+    @ManyToMany(mappedBy = "users")
     private List<Skill> skills;
 
     @ManyToMany

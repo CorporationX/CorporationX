@@ -4,9 +4,9 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.0"
 }
 
-group = "school.faang"
-version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_HIGHER
+group = "faang.school"
+version = "1.0"
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {
 	compileOnly {
@@ -21,19 +21,47 @@ repositories {
 extra["testcontainersVersion"] = "1.17.6"
 
 dependencies {
+	/**
+	 * Spring boot starters
+	 */
+	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	compileOnly("org.projectlombok:lombok")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	/**
+	 * Database
+	 */
+	implementation("org.liquibase:liquibase-core")
+	implementation("redis.clients:jedis:4.3.2")
 	runtimeOnly("org.postgresql:postgresql")
-	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.testcontainers:junit-jupiter")
-	testImplementation("org.testcontainers:postgresql")
-	testImplementation("org.mockito:mockito-junit-jupiter:5.3.1")
+
+	/**
+	 * Utils & Logging
+	 */
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
+	implementation("org.slf4j:slf4j-api:2.0.5")
+	implementation("ch.qos.logback:logback-classic:1.4.6")
+	implementation("org.projectlombok:lombok:1.18.26")
+	annotationProcessor("org.projectlombok:lombok:1.18.26")
 	implementation("org.mapstruct:mapstruct:1.5.3.Final")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
+
+	/**
+	 * Test containers
+	 */
+	implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))
+	testImplementation("org.testcontainers:junit-jupiter")
+	testImplementation("org.testcontainers:postgresql")
+
+	/**
+	 * Tests
+	 */
+	testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
+	testImplementation("org.assertj:assertj-core:3.24.2")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 dependencyManagement {

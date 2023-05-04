@@ -1,15 +1,15 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.event;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.EventMapper;
-import school.faang.user_service.repository.EventRepository;
+import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.AbstractEventService;
 import school.faang.user_service.service.filter.event.EventFilter;
 import school.faang.user_service.validator.EventValidator;
 
@@ -34,14 +34,14 @@ public class EventService extends AbstractEventService {
 
     @Transactional
     public EventDto create(EventDto eventDto) {
-        eventValidator.checkIfUserHasSkills(eventDto);
+        eventValidator.checkIfUserHasSkillsRequired(eventDto);
         Event event = eventRepository.save(eventMapper.toEntity(eventDto));
         return eventMapper.toDto(event);
     }
 
     @Transactional
     public EventDto updateEvent(EventDto eventDto) {
-        eventValidator.checkIfUserHasSkills(eventDto);
+        eventValidator.checkIfUserHasSkillsRequired(eventDto);
         Event event = eventRepository.save(eventMapper.toEntity(eventDto));
         return eventMapper.toDto(event);
     }

@@ -15,7 +15,7 @@ public class EventDto {
     private String title;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private long ownerId;
+    private Long ownerId;
     private String description;
     private List<SkillDto> relatedSkills;
     private String location;

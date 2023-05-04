@@ -28,7 +28,12 @@ public class Skill {
     @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
 
-    @ManyToMany(mappedBy = "skills")
+    @ManyToMany
+    @JoinTable(
+            name = "user_skill",
+            joinColumns = @JoinColumn(name = "skill_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> users;
 
     @ManyToMany(mappedBy = "guaranteedSkills")

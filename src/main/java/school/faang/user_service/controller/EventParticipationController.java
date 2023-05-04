@@ -3,7 +3,7 @@ package school.faang.user_service.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.service.EventParticipationService;
+import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
 

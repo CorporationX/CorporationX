@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
+import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
@@ -33,10 +34,10 @@ public class User {
     @Column(name = "email", length = 64, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone", length = 18, nullable = false, unique = true)
+    @Column(name = "phone", length = 32, unique = true)
     private String phone;
 
-    @Column(name = "password", length = 128, nullable = false, unique = true)
+    @Column(name = "password", length = 128, nullable = false)
     private String password;
 
     @Column(name = "active", nullable = false)
@@ -109,6 +110,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
+    @ManyToMany(mappedBy = "users")
     private List<Skill> skills;
 
     @ManyToMany
@@ -135,4 +137,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
+
+    @OneToMany(mappedBy = "user")
+    private List<Rating> ratings;
 }

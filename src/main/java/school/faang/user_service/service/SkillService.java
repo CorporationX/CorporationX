@@ -1,9 +1,6 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -46,9 +43,12 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
-    public Page<SkillDto> getUserSkills(long userId, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        return skillRepository.findAllByUserId(userId, pageable).map(skillMapper::toDto);
+    public List<SkillDto> getUserSkills(long userId, int page, int pageSize) {
+        return skillRepository.findAllByUserId(userId).stream()
+                .skip((long) page * pageSize)
+                .limit(pageSize)
+                .map(skillMapper::toDto)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -61,9 +61,10 @@ public class SkillService {
 
     @Transactional(readOnly = true)
     public List<SkillCandidateDto> getOfferedSkills(long userId, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Skill> skills = skillRepository.findSkillsOfferedToUser(userId, pageable);
-        return skills.get()
+        List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
+        return skills.stream()
+                .skip((long) page * pageSize)
+                .limit(pageSize)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> new SkillCandidateDto(skillMapper.toDto(entry.getKey()), entry.getValue()))

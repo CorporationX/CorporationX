@@ -5,7 +5,7 @@ import school.faang.user_service.dto.mentorship.RequestFilter;
 import school.faang.user_service.entity.MentorshipRequest;
 
 @Component
-public class ReceiverFilter extends MentorshipRequestFilter {
+public class MentorFilter extends MentorshipRequestFilter {
     @Override
     protected boolean applyFilter(MentorshipRequest req, RequestFilter filter) {
         return filter.getReceiverId().equals(req.getReceiver().getId());

@@ -1,7 +1,5 @@
 package school.faang.user_service.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -23,21 +21,16 @@ public interface SkillRepository extends CrudRepository<Skill, Long> {
     @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM skill WHERE id IN (:ids) GROUP BY id")
     int countExisting(List<Long> ids);
 
-    Page<Skill> findAllByUserId(long userId, Pageable pageable);
+    @Query(nativeQuery = true, value = "SELECT * FROM skill WHERE user_id = :userId")
+    List<Skill> findAllByUserId(long userId);
 
     @Query(nativeQuery = true, value = """
             SELECT s.* FROM skill
             JOIN skill_offer so ON so.skill_id = s.id
             JOIN recommendation r ON r.id = so.recommendation_id
             WHERE r.receiver_id = :userId
-            """, countQuery = """
-            SELECT COUNT(s.id) FROM skill
-            JOIN skill_offer so ON so.skill_id = s.id
-            JOIN recommendation r ON r.id = so.recommendation_id
-            WHERE r.receiver_id = :userId
-            GROUP BY s.id
             """)
-    Page<Skill> findSkillsOfferedToUser(long userId, Pageable pageable);
+    List<Skill> findSkillsOfferedToUser(long userId);
 
     @Query(nativeQuery = true, value = """
             SELECT s.* FROM skill

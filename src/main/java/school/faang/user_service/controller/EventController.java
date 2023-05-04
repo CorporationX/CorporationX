@@ -6,7 +6,7 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.service.EventService;
+import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
 
@@ -61,6 +61,6 @@ public class EventController {
         return event.getTitle() != null &&
                 !event.getTitle().isBlank() &&
                 event.getStartDate() != null &&
-                event.getOwner() != null;
+                event.getOwnerId() != null;
     }
 }

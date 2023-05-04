@@ -1,4 +1,4 @@
-package school.faang.user_service.repository;
+package school.faang.user_service.repository.event;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -10,17 +10,16 @@ import java.util.List;
 @Repository
 public interface EventRepository extends CrudRepository<Event, Long> {
 
+    @Query(nativeQuery = true, value = """
+            SELECT e.* FROM event e
+            WHERE e.user_id = :userId
+            """)
     List<Event> findAllByUserId(long userId);
 
     @Query(nativeQuery = true, value = """
             SELECT e.* FROM event e
             JOIN user_event ue ON ue.event_id = e.id
             WHERE ue.user_id = :userId
-            """, countQuery = """
-            SELECT COUNT(e.id) FROM event e
-            JOIN user_event ue ON ue.event_id = e.id
-            WHERE ue.user_id = :userId
-            GROUP BY e.id
             """)
     List<Event> findParticipatedEventsByUserId(long userId);
 }

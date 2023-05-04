@@ -1,4 +1,4 @@
-package school.faang.user_service.repository;
+package school.faang.user_service.repository.event;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -16,7 +16,7 @@ public interface EventParticipationRepository extends CrudRepository<User, Long>
     @Query(nativeQuery = true, value = "DELETE FROM user_event WHERE event_id = :eventId and user_id = :userId")
     void unregister(long eventId, long userId);
 
-    @Query(value = """
+    @Query(nativeQuery = true, value = """
             SELECT u.* FROM user u
             JOIN user_event ue ON u.id = ue.user_id
             WHERE ue.event_id = :eventId

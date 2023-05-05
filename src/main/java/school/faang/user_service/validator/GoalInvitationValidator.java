@@ -15,7 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoalInvitationValidator {
 
-    private static final int MAX_USERS_SHARING_GOAL = 10;
     private final UserService userService;
     private final GoalService goalService;
 
@@ -35,9 +34,6 @@ public class GoalInvitationValidator {
         }
         if (!userService.existsById(invitation.getInvitedUserId())) {
             throw new DataValidationException("Invited user with " + invitation.getInvitedUserId() + " does not exist");
-        }
-        if (goalService.countUsersSharingGoal(invitation.getGoalId()) > MAX_USERS_SHARING_GOAL) {
-            throw new DataValidationException("Only 10 users can share a goal at a time");
         }
     }
 

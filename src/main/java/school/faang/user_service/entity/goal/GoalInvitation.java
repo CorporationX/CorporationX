@@ -24,7 +24,7 @@ public class GoalInvitation {
 
     @ManyToOne
     @JoinColumn(name = "goal_id", nullable = false)
-    private long goalId;
+    private Goal goal;
 
     @ManyToOne
     @JoinColumn(name = "inviter_id", nullable = false)

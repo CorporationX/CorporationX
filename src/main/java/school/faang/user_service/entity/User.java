@@ -104,12 +104,6 @@ public class User {
     )
     private List<Goal> goals;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_skill",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
     @ManyToMany(mappedBy = "users")
     private List<Skill> skills;
 

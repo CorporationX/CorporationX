@@ -25,8 +25,9 @@ public class Goal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "parent_id")
-    private Long parentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="parent_id")
+    private Goal parent;
 
     @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
@@ -38,7 +39,17 @@ public class Goal {
     @Enumerated(EnumType.ORDINAL)
     private GoalStatus status;
 
-    @OneToMany(mappedBy = "goalId")
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "goal")
     private List<GoalInvitation> invitations;
 
     @ManyToMany(mappedBy = "goals")
@@ -51,14 +62,4 @@ public class Goal {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private List<Skill> skillsToAchieve;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }

@@ -42,8 +42,8 @@ public class GoalInvitationValidator {
     }
 
     public void validate(GoalInvitation invitation) {
-        List<User> users = goalService.findUsersByGoalId(invitation.getGoalId());
-        goalService.findGoalById(invitation.getGoalId());
+        List<User> users = goalService.findUsersByGoalId(invitation.getGoal().getId());
+        goalService.findGoalById(invitation.getGoal().getId());
         if (users.contains(invitation.getInvited())) {
             throw new DataValidationException("User with id " + invitation.getInvited() + " already shares this goal");
         }

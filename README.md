@@ -74,21 +74,21 @@ RESTful приложения калькулятор с единственным 
 вычитаяни, умножения и деления
 
 * Обычная трёхслойная
-  архитектура – [Controller](src/main/java/faang/school/servicetemplate/controller), [Service](src/main/java/faang/school/servicetemplate/service), [Repository](src/main/java/faang/school/servicetemplate/repository)
+  архитектура – [Controller](src/main/java/faang/school/postservice/controller), [Service](src/main/java/faang/school/postservice/service), [Repository](src/main/java/faang/school/postservice/repository)
 * Слой Repository реализован и на jdbcTemplate, и на JPA (Hibernate)
-* Написан [GlobalExceptionHandler](src/main/java/faang/school/servicetemplate/controller/GlobalExceptionHandler.java)
+* Написан [GlobalExceptionHandler](src/main/java/faang/school/postservice/controller/GlobalExceptionHandler.java)
   который умеет возвращать ошибки в формате `{"code":"CODE", "message": "message"}`
 * Используется TTL кэширование вычислений
-  в [CalculationTtlCacheService](src/main/java/faang/school/servicetemplate/service/cache/CalculationTtlCacheService.java)
+  в [CalculationTtlCacheService](src/main/java/faang/school/postservice/service/cache/CalculationTtlCacheService.java)
 * Реализован простой Messaging через [Redis pub/sub](https://redis.io/docs/manual/pubsub/)
-  * [Конфигурация](src/main/java/faang/school/servicetemplate/config/RedisConfig.java) –
+  * [Конфигурация](src/main/java/faang/school/postservice/config/RedisConfig.java) –
     сетапится [RedisTemplate](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/RedisTemplate.html) –
     класс, для удобной работы с Redis силами Spring
-  * [Отправитель](src/main/java/faang/school/servicetemplate/service/messaging/RedisCalculationPublisher.java) – генерит
+  * [Отправитель](src/main/java/faang/school/postservice/service/messaging/RedisCalculationPublisher.java) – генерит
     рандомные запросы и отправляет в очередь
-  * [Получатель](src/main/java/faang/school/servicetemplate/service/messaging/RedisCalculationSubscriber.java) –
+  * [Получатель](src/main/java/faang/school/postservice/service/messaging/RedisCalculationSubscriber.java) –
     получает запросы и отправляет задачи асинхронно выполняться
-    в [воркер](src/main/java/faang/school/servicetemplate/service/worker/CalculationWorker.java)
+    в [воркер](src/main/java/faang/school/postservice/service/worker/CalculationWorker.java)
 
 # Тесты
 

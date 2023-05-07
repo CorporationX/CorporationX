@@ -24,8 +24,15 @@ spring:
       channel: calculations_channel
 
 server:
-  port: 8080
+  port: 8081
 
 logging:
   level:
     root: info
+
+user-service:
+  host: localhost
+  port: 8080
+project-service:
+  host: localhost
+  port: 8080

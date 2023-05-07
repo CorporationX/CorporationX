@@ -14,15 +14,7 @@ public class PostValidator {
     private final UserServiceClient userServiceClient;
 
     public void validateCreation(PostDto post) {
-        if (post.getContent() == null || post.getContent().isBlank()) {
-            throw new DataValidationException("Post content cannot be empty");
-        }
-        if (post.getAuthorId() == null && post.getProjectId() == null) {
-            throw new DataValidationException("Post must be associated with either a user or a project");
-        }
-        if (post.getAuthorId() != null && post.getProjectId() != null) {
-            throw new DataValidationException("Post cannot be associated with both a user and a project");
-        }
+        validateBasics(post);
         if (post.getAuthorId() != null && userServiceClient.getUser(post.getAuthorId()) == null) {
             throw new DataValidationException("Post author must be a valid user");
         }
@@ -38,6 +30,18 @@ public class PostValidator {
         if (post.getProjectId() != null && !post.getProjectId().equals(entity.getProjectId())) {
             throw new DataValidationException("Post project cannot be changed");
         }
-        validateCreation(post);
+        validateBasics(post);
+    }
+
+    private void validateBasics(PostDto post) {
+        if (post.getContent() == null || post.getContent().isBlank()) {
+            throw new DataValidationException("Post content cannot be empty");
+        }
+        if (post.getAuthorId() == null && post.getProjectId() == null) {
+            throw new DataValidationException("Post must be associated with either a user or a project");
+        }
+        if (post.getAuthorId() != null && post.getProjectId() != null) {
+            throw new DataValidationException("Post cannot be associated with both a user and a project");
+        }
     }
 }

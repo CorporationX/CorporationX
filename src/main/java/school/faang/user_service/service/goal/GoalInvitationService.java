@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
@@ -22,7 +22,6 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 public class GoalInvitationService {
 
-    private static final int MAX_ACTIVE_GOALS_SIMULTANEOUSLY = 3;
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalInvitationValidator goalInvitationValidator;
     private final GoalInvitationMapper goalInvitationMapper;
@@ -38,11 +37,10 @@ public class GoalInvitationService {
     @Transactional
     public GoalInvitationDto acceptGoalInvitation(long id) {
         GoalInvitation invitation = findInvitation(id);
+        User invited = invitation.getInvited();
         goalInvitationValidator.validate(invitation);
-        if (invitation.getInvited().getGoals().size() == MAX_ACTIVE_GOALS_SIMULTANEOUSLY) {
-            throw new DataValidationException("User with id " + invitation.getInvited() + " has too many active goals");
-        }
         invitation.setStatus(RequestStatus.ACCEPTED);
+        invited.getGoals().add(invitation.getGoal());
         return goalInvitationMapper.toDto(invitation);
     }
 

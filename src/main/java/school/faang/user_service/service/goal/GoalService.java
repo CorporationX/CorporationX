@@ -4,37 +4,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.goal.GoalMapper;
-import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.AbstractGoalService;
+import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.filter.goal.GoalFilter;
 import school.faang.user_service.validator.GoalValidator;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Service
 public class GoalService extends AbstractGoalService {
 
-    private static final int MAX_ACTIVE_GOALS_SIMULTANEOUSLY = 3;
     private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
     private final GoalValidator goalValidator;
-    private final SkillRepository skillRepository;
+    private final SkillService skillService;
 
-    public GoalService(GoalRepository goalRepository, SkillRepository skillRepository, GoalMapper goalMapper,
+    public GoalService(GoalRepository goalRepository, SkillService skillService, GoalMapper goalMapper,
                        List<GoalFilter> filters, GoalValidator validator) {
         super(filters, goalMapper);
         this.goalRepository = goalRepository;
-        this.skillRepository = skillRepository;
+        this.skillService = skillService;
         this.goalMapper = goalMapper;
         this.goalValidator = validator;
     }
@@ -42,26 +41,32 @@ public class GoalService extends AbstractGoalService {
     @Transactional
     public List<GoalDto> findGoalsByUserId(long userId, GoalFilterDto filter) {
         Stream<Goal> goals = StreamSupport.stream(goalRepository.findGoalsByUserId(userId).spliterator(), false);
+        goals.forEach(goal -> {
+            List<Skill> skills = skillService.findSkillsByGoalId(goal.getId());
+            goal.setSkillsToAchieve(skills);
+        });
         return filterGoals(goals, filter);
     }
 
     @Transactional
     public GoalDto createGoal(long userId, GoalDto goal) {
-        int currentGoalsCount = goalRepository.countActiveGoalsPerUser(userId);
-        if (currentGoalsCount < MAX_ACTIVE_GOALS_SIMULTANEOUSLY) {
-            Goal savedGoal = goalRepository.save(goalMapper.toEntity(goal));
-            return goalMapper.toDto(savedGoal);
-        }
-        throw new DataValidationException(ErrorMessage.TOO_MANY_GOALS, MAX_ACTIVE_GOALS_SIMULTANEOUSLY);
+        goalValidator.validateBeforeCreate(userId, goal);
+        Goal savedGoal = goalRepository.create(
+                goal.getTitle(),
+                goal.getDescription(),
+                goal.getParentId());
+        addSkillsToGoal(goal.getSkillIds(), goal.getId());
+        return goalMapper.toDto(savedGoal);
     }
 
     @Transactional
     public GoalDto updateGoal(long goalId, GoalDto goalDto) {
-        Goal goal = findGoal(goalId);
-        goalDto.setId(goalId);
+        Goal goal = findGoalById(goalId);
         goalValidator.validate(goal, goalDto);
         assignSkillsToUsers(goal, goalDto);
         Goal savedGoal = goalRepository.save(goalMapper.toEntity(goalDto));
+        updateSkills(goalDto);
+        savedGoal.setSkillsToAchieve(skillService.findSkillsByGoalId(goalId));
         return goalMapper.toDto(savedGoal);
     }
 
@@ -87,22 +92,31 @@ public class GoalService extends AbstractGoalService {
     }
 
     @Transactional
-    public void findGoalById(long goalId) {
-        findGoal(goalId);
+    public Goal findGoalById(long goalId) {
+        return goalRepository.findById(goalId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.GOAL_NOT_FOUND, goalId));
     }
 
     private void assignSkillsToUsers(Goal goal, GoalDto updatedGoal) {
-        if (goal.getStatus().equals(GoalStatus.ACTIVE) &&
-                updatedGoal.getStatus().equals(GoalStatus.COMPLETED) &&
-                !goal.getSkillsToAchieve().isEmpty()) {
-            updatedGoal.getUserIds().forEach(userId ->
+        if (isRequiredToAssign(goal, updatedGoal)) {
+            goal.getUsers().forEach(user ->
                     updatedGoal.getSkillIds().forEach(skillId ->
-                            skillRepository.assignSkillToUser(skillId, userId)));
+                            skillService.assignSkillToUser(skillId, user.getId())));
         }
     }
 
-    private Goal findGoal(long goalId) {
-        return goalRepository.findById(goalId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.GOAL_NOT_FOUND, goalId));
+    private void updateSkills(GoalDto goalDto) {
+        List<Long> skillIds = goalDto.getSkillIds();
+        goalRepository.removeSkillsFromGoal(goalDto.getId());
+        addSkillsToGoal(skillIds, goalDto.getId());
+    }
+
+    public boolean isRequiredToAssign(Goal goal, GoalDto updatedGoal) {
+        return updatedGoal.getStatus().equals(GoalStatus.COMPLETED) &&
+                !goal.getSkillsToAchieve().isEmpty();
+    }
+
+    private void addSkillsToGoal(List<Long> skillIds, Long goalId) {
+        skillIds.forEach(skillId -> goalRepository.addSkillToGoal(skillId, goalId));
     }
 }

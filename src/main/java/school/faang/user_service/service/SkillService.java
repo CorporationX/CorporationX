@@ -37,11 +37,6 @@ public class SkillService {
         throw new DataValidationException(ErrorMessage.SKILL_ALREADY_EXISTS, skill.getTitle());
     }
 
-    @Transactional
-    public void delete(long id) {
-        skillRepository.deleteById(id);
-    }
-
     @Transactional(readOnly = true)
     public List<SkillDto> getUserSkills(long userId, int page, int pageSize) {
         return skillRepository.findAllByUserId(userId).stream()
@@ -53,7 +48,7 @@ public class SkillService {
 
     @Transactional(readOnly = true)
     public boolean areExistingSkills(List<Long> skillIds) {
-        if (skillIds.isEmpty()) {
+        if (skillIds == null || skillIds.isEmpty()) {
             return true;
         }
         return skillRepository.countExisting(skillIds) == skillIds.size();
@@ -78,17 +73,29 @@ public class SkillService {
                 .orElseGet(() -> acquireSkill(skillId, userId));
     }
 
-    private SkillDto acquireSkill(long skillId, long userId) {
+
+    @Transactional
+    public SkillDto acquireSkill(long skillId, long userId) {
         List<SkillOffer> offers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
         if (offers.size() >= MIN_SKILL_OFFERS) {
             return skillRepository.findById(skillId)
                     .map(skill -> {
-                        skillRepository.assignSkillToUser(skillId, userId);
+                        assignSkillToUser(skillId, userId);
                         addGuarantees(skill, offers);
                         return skillMapper.toDto(skill);
                     }).orElseThrow(() -> new IllegalArgumentException("There is no skill with id " + skillId));
         }
         throw new DataValidationException(ErrorMessage.NOT_ENOUGH_SKILL_OFFERS, MIN_SKILL_OFFERS);
+    }
+
+    @Transactional
+    public void assignSkillToUser(long skillId, long userId) {
+        skillRepository.assignSkillToUser(skillId, userId);
+    }
+
+    @Transactional
+    public List<Skill> findSkillsByGoalId(long goalId) {
+        return skillRepository.findSkillsByGoalId(goalId);
     }
 
     private void addGuarantees(Skill skill, List<SkillOffer> offers) {

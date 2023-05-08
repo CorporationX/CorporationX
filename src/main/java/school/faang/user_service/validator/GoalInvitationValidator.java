@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoalInvitationValidator {
 
+    private static final int MAX_ACTIVE_GOALS_SIMULTANEOUSLY = 3;
     private final UserService userService;
     private final GoalService goalService;
 
@@ -39,8 +40,12 @@ public class GoalInvitationValidator {
 
     public void validate(GoalInvitation invitation) {
         List<User> users = goalService.findUsersByGoalId(invitation.getGoal().getId());
+        User invited = invitation.getInvited();
         goalService.findGoalById(invitation.getGoal().getId());
-        if (users.contains(invitation.getInvited())) {
+        if (invited.getGoals().size() == MAX_ACTIVE_GOALS_SIMULTANEOUSLY) {
+            throw new DataValidationException("User with id " + invitation.getInvited() + " has too many active goals");
+        }
+        if (users.contains(invited)) {
             throw new DataValidationException("User with id " + invitation.getInvited() + " already shares this goal");
         }
     }

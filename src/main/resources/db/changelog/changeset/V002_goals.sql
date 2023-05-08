@@ -2,12 +2,12 @@ CREATE TABLE goal (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     title varchar(64) NOT NULL,
     description varchar(4096) NOT NULL,
-    goal_id bigint NOT NULL,
+    parent_goal_id bigint,
     status smallint DEFAULT 0 NOT NULL,
     created_at timestamptz DEFAULT current_timestamp,
     updated_at timestamptz DEFAULT current_timestamp,
 
-    CONSTRAINT fk_goal_id FOREIGN KEY (goal_id) REFERENCES goal (id)
+    CONSTRAINT fk_goal_id FOREIGN KEY (parent_goal_id) REFERENCES goal (id)
 );
 
 CREATE TABLE goal_invitation (

@@ -20,4 +20,9 @@ public class UserController {
     public List<UserDto> getUsers(@RequestBody UserFilterDto filter) {
         return userService.getUsers(filter);
     }
+
+    @PostMapping("/users")
+    public List<UserDto> getUsers(@RequestBody List<Long> ids) {
+        return userService.getUsersByIds(ids);
+    }
 }

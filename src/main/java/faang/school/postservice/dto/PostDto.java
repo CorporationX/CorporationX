@@ -10,5 +10,6 @@ public class PostDto {
     private String content;
     private Long authorId;
     private Long projectId;
+    private Integer likes;
     private LocalDateTime createdAt;
 }

@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +55,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostDto> getPublicPosts(long authorId) {
-        return getPublicPosts(postRepository.findByAuthorId(authorId));
+        return getPublicPosts(postRepository.findByAuthorIdWithLikes(authorId));
     }
 
     @Transactional(readOnly = true)
@@ -66,26 +65,22 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostDto> getProjectPublicPosts(long projectId) {
-        return getPublicPosts(postRepository.findByProjectId(projectId));
+        return getPublicPosts(postRepository.findByProjectIdWithLikes(projectId));
     }
 
     private List<PostDto> getDrafts(List<Post> posts) {
-        return sortAndMap(
-                posts.stream()
-                        .filter(post -> !post.isPublished() && !post.isDeleted())
-        );
+        return posts.stream()
+                .filter(post -> !post.isPublished() && !post.isDeleted())
+                .sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()))
+                .map(postMapper::toDto)
+                .toList();
     }
 
     private List<PostDto> getPublicPosts(List<Post> posts) {
-        return sortAndMap(
-                posts.stream()
-                        .filter(post -> post.isPublished() && !post.isDeleted())
-        );
-    }
-
-    private List<PostDto> sortAndMap(Stream<Post> posts) {
-        return posts.sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()))
-                .map(postMapper::toDto)
+        return posts.stream()
+                .filter(post -> post.isPublished() && !post.isDeleted())
+                .sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()))
+                .map(post -> postMapper.toDtoWithLikes(post, post.getLikes().size()))
                 .toList();
     }
 
@@ -100,7 +95,8 @@ public class PostService {
         entity.setDeleted(true);
     }
 
-    private Post findById(long id) {
+    @Transactional
+    public Post findById(long id) {
         return postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("There's no post with id " + id));
     }

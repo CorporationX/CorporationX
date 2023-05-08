@@ -1,7 +1,7 @@
 package faang.school.postservice.exception;
 
-public class EntityNotFoundException extends RuntimeException {
+public class EntityNotFoundException extends BusinessException {
     public EntityNotFoundException(String message) {
-        super(message);
+        super("Resource not found", message);
     }
 }

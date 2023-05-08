@@ -1,7 +1,7 @@
 package faang.school.postservice.exception;
 
-public class DataValidationException extends RuntimeException {
+public class DataValidationException extends BusinessException {
     public DataValidationException(String message) {
-        super(message);
+        super("Bad request", message);
     }
 }

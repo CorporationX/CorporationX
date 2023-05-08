@@ -32,10 +32,10 @@ public class Post {
     @Column(name = "project_id")
     private Long projectId;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Like> likes;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments;
 
     @Column(name = "published", nullable = false)

@@ -3,6 +3,7 @@ package faang.school.postservice.controller;
 import faang.school.postservice.dto.PostDto;
 import faang.school.postservice.exception.DataValidationException;
 import faang.school.postservice.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/post")
-    public PostDto createPost(@RequestBody PostDto post) {
+    public PostDto createPost(@RequestBody @Valid PostDto post) {
         if (validate(post)) {
             return postService.createPost(post);
         }
@@ -24,7 +25,7 @@ public class PostController {
     }
 
     @PutMapping("/post")
-    public PostDto updatePost(@RequestBody PostDto post) {
+    public PostDto updatePost(@RequestBody @Valid PostDto post) {
         if (validate(post)) {
             return postService.updatePost(post);
         }
@@ -67,7 +68,6 @@ public class PostController {
     }
 
     private boolean validate(PostDto post) {
-        return post.getContent() != null && !post.getContent().isBlank() &&
-                (post.getAuthorId() != null || post.getProjectId() != null);
+        return post.getAuthorId() != null || post.getProjectId() != null;
     }
 }

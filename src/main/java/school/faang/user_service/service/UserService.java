@@ -31,6 +31,13 @@ public class UserService extends AbstractUserService {
     }
 
     @Transactional(readOnly = true)
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        return StreamSupport.stream(userRepository.findAllById(ids).spliterator(), false)
+                .map(userMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public UserDto getUser(long id) {
         return userMapper.toDto(userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Couldn't find a user with id " + id)));

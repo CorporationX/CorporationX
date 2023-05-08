@@ -18,5 +18,6 @@ public class PostDto {
     private Long authorId;
     private Long projectId;
     private Integer likes;
+    private LocalDateTime scheduledAt;
     private LocalDateTime createdAt;
 }

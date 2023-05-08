@@ -30,6 +30,11 @@ logging:
   level:
     root: info
 
+post:
+  publisher:
+    scheduler:
+      cron: * * * * *
+
 user-service:
   host: localhost
   port: 8080

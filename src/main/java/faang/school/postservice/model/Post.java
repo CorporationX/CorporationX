@@ -45,6 +45,10 @@ public class Post {
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduledAt;
+
     @Column(name = "deleted", nullable = false)
     private boolean deleted;
 

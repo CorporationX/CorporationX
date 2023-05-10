@@ -38,6 +38,9 @@ public class Post {
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments;
 
+    @ManyToMany(mappedBy = "posts")
+    private List<Album> albums;
+
     @Column(name = "published", nullable = false)
     private boolean published;
 

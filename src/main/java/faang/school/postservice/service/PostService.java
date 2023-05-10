@@ -96,7 +96,7 @@ public class PostService {
         entity.setDeleted(true);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Post findById(long id) {
         return postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("There's no post with id " + id));

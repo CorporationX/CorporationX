@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.SkillService;
@@ -26,6 +27,9 @@ class SkillControllerTest {
 
     @MockBean
     private SkillService skillService;
+
+    @MockBean
+    private UserContext userContext;
 
     @Test
     void createSkillTest() throws Exception {

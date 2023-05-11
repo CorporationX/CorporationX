@@ -30,7 +30,7 @@ public class AlbumController {
         return albumService.getUserAlbums(userId, filter);
     }
 
-    @PostMapping("/album")
+    @PostMapping("/album/list")
     private List<AlbumDto> getAlbums(@RequestBody AlbumFilterDto filter) {
         return albumService.getAlbums(filter);
     }

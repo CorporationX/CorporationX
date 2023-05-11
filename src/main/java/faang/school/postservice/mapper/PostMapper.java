@@ -7,12 +7,13 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.FIELD, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PostMapper {
 
+    @Mapping(target = "likes", ignore = true)
     Post toEntity(PostDto dto);
 
+    @Mapping(target = "likes", ignore = true)
     PostDto toDto(Post entity);
 
-    @Mapping(target = "likes", source = "likes")
-    PostDto toDtoWithLikes(Post entity, int likes);
-
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "likes", ignore = true)
     void update(@MappingTarget Post entity, PostDto dto);
 }

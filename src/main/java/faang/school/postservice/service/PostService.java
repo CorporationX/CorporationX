@@ -114,7 +114,11 @@ public class PostService {
         return posts.stream()
                 .filter(post -> post.isPublished() && !post.isDeleted())
                 .sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()))
-                .map(post -> postMapper.toDtoWithLikes(post, post.getLikes().size()))
+                .map(post -> {
+                    PostDto dto = postMapper.toDto(post);
+                    dto.setLikes(post.getLikes().size());
+                    return dto;
+                })
                 .toList();
     }
 

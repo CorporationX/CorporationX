@@ -33,7 +33,7 @@ logging:
 post:
   publisher:
     scheduler:
-      cron: * * * * *
+      cron: "0 0/1 * 1/1 * ?" # every minute
 
 user-service:
   host: localhost

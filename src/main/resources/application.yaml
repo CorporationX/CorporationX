@@ -21,7 +21,8 @@ spring:
     redis:
       port: 6379
       host: localhost
-      channel: calculations_channel
+      channel:
+        follower: follower_channel
 
 server:
   port: 8080

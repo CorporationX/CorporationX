@@ -1,1 +1,1 @@
-rootProject.name = "Post Service"
+rootProject.name = "PostService"

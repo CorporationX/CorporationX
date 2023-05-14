@@ -8,7 +8,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 @Configuration
 public class FollowerConfig {
 
-    @Value("${spring.data.redis.channel.follower}")
+    @Value("${spring.data.redis.channels.follower_channel.name}")
     private String channel;
 
     @Bean

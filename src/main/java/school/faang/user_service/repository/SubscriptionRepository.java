@@ -2,6 +2,7 @@ package school.faang.user_service.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -14,9 +15,11 @@ import java.util.stream.Stream;
 public interface SubscriptionRepository extends CrudRepository<User, Long> {
 
     @Query(nativeQuery = true, value = "insert into subscription (follower_id, followee_id) values (:followerId, :followeeId)")
+    @Modifying
     void followUser(long followerId, long followeeId);
 
     @Query(nativeQuery = true, value = "delete from subscription where follower_id = :followerId and followee_id = :followeeId")
+    @Modifying
     void unfollowUser(long followerId, long followeeId);
 
     @Query(nativeQuery = true, value = "select exists(select 1 from subscription where follower_id = :followerId and followee_id = :followeeId)")

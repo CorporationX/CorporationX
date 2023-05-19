@@ -7,10 +7,7 @@ import java.util.stream.StreamSupport;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.messaging.UserProfileViewEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserProfileDto;
@@ -23,11 +20,6 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.messaging.UserProfileViewPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.filter.user.UserFilter;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import school.faang.user_service.service.s3.ProfilePicService;
 
 @Service
@@ -37,11 +29,10 @@ public class UserService extends AbstractUserService {
     private final UserContext userContext;
     private final UserProfileViewPublisher userProfileViewPublisher;
 
-    public UserService(UserRepository userRepository, List<UserFilter> filters, UserMapper userMapper,
-                       ProfilePicService profilePicService) {
     public UserService(UserRepository userRepository, List<UserFilter> filters,
                        UserMapper userMapper, UserContext userContext,
-                       UserProfileViewPublisher userProfileViewPublisher) {
+                       UserProfileViewPublisher userProfileViewPublisher,
+                       ProfilePicService profilePicService) {
         super(filters, userMapper);
         this.userRepository = userRepository;
         this.profilePicService = profilePicService;
@@ -89,16 +80,9 @@ public class UserService extends AbstractUserService {
         return userRepository.countOwnedSkills(userId, skillIds) == skillIds.size();
     }
 
-    private User findUser(long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Couldn't find a user with id " + id));
-    }
-}
-
     @Transactional
     public void uploadProfilePic(long userId, MultipartFile file) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND, userId));
+        User user = findUser(userId);
 
         String[] keys = profilePicService.resizeAndSavePic(file);
         if (Objects.isNull(keys[0]) || Objects.isNull(keys[1])) {
@@ -125,5 +109,10 @@ public class UserService extends AbstractUserService {
 
         profilePicService.deleteFile(user.getUserProfilePic().getSmallFileId());
         profilePicService.deleteFile(user.getUserProfilePic().getFileId());
+    }
+
+    private User findUser(long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Couldn't find a user with id " + id));
     }
 }

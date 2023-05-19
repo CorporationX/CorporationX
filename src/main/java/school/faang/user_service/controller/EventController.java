@@ -1,14 +1,18 @@
 package school.faang.user_service.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.event.EventService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,11 +21,8 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping("/event")
-    public EventDto create(@RequestBody EventDto event) {
-        if (validateEvent(event)) {
-            return eventService.create(event);
-        }
-        throw new DataValidationException(ErrorMessage.INVALID_EVENT);
+    public EventDto create(@RequestBody @Validated EventDto event) {
+        return eventService.create(event);
     }
 
     @GetMapping("/event/{id}")
@@ -30,7 +31,7 @@ public class EventController {
     }
 
     @PostMapping("/event/list")
-    public List<EventDto> getEventsByFilter(@RequestBody EventFilterDto filter) {
+    public List<EventDto> getEventsByFilter(@RequestBody @Validated EventFilterDto filter) {
         return eventService.getEventsByFilter(filter);
     }
 
@@ -40,11 +41,8 @@ public class EventController {
     }
 
     @PutMapping("/event/{id}")
-    public EventDto updateEvent(@RequestBody EventDto event) {
-        if (validateEvent(event)) {
-            return eventService.updateEvent(event);
-        }
-        throw new DataValidationException(ErrorMessage.INVALID_EVENT);
+    public EventDto updateEvent(@RequestBody @Validated EventDto event) {
+        return eventService.updateEvent(event);
     }
 
     @GetMapping("/event/{userId}/owned")
@@ -55,12 +53,5 @@ public class EventController {
     @GetMapping("/event/{userId}/participated")
     public List<EventDto> getParticipatedEvents(@PathVariable long userId) {
         return eventService.getParticipatedEvents(userId);
-    }
-
-    private boolean validateEvent(EventDto event) {
-        return event.getTitle() != null &&
-                !event.getTitle().isBlank() &&
-                event.getStartDate() != null &&
-                event.getOwnerId() != null;
     }
 }

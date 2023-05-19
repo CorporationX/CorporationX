@@ -52,7 +52,7 @@ public class User {
     private String city;
 
     @Column(name = "experience")
-    private int experience;
+    private Integer experience;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

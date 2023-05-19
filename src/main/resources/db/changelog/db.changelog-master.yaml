@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__initial.sql
+  - include:
+      file: db/changelog/changeset/V002__update_user_add_profile_pic.sql

@@ -1,14 +1,17 @@
 package school.faang.user_service.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.SkillService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,11 +20,8 @@ public class SkillController {
     private final SkillService skillService;
 
     @PostMapping("/skill")
-    public SkillDto create(@RequestBody SkillDto skill) {
-        if (validateSkill(skill)) {
-            return skillService.create(skill);
-        }
-        throw new DataValidationException(ErrorMessage.INVALID_SKILL_PROVIDED);
+    public SkillDto create(@RequestBody @Validated SkillDto skill) {
+        return skillService.create(skill);
     }
 
     @GetMapping("/skill/{userId}")
@@ -37,9 +37,5 @@ public class SkillController {
     @PostMapping("/skill/{userId}/offered/{skillId}")
     public SkillDto acquireSkillFromOffers(@PathVariable long skillId, @PathVariable long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
-    }
-
-    private boolean validateSkill(SkillDto skill) {
-        return skill.getTitle() != null && !skill.getTitle().isBlank();
     }
 }

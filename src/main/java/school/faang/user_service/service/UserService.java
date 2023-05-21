@@ -111,7 +111,8 @@ public class UserService extends AbstractUserService {
         profilePicService.deleteFile(user.getUserProfilePic().getFileId());
     }
 
-    private User findUser(long id) {
+    @Transactional(readOnly = true)
+    public User findUser(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Couldn't find a user with id " + id));
     }

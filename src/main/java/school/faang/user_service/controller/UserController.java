@@ -52,12 +52,12 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(value = "/{userId}/profilePicSmall", produces = {"image/jpg, image/jpeg, image/png"})
+    @GetMapping(value = "/{userId}/profilePicSmall", produces = {"image/jpg", "image/jpeg", "image/png"})
     public byte[] getProfilePicSmall(@PathVariable Long userId) {
         return userService.getProfilePic(userId, true);
     }
 
-    @GetMapping(value = "/{userId}/profilePic", produces = {"image/jpg, image/jpeg, image/png"})
+    @GetMapping(value = "/{userId}/profilePic", produces = {"image/jpg", "image/jpeg", "image/png"})
     public byte[] getProfilePic(@PathVariable Long userId) {
         return userService.getProfilePic(userId, false);
     }

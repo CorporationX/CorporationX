@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -125,4 +127,7 @@ public class User {
             @AttributeOverride(name = "smallFileId", column = @Column(name = "profile_pic_small_file_id"))
     })
     private UserProfilePic userProfilePic;
+
+    @OneToOne(mappedBy = "user")
+    private ContactPreference contactPreference;
 }

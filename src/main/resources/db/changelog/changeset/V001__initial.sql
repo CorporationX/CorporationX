@@ -74,13 +74,15 @@ CREATE TABLE user_skill (
     CONSTRAINT fk_skill_user_id FOREIGN KEY (skill_id) REFERENCES skill (id)
 );
 
-CREATE TABLE skill_guarantee (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    user_id bigint NOT NULL,
-    skill_id bigint NOT NULL,
+CREATE TABLE user_skill_guarantee (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+  user_id BIGINT NOT NULL,
+  skill_id BIGINT NOT NULL,
+  guarantor_id BIGINT NOT NULL,
 
-    CONSTRAINT fk_user_guarant_id FOREIGN KEY (user_id) REFERENCES users (id),
-    CONSTRAINT fk_skill_guaranteed_id FOREIGN KEY (skill_id) REFERENCES skill (id)
+  CONSTRAINT fk_user_skill_guarantee_user FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT fk_user_skill_guarantee_skill FOREIGN KEY (skill_id) REFERENCES skill (id),
+  CONSTRAINT fk_user_skill_guarantee_guarantor FOREIGN KEY (guarantor_id) REFERENCES users (id)
 );
 
 CREATE TABLE recommendation (

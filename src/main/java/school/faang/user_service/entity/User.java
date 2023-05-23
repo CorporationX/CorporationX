@@ -10,6 +10,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
@@ -77,11 +79,13 @@ public class User {
     @OneToMany(mappedBy = "owner")
     private List<Event> ownedEvents;
 
-    @ManyToMany
-    @JoinTable(name = "mentorship", joinColumns = @JoinColumn(name = "mentor_id"), inverseJoinColumns = @JoinColumn(name = "mentee_id"))
+    @ManyToMany(mappedBy = "mentors")
     private List<User> mentees;
 
-    @ManyToMany(mappedBy = "mentees")
+    @ManyToMany
+    @JoinTable(name = "mentorship",
+            joinColumns = @JoinColumn(name = "mentee_id"),
+            inverseJoinColumns = @JoinColumn(name = "mentor_id"))
     private List<User> mentors;
 
     @OneToMany(mappedBy = "receiver")
@@ -90,16 +94,20 @@ public class User {
     @OneToMany(mappedBy = "requester")
     private List<MentorshipRequest> sentMentorshipRequests;
 
+    @OneToMany(mappedBy = "inviter")
+    private List<GoalInvitation> sentGoalInvitations;
+
+    @OneToMany(mappedBy = "invited")
+    private List<GoalInvitation> receivedGoalInvitations;
+
+    @OneToMany(mappedBy = "mentor")
+    private List<Goal> setGoals;
+
+    @ManyToMany(mappedBy = "users")
+    private List<Goal> goals;
+
     @ManyToMany(mappedBy = "users")
     private List<Skill> skills;
-
-    @ManyToMany
-    @JoinTable(
-            name = "skill_guarantee",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
-    private List<Skill> guaranteedSkills;
 
     @ManyToMany
     @JoinTable(

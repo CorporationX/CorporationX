@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changeset/V002__update_user_add_profile_pic.sql
   - include:
       file: db/changelog/changeset/V003__contact_preference.sql
+  - include:
+      file: db/changelog/changeset/V004__goals.sql

@@ -17,7 +17,12 @@ public enum ErrorMessage {
     USER_ALREADY_REGISTERED("User has already been registered for this event"),
     USER_NOT_REGISTERED("User is not registered for this event"),
     INAPPLICABLE_USER("Only the event owner can add skills"),
-    FILE_EXCEPTION("Error with reading file %s")
+    FILE_EXCEPTION("Error with reading file %s"),
+    INVALID_GOAL_PROVIDED("Invalid goal is provided for creation"),
+    GOAL_NOT_FOUND("There's no goal with id: %s"),
+    TOO_MANY_GOALS("User set too many goals at a time. Max active goals possible is %s"),
+    GOAL_ALREADY_COMPLETED("The goal is already completed"),
+    RECOMMENDATION_NOT_FOUND("There's no recommendation with id: %s"),
     ;
     private final String message;
 

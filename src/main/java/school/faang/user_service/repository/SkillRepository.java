@@ -12,16 +12,16 @@ import java.util.Optional;
 @Repository
 public interface SkillRepository extends CrudRepository<Skill, Long> {
 
-    @Query(nativeQuery = true, value = "INSERT INTO skill (title) VALUES (:title)")
-    @Modifying
-    Skill create(String title);
-
     boolean existsByTitle(String title);
 
-    @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM skill WHERE id IN (:ids) GROUP BY id")
+    @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM skill WHERE id IN (?1)")
     int countExisting(List<Long> ids);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM skill WHERE user_id = :userId")
+    @Query(nativeQuery = true, value = """
+            SELECT s.* FROM skill s
+            JOIN user_skill us ON us.skill_id = s.id
+            WHERE us.user_id = ?1
+            """)
     List<Skill> findAllByUserId(long userId);
 
     @Query(nativeQuery = true, value = """
@@ -41,4 +41,11 @@ public interface SkillRepository extends CrudRepository<Skill, Long> {
     @Query(nativeQuery = true, value = "INSERT INTO user_skill (skill_id, user_id) VALUES (:skillId, :userId)")
     @Modifying
     void assignSkillToUser(long skillId, long userId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT s.* FROM skill s
+            WHERE s.id IN (SELECT gs.skill_id FROM goal_skill gs
+            WHERE gs.goal_id = ?1)
+            """)
+    List<Skill> findSkillsByGoalId(long goalId);
 }

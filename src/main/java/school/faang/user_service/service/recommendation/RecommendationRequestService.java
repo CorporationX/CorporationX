@@ -6,12 +6,13 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
+import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
@@ -75,7 +76,8 @@ public class RecommendationRequestService {
     }
 
     void acceptRequestIfNecessary(Recommendation recommendation) {
-        recommendationRequestRepository.findLatestPendingRequest(recommendation.getReceiver().getId(), recommendation.getAuthor().getId())
+        recommendationRequestRepository
+                .findLatestPendingRequest(recommendation.getReceiver().getId(), recommendation.getAuthor().getId())
                 .ifPresent(req -> {
                     req.setStatus(RequestStatus.ACCEPTED);
                     req.setRecommendation(recommendation);

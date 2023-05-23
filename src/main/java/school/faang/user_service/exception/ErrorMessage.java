@@ -22,6 +22,7 @@ public enum ErrorMessage {
     GOAL_NOT_FOUND("There's no goal with id: %s"),
     TOO_MANY_GOALS("User set too many goals at a time. Max active goals possible is %s"),
     GOAL_ALREADY_COMPLETED("The goal is already completed"),
+    RECOMMENDATION_NOT_FOUND("There's no recommendation with id: %s"),
     ;
     private final String message;
 

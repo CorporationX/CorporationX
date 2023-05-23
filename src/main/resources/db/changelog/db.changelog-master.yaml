@@ -6,4 +6,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V003__contact_preference.sql
   - include:
-      file: db/changelog/changeset/V004_goals.sql
+      file: db/changelog/changeset/V004__goals.sql

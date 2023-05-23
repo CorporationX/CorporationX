@@ -31,6 +31,14 @@ public class GoalController {
         throw new DataValidationException(ErrorMessage.INVALID_GOAL_PROVIDED);
     }
 
+    @PostMapping("/{mentorId}/goal/{menteeId}")
+    public GoalDto setGoalToMentee(@PathVariable Long mentorId, @PathVariable Long menteeId, @RequestBody GoalDto goal) {
+        if (validate(goal)) {
+            return goalService.setGoalToMentee(mentorId, menteeId, goal);
+        }
+        throw new DataValidationException(ErrorMessage.INVALID_GOAL_PROVIDED);
+    }
+
     @PutMapping("/goal/{goalId}")
     public GoalDto updateGoal(@PathVariable Long goalId, @RequestBody GoalDto goal) {
         if (validate(goal)) {

@@ -1,12 +1,10 @@
 package school.faang.user_service.repository.goal;
 
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.entity.goal.GoalStatus;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -23,15 +21,9 @@ public interface GoalRepository extends CrudRepository<Goal, Long> {
 
     @Query(nativeQuery = true, value = """
             INSERT INTO goal (title, description, parent_goal_id, status, created_at, updated_at)
-            VALUES (?1, ?2, ?3, 0, NOW(), NOW())
+            VALUES (?1, ?2, ?3, 0, NOW(), NOW()) returning goal
             """)
-    Goal create(String title, String description, long parent);
-
-    @Query(nativeQuery = true, value = """
-            INSERT INTO goal (title, description, parent_goal_id, status, created_at, updated_at)
-            VALUES (?1, ?2, ?3, ?4, NOW(), NOW())
-            """)
-    Goal updateGoal(String title, String description, long parent, GoalStatus status);
+    Goal create(String title, String description, Long parent);
 
     @Query(nativeQuery = true, value = """
             SELECT COUNT(ug.goal_id) FROM user_goal ug
@@ -52,22 +44,9 @@ public interface GoalRepository extends CrudRepository<Goal, Long> {
     Stream<Goal> findByParent(long goalId);
 
     @Query(nativeQuery = true, value = """
-            SELECT COUNT(ug.user_id) FROM user_goal ug
-            WHERE ug.goal_id = :goalId
-            """)
-    int countUsersSharingGoal(long goalId);
-
-    @Query(nativeQuery = true, value = """
             SELECT u.* FROM users u
             JOIN user_goal ug ON u.id = ug.user_id
             WHERE ug.goal_id = :goalId
             """)
     List<User> findUsersByGoalId(long goalId);
-
-    @Query(nativeQuery = true, value = "DELETE FROM goal_skill gs WHERE gs.goal_id = ?1")
-    void removeSkillsFromGoal(long goalId);
-
-    @Query(nativeQuery = true, value = "INSERT INTO goal_skill (goal_id, skill_id) VALUES (?2, ?1)")
-    @Modifying
-    void addSkillToGoal(long skillId, long goalId);
 }

@@ -36,11 +36,12 @@ public class Skill {
     )
     private List<User> users;
 
-    @ManyToMany(mappedBy = "guaranteedSkills")
-    private List<User> guarantees;
+    @OneToMany(mappedBy = "skill")
+    private List<UserSkillGuarantee> guarantees;
 
     @ManyToMany(mappedBy = "relatedSkills")
     private List<Event> events;
+
 
     @ManyToMany(mappedBy = "skillsToAchieve")
     private List<Goal> goals;
@@ -54,12 +55,4 @@ public class Skill {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    public void addGuarantees(List<User> users) {
-        guarantees.addAll(users);
-    }
-
-    public void addGuarantee(User user) {
-        guarantees.add(user);
-    }
 }

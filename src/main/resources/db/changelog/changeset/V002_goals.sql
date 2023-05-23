@@ -4,17 +4,20 @@ CREATE TABLE goal (
     description varchar(4096) NOT NULL,
     parent_goal_id bigint,
     status smallint DEFAULT 0 NOT NULL,
+    deadline timestamptz,
     created_at timestamptz DEFAULT current_timestamp,
     updated_at timestamptz DEFAULT current_timestamp,
+    mentor_id bigint,
 
-    CONSTRAINT fk_goal_id FOREIGN KEY (parent_goal_id) REFERENCES goal (id)
+    CONSTRAINT fk_goal_id FOREIGN KEY (parent_goal_id) REFERENCES goal (id),
+    CONSTRAINT fk_mentor_id FOREIGN KEY (mentor_id) REFERENCES users (id)
 );
 
 CREATE TABLE goal_invitation (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     goal_id bigint NOT NULL,
-    inviter_id BIGINT NOT NULL,
-    invited_id BIGINT NOT NULL,
+    inviter_id bigint NOT NULL,
+    invited_id bigint NOT NULL,
     status smallint DEFAULT 0 NOT NULL,
     created_at timestamptz DEFAULT current_timestamp,
     updated_at timestamptz DEFAULT current_timestamp,
@@ -25,9 +28,9 @@ CREATE TABLE goal_invitation (
 );
 
 CREATE TABLE user_goal (
+   id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
    user_id bigint NOT NULL,
    goal_id bigint NOT NULL,
-   PRIMARY KEY (user_id, goal_id),
    created_at timestamptz DEFAULT current_timestamp,
    updated_at timestamptz DEFAULT current_timestamp,
 
@@ -36,9 +39,9 @@ CREATE TABLE user_goal (
 );
 
 CREATE TABLE goal_skill (
+   id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
    goal_id bigint NOT NULL,
    skill_id bigint NOT NULL,
-   PRIMARY KEY (goal_id, skill_id),
    created_at timestamptz DEFAULT current_timestamp,
    updated_at timestamptz DEFAULT current_timestamp,
 

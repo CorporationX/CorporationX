@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import school.faang.user_service.entity.goal.GoalStatus;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -13,6 +15,9 @@ public class GoalDto {
     private String description;
     private Long parentId;
     private String title;
-    private GoalStatus status;
-    private List<Long> skillIds;
+    private GoalStatus status = GoalStatus.ACTIVE;
+    private LocalDateTime deadline;
+    private List<Long> skillIds = new ArrayList<>();
+    private Long mentorId;
+    private List<Long> userIds = new ArrayList<>();
 }

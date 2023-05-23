@@ -1,17 +1,15 @@
 package school.faang.user_service.mapper;
 
-import jakarta.annotation.Nullable;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.FIELD, unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface UserMapper {
+public interface SkillOfferMapper {
 
-    User toEntity(UserDto userDto);
+    SkillOfferDto toDto(SkillOffer entity);
 
-    UserDto toDto(User user);
+    SkillOffer toEntity(SkillOfferDto dto);
 }

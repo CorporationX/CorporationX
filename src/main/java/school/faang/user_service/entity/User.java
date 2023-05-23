@@ -54,7 +54,7 @@ public class User {
     private String city;
 
     @Column(name = "experience")
-    private int experience;
+    private Integer experience;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -77,11 +77,13 @@ public class User {
     @OneToMany(mappedBy = "owner")
     private List<Event> ownedEvents;
 
-    @ManyToMany
-    @JoinTable(name = "mentorship", joinColumns = @JoinColumn(name = "mentor_id"), inverseJoinColumns = @JoinColumn(name = "mentee_id"))
+    @ManyToMany(mappedBy = "mentors")
     private List<User> mentees;
 
-    @ManyToMany(mappedBy = "mentees")
+    @ManyToMany
+    @JoinTable(name = "mentorship",
+            joinColumns = @JoinColumn(name = "mentee_id"),
+            inverseJoinColumns = @JoinColumn(name = "mentor_id"))
     private List<User> mentors;
 
     @OneToMany(mappedBy = "receiver")
@@ -96,24 +98,14 @@ public class User {
     @OneToMany(mappedBy = "invited")
     private List<GoalInvitation> receivedGoalInvitations;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_goal",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "goal_id")
-    )
+    @OneToMany(mappedBy = "mentor")
+    private List<Goal> setGoals;
+
+    @ManyToMany(mappedBy = "users")
     private List<Goal> goals;
 
     @ManyToMany(mappedBy = "users")
     private List<Skill> skills;
-
-    @ManyToMany
-    @JoinTable(
-            name = "skill_guarantee",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
-    private List<Skill> guaranteedSkills;
 
     @ManyToMany
     @JoinTable(

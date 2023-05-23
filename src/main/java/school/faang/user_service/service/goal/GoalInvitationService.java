@@ -47,7 +47,6 @@ public class GoalInvitationService {
     @Transactional
     public GoalInvitationDto rejectGoalInvitation(long id) {
         GoalInvitation invitation = findInvitation(id);
-        goalInvitationValidator.validate(invitation);
         invitation.setStatus(RequestStatus.REJECTED);
         return goalInvitationMapper.toDto(invitation);
     }

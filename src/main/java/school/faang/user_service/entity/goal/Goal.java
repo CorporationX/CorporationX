@@ -23,7 +23,8 @@ public class Goal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="parent_goal_id")
@@ -39,6 +40,10 @@ public class Goal {
     @Enumerated(EnumType.ORDINAL)
     private GoalStatus status;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "deadline")
+    private LocalDateTime deadline;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
@@ -49,10 +54,19 @@ public class Goal {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @ManyToOne
+    @JoinColumn(name = "mentor_id")
+    private User mentor;
+
     @OneToMany(mappedBy = "goal")
     private List<GoalInvitation> invitations;
 
-    @ManyToMany(mappedBy = "goals")
+    @ManyToMany
+    @JoinTable(
+            name = "user_goal",
+            joinColumns = @JoinColumn(name = "goal_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> users;
 
     @ManyToMany

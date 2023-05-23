@@ -25,8 +25,8 @@ public class SkillController {
     }
 
     @GetMapping("/skill/{userId}")
-    public List<SkillDto> getUserSkills(@PathVariable long userId, @RequestParam int page, @RequestParam int pageSize) {
-        return skillService.getUserSkills(userId, page, pageSize);
+    public List<SkillDto> getUserSkills(@PathVariable long userId) {
+        return skillService.getUserSkills(userId);
     }
 
     @GetMapping("/skill/{userId}/offered")

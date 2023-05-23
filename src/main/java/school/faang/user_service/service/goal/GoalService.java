@@ -6,17 +6,20 @@ import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.goal.GoalMapper;
+import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.AbstractGoalService;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.filter.goal.GoalFilter;
 import school.faang.user_service.validator.GoalValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -28,14 +31,17 @@ public class GoalService extends AbstractGoalService {
     private final GoalMapper goalMapper;
     private final GoalValidator goalValidator;
     private final SkillService skillService;
+    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
-    public GoalService(GoalRepository goalRepository, SkillService skillService, GoalMapper goalMapper,
+    public GoalService(GoalRepository goalRepository, UserSkillGuaranteeRepository userSkillGuaranteeRepository,
+                       SkillService skillService, GoalMapper goalMapper,
                        List<GoalFilter> filters, GoalValidator validator) {
         super(filters, goalMapper);
         this.goalRepository = goalRepository;
         this.skillService = skillService;
         this.goalMapper = goalMapper;
         this.goalValidator = validator;
+        this.userSkillGuaranteeRepository = userSkillGuaranteeRepository;
     }
 
     @Transactional
@@ -51,23 +57,27 @@ public class GoalService extends AbstractGoalService {
     @Transactional
     public GoalDto createGoal(long userId, GoalDto goal) {
         goalValidator.validateBeforeCreate(userId, goal);
-        Goal savedGoal = goalRepository.create(
-                goal.getTitle(),
-                goal.getDescription(),
-                goal.getParentId());
-        addSkillsToGoal(goal.getSkillIds(), goal.getId());
+        setGoalToUser(userId, goal);
+        Goal savedGoal = goalRepository.save(goalMapper.toEntity(goal));
+        return goalMapper.toDto(savedGoal);
+    }
+
+    @Transactional
+    public GoalDto setGoalToMentee(long mentorId, long menteeId, GoalDto goal) {
+        goalValidator.validate(mentorId, menteeId, goal);
+        goal.setMentorId(mentorId);
+        setGoalToUser(menteeId, goal);
+        Goal savedGoal = goalRepository.save(goalMapper.toEntity(goal));
         return goalMapper.toDto(savedGoal);
     }
 
     @Transactional
     public GoalDto updateGoal(long goalId, GoalDto goalDto) {
         Goal goal = findGoalById(goalId);
-        goalValidator.validate(goal, goalDto);
+        goalValidator.validateBeforeUpdate(goal, goalDto);
         assignSkillsToUsers(goal, goalDto);
-        Goal savedGoal = goalRepository.save(goalMapper.toEntity(goalDto));
-        updateSkills(goalDto);
-        savedGoal.setSkillsToAchieve(skillService.findSkillsByGoalId(goalId));
-        return goalMapper.toDto(savedGoal);
+        Goal updatedGoal = goalMapper.toEntity(goalDto);
+        return goalMapper.toDto(goalRepository.save(updatedGoal));
     }
 
     @Transactional
@@ -86,11 +96,6 @@ public class GoalService extends AbstractGoalService {
         return goalRepository.findUsersByGoalId(goalId);
     }
 
-    @Transactional(readOnly = true)
-    public int countUsersSharingGoal(long goalId) {
-        return goalRepository.countUsersSharingGoal(goalId);
-    }
-
     @Transactional
     public Goal findGoalById(long goalId) {
         return goalRepository.findById(goalId)
@@ -100,23 +105,38 @@ public class GoalService extends AbstractGoalService {
     private void assignSkillsToUsers(Goal goal, GoalDto updatedGoal) {
         if (isRequiredToAssign(goal, updatedGoal)) {
             goal.getUsers().forEach(user ->
-                    updatedGoal.getSkillIds().forEach(skillId ->
-                            skillService.assignSkillToUser(skillId, user.getId())));
+                    goal.getSkillsToAchieve().forEach(skill -> {
+                                addSkillToUser(skill, user);
+                                addMentorToGuarantees(goal, skill, user);
+                            }
+                    ));
         }
     }
 
-    private void updateSkills(GoalDto goalDto) {
-        List<Long> skillIds = goalDto.getSkillIds();
-        goalRepository.removeSkillsFromGoal(goalDto.getId());
-        addSkillsToGoal(skillIds, goalDto.getId());
-    }
-
-    public boolean isRequiredToAssign(Goal goal, GoalDto updatedGoal) {
+    private boolean isRequiredToAssign(Goal goal, GoalDto updatedGoal) {
         return updatedGoal.getStatus().equals(GoalStatus.COMPLETED) &&
                 !goal.getSkillsToAchieve().isEmpty();
     }
 
-    private void addSkillsToGoal(List<Long> skillIds, Long goalId) {
-        skillIds.forEach(skillId -> goalRepository.addSkillToGoal(skillId, goalId));
+    @Transactional
+    public void setGoalToUser(long userId, GoalDto goal) {
+        List<Long> ids = new ArrayList<>();
+        ids.add(userId);
+        goal.setUserIds(ids);
+    }
+
+    private void addMentorToGuarantees(Goal goal, Skill skill, User mentee) {
+        if (goal.getMentor() != null) {
+            UserSkillGuarantee guarantee = new UserSkillGuarantee();
+            guarantee.setGuarantor(goal.getMentor());
+            guarantee.setUser(mentee);
+            guarantee.setSkill(skill);
+            userSkillGuaranteeRepository.save(guarantee);
+        }
+    }
+
+    private void addSkillToUser(Skill skill, User user) {
+        if (!skill.getUsers().contains(user))
+            skill.getUsers().add(user);
     }
 }

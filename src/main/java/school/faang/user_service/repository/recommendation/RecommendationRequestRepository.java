@@ -13,7 +13,7 @@ public interface RecommendationRequestRepository extends CrudRepository<Recommen
 
     @Query(nativeQuery = true, value = """
             SELECT * FROM recommendation_request
-            WHERE requester_id = :requesterId AND receiver_id = :receiverId AND status = 1
+            WHERE requester_id = ?1 AND receiver_id = ?2 AND status = 1
             ORDER BY created_at DESC
             LIMIT 1
             """)

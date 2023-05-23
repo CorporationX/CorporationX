@@ -9,6 +9,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.UserService;
 
 @Component
 @RequiredArgsConstructor
@@ -16,9 +17,10 @@ public class GoalValidator {
 
     private static final int MAX_ACTIVE_GOALS_SIMULTANEOUSLY = 3;
     private final SkillService skillService;
+    private final UserService userService;
     private final GoalRepository goalRepository;
 
-    public void validate(Goal goal, GoalDto updatedGoal) {
+    public void validateBeforeUpdate(Goal goal, GoalDto updatedGoal) {
         if (goal.getStatus().equals(GoalStatus.COMPLETED)) {
             throw new DataValidationException(ErrorMessage.GOAL_ALREADY_COMPLETED);
         }
@@ -26,11 +28,19 @@ public class GoalValidator {
     }
 
     public void validateBeforeCreate(long userId, GoalDto goal) {
-        int currentGoalsCount = goalRepository.countActiveGoalsPerUser(userId);
         areExistingSkills(goal);
-        if (currentGoalsCount < MAX_ACTIVE_GOALS_SIMULTANEOUSLY) {
+        int currentGoalsCount = goalRepository.countActiveGoalsPerUser(userId);
+        if (currentGoalsCount == MAX_ACTIVE_GOALS_SIMULTANEOUSLY) {
             throw new DataValidationException(ErrorMessage.TOO_MANY_GOALS, MAX_ACTIVE_GOALS_SIMULTANEOUSLY);
-    }}
+        }
+    }
+
+    public void validate(long mentorId, long menteeId, GoalDto goal) {
+        validateBeforeCreate(menteeId, goal);
+        if (!userService.areOwnedSkills(mentorId, goal.getSkillIds())) {
+            throw new DataValidationException(ErrorMessage.INVALID_USER_SKILLS);
+        }
+    }
 
     private void areExistingSkills(GoalDto goal) {
         if (!skillService.areExistingSkills(goal.getSkillIds())) {

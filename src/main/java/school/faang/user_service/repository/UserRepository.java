@@ -11,10 +11,10 @@ import java.util.List;
 public interface UserRepository extends CrudRepository<User, Long> {
 
     @Query(nativeQuery = true, value = """
-            SELECT COUNT(s.id) FROM user u
-            JOIN user_skill us ON u.id = us.user_id
+            SELECT COUNT(s.id) FROM users u
+            JOIN user_skill us ON us.user_id = u.id
             JOIN skill s ON us.skill_id = s.id
-            WHERE u.id = :userId AND s.id IN (:ids)
+            WHERE u.id = ?1 AND s.id IN (?2)
             """)
     int countOwnedSkills(long userId, List<Long> ids);
 }

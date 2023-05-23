@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
@@ -126,4 +128,14 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Rating> ratings;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "fileId", column = @Column(name = "profile_pic_file_id")),
+            @AttributeOverride(name = "smallFileId", column = @Column(name = "profile_pic_small_file_id"))
+    })
+    private UserProfilePic userProfilePic;
+
+    @OneToOne(mappedBy = "user")
+    private ContactPreference contactPreference;
 }

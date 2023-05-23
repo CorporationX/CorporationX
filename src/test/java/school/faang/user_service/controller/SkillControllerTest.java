@@ -10,8 +10,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.SkillService;
 
 import static org.mockito.Mockito.when;
@@ -26,6 +26,9 @@ class SkillControllerTest {
 
     @MockBean
     private SkillService skillService;
+
+    @MockBean
+    private UserContext userContext;
 
     @Test
     void createSkillTest() throws Exception {
@@ -56,8 +59,8 @@ class SkillControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value(ErrorMessage.INVALID_SKILL_PROVIDED.getMessage()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title")
+                        .value("title should not be blank"));
     }
 
     @Test
@@ -72,8 +75,8 @@ class SkillControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value(ErrorMessage.INVALID_SKILL_PROVIDED.getMessage()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title")
+                        .value("title should not be blank"));
     }
 
     @Test

@@ -18,8 +18,6 @@ repositories {
 	mavenCentral()
 }
 
-extra["testcontainersVersion"] = "1.17.6"
-
 dependencies {
 	/**
 	 * Spring boot starters
@@ -62,6 +60,7 @@ dependencies {
 	implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:postgresql")
+	testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
 
 	/**
 	 * Tests
@@ -71,12 +70,12 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-dependencyManagement {
-	imports {
-		mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
-	}
-}
-
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
+
+tasks.bootJar {
+	archiveFileName.set("service.jar")
 }

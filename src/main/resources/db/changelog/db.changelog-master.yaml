@@ -1,9 +1,9 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/V001__initial.sql
+      file: db/changelog/changeset/user_V001__initial.sql
   - include:
-      file: db/changelog/changeset/V002__update_user_add_profile_pic.sql
+      file: db/changelog/changeset/user_V002__update_user_add_profile_pic.sql
   - include:
-      file: db/changelog/changeset/V003__contact_preference.sql
+      file: db/changelog/changeset/user_V003__contact_preference.sql
   - include:
-      file: db/changelog/changeset/V004__goals.sql
+      file: db/changelog/changeset/user_V004__goals.sql

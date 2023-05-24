@@ -1,13 +1,15 @@
 package faang.school.postservice.dto;
 
+import java.time.LocalDateTime;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.time.LocalDateTime;
-
 @Data
+@AllArgsConstructor
 public class PostDto {
     private Long id;
 

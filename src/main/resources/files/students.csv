@@ -1,0 +1,5 @@
+﻿firstName,lastName,yearOfBirth,group,studentID,email,phone,street,city,state,country,postalCode,faculty,yearOfStudy,major,GPA,status,admissionDate,graduationDate,degree,institution,completionYear,scholarship,employer
+John,Doe,1998,A,123456,johndoe@example.com,+1-123-456-7890,123 Main Street,New York,NY,USA,10001,Computer Science,3,Software Engineering,3.8,Active,2016-09-01,2020-05-30,High School Diploma,XYZ High School,2016,true,XYZ Technologies
+Michael,Johnson,1988,Group A,246813,michaeljohnson@example.com,1112223333,Second Street,Miami,FL,USA,67890,Law,2021,Corporate Law,3.7,Graduated,2019-01-01,2021-12-31,Bachelor,DEF University,2019,true,ABC Law Firm
+Jennifer,Lee,1994,Group A,753951,jenniferlee@example.com,2223334444,Fifth Avenue,San Francisco,CA,USA,23456,Engineering,2021,Electrical Engineering,3.8,Graduated,2019-01-01,2021-12-31,Bachelor,MNO University,2019,true,PQR Company
+Christopher,Clark,1989,Group C,159357,christopherclark@example.com,6667778888,Sixth Street,Boston,MA,USA,98765,Business,2022,Marketing,3.4,Graduated,2020-01-01,2022-12-31,Bachelor,STU University,2020,true,XYZ Marketing Agency

@@ -1,5 +1,6 @@
 package faang.school.postservice.model;
 
+import faang.school.postservice.model.ad.Ad;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,6 +41,9 @@ public class Post {
 
     @ManyToMany(mappedBy = "posts")
     private List<Album> albums;
+
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
+    private Ad ad;
 
     @Column(name = "published", nullable = false)
     private boolean published;

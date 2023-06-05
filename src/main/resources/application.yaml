@@ -43,3 +43,6 @@ user-service:
 project-service:
   host: localhost
   port: 8080
+payment-service:
+  host: localhost
+  port: 9080

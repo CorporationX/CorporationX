@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +24,7 @@ import school.faang.user_service.dto.user.UserProfileDto;
 import school.faang.user_service.service.UserService;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
@@ -55,14 +57,14 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/uploadUnmappedUserList")
-    public ResponseEntity<String> uploadFiles(@RequestPart(value = "csvFile") MultipartFile csvFile) {
+    @PostMapping("/users/bulk")
+    public ResponseEntity<String> uploadFile(@RequestPart(value = "csvFile") MultipartFile csvFile) {
         try {
             InputStream csvInputStream = csvFile.getInputStream();
             userService.processUnmappedUserData(csvInputStream);
             return ResponseEntity.ok("Data converted successfully");
         } catch (IOException e) {
-            e.printStackTrace();
+            log.debug(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File reading exception");
         }
     }

@@ -1,4 +1,4 @@
-package school.faang.user_service.mapper;
+package school.faang.user_service.mapper.person;
 
 import org.mapstruct.*;
 import school.faang.user_service.dto.generated.Person;

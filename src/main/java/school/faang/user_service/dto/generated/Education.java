@@ -7,13 +7,8 @@ import lombok.Data;
 @Data
 public class Education {
 
-    @JsonProperty("faculty")
     private String faculty;
-
-    @JsonProperty("yearOfStudy")
     private Integer yearOfStudy;
-
-    @JsonProperty("major")
     private String major;
 
     @JsonProperty("GPA")

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.contact.PreferredContact;
-import school.faang.user_service.repository.ContactPreferenceRepository;
+import school.faang.user_service.repository.contact.ContactPreferenceRepository;
 
 @Service
 @RequiredArgsConstructor

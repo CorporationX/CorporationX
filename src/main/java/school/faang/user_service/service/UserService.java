@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +44,12 @@ public class UserService extends AbstractUserService {
     @Transactional(readOnly = true)
     public List<UserDto> getUsers(UserFilterDto filter) {
         Stream<User> users = StreamSupport.stream(userRepository.findAll().spliterator(), false);
+        return filterUsers(users, filter);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserDto> getPremiumUsers(UserFilterDto filter) {
+        Stream<User> users = userRepository.findPremiumUsers();
         return filterUsers(users, filter);
     }
 

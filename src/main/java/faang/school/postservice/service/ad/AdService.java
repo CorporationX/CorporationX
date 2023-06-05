@@ -11,21 +11,28 @@ import faang.school.postservice.model.ad.Ad;
 import faang.school.postservice.repository.ad.AdRepository;
 import faang.school.postservice.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
 public class AdService {
 
+    private static final int BATCH_SIZE = 100;
+
     private final AdRepository adRepository;
     private final PostService postService;
     private final PaymentServiceClient paymentServiceClient;
     private final AdMapper adMapper;
+    private final ThreadPoolExecutor adRemoverThreadPool;
 
     @Transactional
     public AdDto buyAd(long userId, long postId, int days, int appearances) {
@@ -48,6 +55,16 @@ public class AdService {
                 .toList();
     }
 
+    @Transactional
+    public void removeExpiredAds() {
+        List<Ad> ads = StreamSupport.stream(adRepository.findAll().spliterator(), false)
+                .filter(ad -> ad.getEndDate().isBefore(LocalDateTime.now()) || ad.getAppearancesLeft() == 0)
+                .toList();
+        for (int i = 0; i < ads.size(); i += BATCH_SIZE) {
+            List<Ad> batch = ads.subList(i, Math.min(i + BATCH_SIZE, ads.size()));
+            CompletableFuture.runAsync(() -> adRepository.deleteAll(batch), adRemoverThreadPool);
+        }
+    }
 
     private AdDto createOrUpdate(long userId, long postId, int days, int appearances) {
         Ad advert = adRepository.findByPostId(postId)

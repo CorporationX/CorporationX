@@ -14,4 +14,9 @@ public class ThreadPoolConfig {
     public ThreadPoolExecutor postPublisherThreadPool() {
         return new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
     }
+
+    @Bean(name = "adRemoverThreadPool")
+    public ThreadPoolExecutor adRemoverThreadPool() {
+        return new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+    }
 }

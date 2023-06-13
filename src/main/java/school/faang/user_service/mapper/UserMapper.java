@@ -16,6 +16,6 @@ public interface UserMapper {
     @Mapping(target = "preference", source = "contactPreference.preference")
     UserDto toDto(User user);
 
-    @Mapping(target = "premium", expression = "java(premium != null ? true : false)")
+    @Mapping(target = "premium", expression = "java(user.getPremium() != null ? true : false)")
     UserProfileDto toProfileDto(User user);
 }

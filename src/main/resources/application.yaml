@@ -38,6 +38,10 @@ project-service:
   host: localhost
   port: 8082
 
+payment-service:
+  host: localhost
+  port: 9080
+
 aws:
   accessKey: access_key
   secretKey: secret_key

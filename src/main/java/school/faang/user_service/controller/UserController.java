@@ -36,6 +36,11 @@ public class UserController {
         return userService.getUsers(filter);
     }
 
+    @PostMapping("/list/premium")
+    public List<UserDto> getPremiumUsers(@RequestBody @Validated UserFilterDto filter) {
+        return userService.getPremiumUsers(filter);
+    }
+
     @PostMapping
     public List<UserDto> getUsers(@RequestBody List<Long> ids) {
         return userService.getUsersByIds(ids);

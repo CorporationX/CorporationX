@@ -10,4 +10,5 @@ public class UserProfileDto {
     private String aboutMe;
     private String city;
     private Integer experience;
+    private boolean premium;
 }

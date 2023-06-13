@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "person": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "yearOfBirth": {
+          "type": "integer"
+        },
+        "group": {
+          "type": "string"
+        },
+        "studentID": {
+          "type": "string"
+        },
+        "contactInfo": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "address": {
+              "type": "object",
+              "properties": {
+                "street": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "postalCode": {
+                  "type": "string"
+                }
+              },
+              "required": ["street", "city", "state", "country", "postalCode"]
+            }
+          },
+          "required": ["email", "phone", "address"]
+        },
+        "education": {
+          "type": "object",
+          "properties": {
+            "faculty": {
+              "type": "string"
+            },
+            "yearOfStudy": {
+              "type": "integer"
+            },
+            "major": {
+              "type": "string"
+            },
+            "GPA": {
+              "type": "number"
+            }
+          },
+          "required": ["faculty", "yearOfStudy", "major", "GPA"]
+        },
+        "status": {
+          "type": "string"
+        },
+        "admissionDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "graduationDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "previousEducation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "degree": {
+                "type": "string"
+              },
+              "institution": {
+                "type": "string"
+              },
+              "completionYear": {
+                "type": "integer"
+              }
+            },
+            "required": ["degree", "institution", "completionYear"]
+          }
+        },
+        "scholarship": {
+          "type": "boolean"
+        },
+        "employer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "firstName",
+        "lastName",
+        "yearOfBirth",
+        "group",
+        "studentID",
+        "contactInfo",
+        "education",
+        "status",
+        "admissionDate",
+        "graduationDate",
+        "previousEducation",
+        "scholarship",
+        "employer"
+      ]
+    }
+  },
+  "required": ["person"]
+}

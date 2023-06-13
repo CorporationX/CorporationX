@@ -5,10 +5,12 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.fasterxml.jackson.databind.MappingIterator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.generated.Person;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserProfileDto;
@@ -18,10 +20,18 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.exception.FileException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.person.CountryInfoMapper;
+import school.faang.user_service.mapper.person.PersonMapper;
 import school.faang.user_service.messaging.UserProfileViewPublisher;
+import school.faang.user_service.parser.PersonCsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.filter.user.UserFilter;
 import school.faang.user_service.service.s3.ProfilePicService;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import static school.faang.user_service.util.RandomPasswordUtil.generateRandomPassword;
 
 @Service
 public class UserService extends AbstractUserService {
@@ -29,16 +39,23 @@ public class UserService extends AbstractUserService {
     private final ProfilePicService profilePicService;
     private final UserContext userContext;
     private final UserProfileViewPublisher userProfileViewPublisher;
+    private final PersonMapper personMapper;
+    private final CountryInfoMapper countryInfoMapper;
+    private final PersonCsvParser personCsvParser;
 
     public UserService(UserRepository userRepository, List<UserFilter> filters,
                        UserMapper userMapper, UserContext userContext,
                        UserProfileViewPublisher userProfileViewPublisher,
-                       ProfilePicService profilePicService) {
+                       ProfilePicService profilePicService, PersonMapper personMapper,
+                       CountryInfoMapper countryInfoMapper, PersonCsvParser personCsvParser) {
         super(filters, userMapper);
         this.userRepository = userRepository;
         this.profilePicService = profilePicService;
         this.userContext = userContext;
         this.userProfileViewPublisher = userProfileViewPublisher;
+        this.personMapper = personMapper;
+        this.countryInfoMapper = countryInfoMapper;
+        this.personCsvParser = personCsvParser;
     }
 
     @Transactional(readOnly = true)
@@ -122,5 +139,20 @@ public class UserService extends AbstractUserService {
     public User findUser(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Couldn't find a user with id " + id));
+    }
+
+    @Transactional
+    public void processUnmappedUserData(InputStream csv) throws IOException {
+        MappingIterator<Person> personMappingIterator = personCsvParser.parse(csv);
+
+        while (personMappingIterator.hasNext()) {
+            Person person = personMappingIterator.nextValue();
+            String country = person.getContactInfo().getAddress().getCountry();
+            countryInfoMapper.setCountryIdToPerson(person, country);
+
+            User user = personMapper.toUser(person);
+            user.setPassword(generateRandomPassword());
+            userRepository.save(user);
+        }
     }
 }

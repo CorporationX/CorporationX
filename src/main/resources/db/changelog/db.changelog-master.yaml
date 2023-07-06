@@ -7,3 +7,9 @@ databaseChangeLog:
       file: db/changelog/changeset/user_V003__contact_preference.sql
   - include:
       file: db/changelog/changeset/user_V004__goals.sql
+  - include:
+      file: db/changelog/changeset/user_V005__insert_countries.sql
+  - include:
+      file: db/changelog/changeset/user_V006__insert_users.sql
+  - include:
+      file: db/changelog/changeset/user_V007__user_premium.sql

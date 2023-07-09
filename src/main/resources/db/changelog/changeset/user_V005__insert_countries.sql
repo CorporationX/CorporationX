@@ -3,4 +3,4 @@ VALUES
     ('United States'),
     ('United Kingdom'),
     ('Australia'),
-    ('France');i
+    ('France');

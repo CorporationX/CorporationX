@@ -25,7 +25,7 @@ public interface SkillRepository extends CrudRepository<Skill, Long> {
     List<Skill> findAllByUserId(long userId);
 
     @Query(nativeQuery = true, value = """
-            SELECT s.* FROM skill
+            SELECT s.* FROM skill s
             JOIN skill_offer so ON so.skill_id = s.id
             JOIN recommendation r ON r.id = so.recommendation_id
             WHERE r.receiver_id = :userId
@@ -33,7 +33,7 @@ public interface SkillRepository extends CrudRepository<Skill, Long> {
     List<Skill> findSkillsOfferedToUser(long userId);
 
     @Query(nativeQuery = true, value = """
-            SELECT s.* FROM skill
+            SELECT s.* FROM skill s
             JOIN user_skill us ON us.skill_id = :skillId AND us.user_id = :userId
             """)
     Optional<Skill> findUserSkill(long skillId, long userId);

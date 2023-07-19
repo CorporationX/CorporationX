@@ -7,18 +7,23 @@ if ! [ -d "$1" ]; then
   printf "USAGE: './cherry-pick.sh <repository_path>'\n"
   exit
 fi
-
 echo "Changing directory to '$1'"
 cd $1
 
-if [ ! -d .git ]; then
-  echo "Directory '$1' is not a git repository"
-  exit
-fi
+
+# SETUP LOCAL BRANCHES
+branches=(medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
+git stash push
+for branch in ${branches[@]}; do
+  git pull origin $branch
+  git checkout $branch
+done
+git stash pop
+git add .
+git checkout dev
 
 
 # ASK USER CONFIRM
-git checkout dev
 echo "Check the changes, and if everything is ok, type 'YES'"
 read yesOrNo
 
@@ -35,13 +40,13 @@ git checkout -b $branch_name
 
 
 # COMMITTING CHANGES ANG GETTING HASH
-git commit -m "$branch_name: "
+printf "\nWrite message to commit:\n"
+read commit_message
+git commit -m "$branch_name: $commit_message"
 commit_hash=`git rev-parse HEAD`
 
 
 # CHERRY PICK COMMIT TO EACH BRANCH
-branches=(medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
-
 for branch in ${branches[@]}; do
   # ASK cherry-pick CONFIRM
   printf "\nAre you sure about cherry-pick to '$branch'? Type 'YES' if you agree\n"

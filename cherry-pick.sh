@@ -12,7 +12,7 @@ cd $1
 
 
 # SETUP LOCAL BRANCHES
-branches=(medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
+branches=(dev medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
 git stash push
 for branch in ${branches[@]}; do
   git pull origin $branch

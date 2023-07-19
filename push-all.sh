@@ -12,11 +12,11 @@ cd $1
 
 
 # SETUP LOCAL BRANCHES
-branches=(medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
+branches=(dev medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
 git stash push
 for branch in ${branches[@]}; do
-  git pull origin $branch
   git checkout $branch
+  git pull origin
 done
 git stash pop
 git add .
@@ -24,7 +24,7 @@ git checkout dev
 
 
 # PUSH EVERY BRANCH
-branches=(medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
+branches=(dev medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
 
 for branch in ${branches[@]}; do
   # ASK push CONFIRM
@@ -51,4 +51,5 @@ done
 
 
 ## TEAR DOWN
+git checkout dev
 exit

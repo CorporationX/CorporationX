@@ -18,9 +18,9 @@ for branch in ${branches[@]}; do
   git checkout $branch
   git pull origin
 done
+git checkout dev
 git stash pop
 git add .
-git checkout dev
 
 
 # PUSH EVERY BRANCH

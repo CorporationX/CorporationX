@@ -18,9 +18,9 @@ for branch in ${branches[@]}; do
   git pull origin $branch
   git checkout $branch
 done
+git checkout dev
 git stash pop
 git add .
-git checkout dev
 
 
 # ASK USER CONFIRM

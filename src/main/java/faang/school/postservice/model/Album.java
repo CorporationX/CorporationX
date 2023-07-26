@@ -38,6 +38,7 @@ public class Album {
 
     @Column(name = "visibility", nullable = false)
     @Enumerated(EnumType.ORDINAL)
+    @Builder.Default
     private Visibility visibility = Visibility.ONLY_ME;
 
     @CreationTimestamp

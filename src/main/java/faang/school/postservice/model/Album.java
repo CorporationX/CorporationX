@@ -36,14 +36,6 @@ public class Album {
     @JoinTable(name = "post_album", joinColumns = @JoinColumn(name = "album_id"), inverseJoinColumns = @JoinColumn(name = "post_id"))
     private List<Post> posts;
 
-<<<<<<< Updated upstream
-    @Column(name = "visibility", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
-    @Builder.Default
-    private Visibility visibility = Visibility.ONLY_ME;
-
-=======
->>>>>>> Stashed changes
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")

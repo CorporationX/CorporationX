@@ -10,19 +10,6 @@ fi
 echo "Changing directory to '$1'"
 cd $1
 
-
-# SETUP LOCAL BRANCHES
-branches=(dev medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
-git stash push
-for branch in ${branches[@]}; do
-  git checkout $branch
-  git pull origin
-done
-git checkout dev
-git stash pop
-git add .
-
-
 # PUSH EVERY BRANCH
 branches=(dev medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
 

@@ -39,7 +39,6 @@ CREATE TABLE album (
     title varchar(64) NOT NULL,
     description varchar(4096),
     author_id bigint NOT NULL,
-    visibility smallint NOT NULL,
     created_at timestamptz DEFAULT current_timestamp,
     updated_at timestamptz DEFAULT current_timestamp
 );

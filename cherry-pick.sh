@@ -13,14 +13,7 @@ cd $1
 
 # SETUP LOCAL BRANCHES
 branches=(dev medusa-master werewolf-master unicorn-master chimera-master basilisk-master griffon-master cerberus-master)
-git stash push
-for branch in ${branches[@]}; do
-  git pull origin $branch
-  git checkout $branch
-done
 git checkout dev
-git stash pop
-git add .
 
 
 # ASK USER CONFIRM

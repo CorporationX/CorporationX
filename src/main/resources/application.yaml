@@ -45,7 +45,7 @@ user-service:
   port: 8080
 project-service:
   host: localhost
-  port: 8080
+  port: 8082
 payment-service:
   host: localhost
   port: 9080

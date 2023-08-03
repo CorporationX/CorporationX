@@ -15,8 +15,9 @@ public class PostDto {
     private Long id;
 
     @NotBlank(message = "Content is required")
+    @NotNull(message = "Content is required")
     private String content;
 
-    private Long authorId;
+    private Long userId;
     private Long projectId;
 }

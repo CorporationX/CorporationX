@@ -1,11 +1,12 @@
 package faang.school.postservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -17,6 +18,9 @@ public class PostDto {
     @NotBlank(message = "Content is required")
     private String content;
 
-    private Long userId;
+    private Long authorId;
     private Long projectId;
+    private LocalDateTime publishedAt;
+    private boolean published;
+    private boolean deleted;
 }

@@ -47,16 +47,16 @@ public class PostService {
     }
 
     private void validateIdPostDto(PostDto postDto) {
-        if ((postDto.getUserId() == null && postDto.getProjectId() == null) ||
-                (postDto.getUserId() != null && postDto.getProjectId() != null)) {
+        if ((postDto.getAuthorId() == null && postDto.getProjectId() == null) ||
+                (postDto.getAuthorId() != null && postDto.getProjectId() != null)) {
             throw new DataValidationException("Enter one thing: authorId or projectId");
         }
     }
 
     private void validateAuthorExist(PostDto postDto) {
-        if (postDto.getUserId() != null) {
+        if (postDto.getAuthorId() != null) {
             try {
-                userServiceClient.getUser(postDto.getUserId());
+                userServiceClient.getUser(postDto.getAuthorId());
             } catch (FeignException e) {
                 throw new EntityNotFoundException("User with the specified authorId does not exist");
             }

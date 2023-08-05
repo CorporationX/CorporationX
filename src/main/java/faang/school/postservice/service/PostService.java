@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -31,17 +33,30 @@ public class PostService {
         return postMapper.toDto(postRepository.save(post));
     }
 
+    @Transactional
+    public PostDto publishPost(Long id) {
+        Post post = validatePostExist(id);
+
+        if (post.isPublished() || post.isDeleted()) {
+            throw new DataValidationException("Post is already published or deleted");
+        }
+
+        post.setPublished(true);
+        post.setPublishedAt(LocalDateTime.now());
+        return postMapper.toDto(post);
+    }
+
     private void validateIdPostDto(PostDto postDto) {
-        if ((postDto.getUserId() == null && postDto.getProjectId() == null) ||
-                (postDto.getUserId() != null && postDto.getProjectId() != null)) {
+        if ((postDto.getAuthorId() == null && postDto.getProjectId() == null) ||
+                (postDto.getAuthorId() != null && postDto.getProjectId() != null)) {
             throw new DataValidationException("Enter one thing: authorId or projectId");
         }
     }
 
     private void validateAuthorExist(PostDto postDto) {
-        if (postDto.getUserId() != null) {
+        if (postDto.getAuthorId() != null) {
             try {
-                userServiceClient.getUser(postDto.getUserId());
+                userServiceClient.getUser(postDto.getAuthorId());
             } catch (FeignException e) {
                 throw new EntityNotFoundException("User with the specified authorId does not exist");
             }
@@ -52,5 +67,10 @@ public class PostService {
                 throw new EntityNotFoundException("Project with the specified projectId does not exist");
             }
         }
+    }
+
+    private Post validatePostExist(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Post with the specified id does not exist"));
     }
 }

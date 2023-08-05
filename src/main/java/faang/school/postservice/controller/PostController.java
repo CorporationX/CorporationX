@@ -26,4 +26,9 @@ public class PostController {
     public PostDto publishPost(@PathVariable Long id) {
         return postService.publishPost(id);
     }
+
+    @PutMapping
+    public PostDto updatePost(@RequestBody @Validated PostDto postDto) {
+        return postService.updatePost(postDto);
+    }
 }

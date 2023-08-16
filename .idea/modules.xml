@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CorporationX.iml" filepath="$PROJECT_DIR$/.idea/CorporationX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NotificationService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/NotificationService.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ProjectService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ProjectService.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/UserService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/UserService.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/achievement_service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/achievement_service.main.iml" />
     </modules>
   </component>
 </project>

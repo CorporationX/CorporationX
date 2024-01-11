@@ -1,12 +1,12 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.EventDto;
+import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -25,6 +25,7 @@ public class EventService {
             throw new DataValidationException("Owner hasn't required skill");
         }
         Event eventEntity = eventMapper.toEntity(event);
+        eventRepository.save(eventEntity);
         return eventMapper.toDto(eventEntity);
     }
 

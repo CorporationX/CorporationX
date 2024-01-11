@@ -1,6 +1,7 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.dto.event;
 
 import lombok.Data;
+import school.faang.user_service.dto.skill.SkillDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

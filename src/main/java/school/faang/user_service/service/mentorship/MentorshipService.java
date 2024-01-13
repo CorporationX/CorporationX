@@ -8,7 +8,9 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +19,9 @@ public class MentorshipService {
     private final UserMapper userMapper;
 
     public List<UserDto> getMentees(long id) {
-        User user = validateAndGet(id);
-        return user.getMentees().stream().map(userMapper::toDto)
-                .toList();
+        return Optional.ofNullable(validateAndGet(id).getMentees())
+                .map(mentees -> mentees.stream().map(userMapper::toDto).toList())
+                .orElse(Collections.emptyList());
     }
 
     private User validateAndGet(long id) {

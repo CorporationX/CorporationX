@@ -22,6 +22,8 @@ public class EventController {
     }
 
     public boolean isValidate(EventDto event) {
-        return !event.getTitle().isEmpty() && event.getStartDate().isAfter(LocalDateTime.now()) && event.getOwnerId() >= 0;
+        return !event.getTitle().isEmpty()
+                && event.getStartDate().isAfter(LocalDateTime.now())
+                && event.getOwnerId() >= 0;
     }
 }

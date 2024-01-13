@@ -10,6 +10,7 @@ import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
+import java.util.HashSet;
 import java.util.Optional;
 
 @Component
@@ -19,18 +20,27 @@ public class EventService {
     private final EventMapper eventMapper;
     private final UserRepository userRepository;
 
-
     public EventDto create(EventDto event) {
-        if (!isOwnerHasSkill(event)) {
-            throw new DataValidationException("Owner hasn't required skill");
-        }
         Event eventEntity = eventMapper.toEntity(event);
-        eventRepository.save(eventEntity);
-        return eventMapper.toDto(eventEntity);
+        validateOwnerHasSkills(eventEntity);
+        Event savedEvent = eventRepository.save(eventEntity);
+        event.setId(savedEvent.getId());
+        return event;
     }
 
-    public boolean isOwnerHasSkill(EventDto event) {
-        Optional<User> owner = userRepository.findById(event.getOwnerId());
-        return owner.map(user -> user.getSkills().stream().anyMatch(skill -> (event.getRelatedSkills()).contains(skill))).orElse(false);
+    public void validateOwnerHasSkills(Event event) {
+        Optional<User> owner = userRepository.findById(event.getOwner().getId());
+        User ownerById = owner
+                .orElseThrow(() -> new DataValidationException("Owner by id not found"));
+
+        if (!isOwnerHasEventSkills(event, ownerById)) {
+            throw new DataValidationException("Owner doesn't have required skill");
+        }
     }
+
+    private boolean isOwnerHasEventSkills(Event event, User ownerById) {
+        return new HashSet<>(ownerById.getSkills())
+                .containsAll(event.getRelatedSkills());
+    }
+
 }

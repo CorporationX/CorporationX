@@ -22,11 +22,9 @@ public class EventController {
     }
 
     public boolean isValidate(EventDto event) {
-        if (event.getTitle() == null) {
-            return false;
-        }
-        return !event.getTitle().isEmpty()
+        return (event.getTitle() != null && !event.getTitle().isEmpty())
                 && event.getStartDate().isAfter(LocalDateTime.now())
                 && event.getOwnerId() >= 0;
     }
+
 }

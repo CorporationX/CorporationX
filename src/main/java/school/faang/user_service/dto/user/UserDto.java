@@ -19,7 +19,7 @@ public class UserDto {
     private Integer experience;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<Long> mentees;
+    private List<Long> menteeIds;
     private List<Long> mentorIds;
     private List<Long> goalIds;
     private List<Long> skillIds;

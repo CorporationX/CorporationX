@@ -2,20 +2,21 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.execption.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.validator.SubscriptionValidator;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepo;
+    private final SubscriptionValidator subscriptionValidator;
 
     public void followUser(long followerId, long followeeId) {
-        if (subscriptionRepo.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException("Subscribe already exists!");
-        } else {
-            subscriptionRepo.followUser(followerId, followeeId);
-        }
+        subscriptionValidator.validateExistsSubscription(followerId, followeeId);
+        subscriptionValidator.validateExistsUser(followerId);
+        subscriptionValidator.validateExistsUser(followeeId);
+        subscriptionValidator.validateUserSubscriptionToYourself(followerId, followeeId);
+        subscriptionRepo.followUser(followerId, followeeId);
     }
 }

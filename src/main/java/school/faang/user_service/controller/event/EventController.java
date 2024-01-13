@@ -22,7 +22,7 @@ public class EventController {
     }
 
     public boolean isValidate(EventDto event) {
-        if (event == null) {
+        if (event == null || event.getTitle() == null) {
             return false;
         }
         return !event.getTitle().isEmpty()

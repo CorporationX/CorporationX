@@ -94,7 +94,7 @@ public class EventServiceTest {
 
     @Test
     @DisplayName("Успешное создание события")
-    public void testSuccessfulCreateEventIsValidate() {
+    public void testSuccessfulCreateEventIsValid() {
         event = eventMapper.toEntity(eventDto);
 
         Mockito.when(eventRepository.save(event)).thenReturn(event);
@@ -112,7 +112,7 @@ public class EventServiceTest {
 
     @Test
     @DisplayName("Неуспешное создание события")
-    public void testFailedCreateEventNotValidate() {
+    public void testFailedCreateEventNotValid() {
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.empty());
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto2));
     }

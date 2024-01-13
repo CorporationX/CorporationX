@@ -14,8 +14,9 @@ public class MentorshipService {
     public void deleteMentee(long menteeId, long mentorId) {
         User mentorOfTheMentee = validateAndGet(mentorId);
         User menteeToDelete = validateAndGet(menteeId);
-        mentorOfTheMentee.getMentees()
-                .removeIf(menteeToDelete::equals);//delete mentee if mentor has one
+        //delete mentee if mentee contains mentor
+        mentorOfTheMentee.getMentees().removeIf(mentee -> mentee.equals(menteeToDelete)
+                && menteeToDelete.getMentors().contains(mentorOfTheMentee));
     }
 
     private User validateAndGet(long id) {

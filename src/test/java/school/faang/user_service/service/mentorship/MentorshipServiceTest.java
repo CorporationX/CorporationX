@@ -56,10 +56,11 @@ public class MentorshipServiceTest {
 
         User menteeToDelete = new User();
         User mentee = new User();
+        User mentor = new User();
+
         menteeToDelete.setId(5L);
         mentee.setId(6L);//for the equals and remove method to work correctly
-
-        User mentor = new User();
+        menteeToDelete.setMentors(List.of(mentor));
         mentor.setMentees(new ArrayList<>(List.of(mentee, menteeToDelete)));
 
         Mockito.when(mentorshipRepository.findById(EXISTENT_MENTEE_ID)).thenReturn(Optional.of(menteeToDelete));

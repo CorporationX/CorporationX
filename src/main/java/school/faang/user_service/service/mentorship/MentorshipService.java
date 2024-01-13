@@ -11,10 +11,11 @@ import school.faang.user_service.repository.mentorship.MentorshipRepository;
 public class MentorshipService {
     private final MentorshipRepository mentorshipRepository;
 
-    public void deleteMentee(long mentorId, long menteeId) {
-        User mentor = validateAndGet(mentorId);
-        User mentee = validateAndGet(menteeId);
-        mentee.getMentors().removeIf(mentorUser -> mentor.equals(mentorUser));
+    public void deleteMentee(long menteeId, long mentorId) {
+        User mentorOfTheMentee = validateAndGet(mentorId);
+        User menteeToDelete = validateAndGet(menteeId);
+        mentorOfTheMentee.getMentees()
+                .removeIf(menteeToDelete::equals);//delete mentee if mentor has one
     }
 
     private User validateAndGet(long id) {

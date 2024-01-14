@@ -28,6 +28,16 @@ public class EventService {
         return event;
     }
 
+    public EventDto updateEvent(EventDto event) {
+        Event targetEvent = eventRepository.findById(event.getId())
+                .orElseThrow(() -> new DataValidationException("Event not found"));
+        Event updateEvent = eventMapper.toEntity(event);
+        validateOwnerHasSkills(updateEvent);
+        eventRepository.save(updateEvent);
+
+        return event;
+    }
+
     public void validateOwnerHasSkills(Event event) {
         Optional<User> owner = userRepository.findById(event.getOwner().getId());
         User ownerById = owner

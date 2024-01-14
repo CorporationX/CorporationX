@@ -21,6 +21,13 @@ public class EventController {
         return eventService.create(event);
     }
 
+    public EventDto updateEvent(EventDto event) {
+        if (!isValidate(event)) {
+            throw new DataValidationException("Event not valid.");
+        }
+        return eventService.updateEvent(event);
+    }
+
     public boolean isValidate(EventDto event) {
         return (event.getTitle() != null && !event.getTitle().isEmpty())
                 && event.getStartDate().isAfter(LocalDateTime.now())

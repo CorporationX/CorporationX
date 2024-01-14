@@ -116,4 +116,11 @@ public class EventServiceTest {
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.empty());
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto2));
     }
+
+    @Test
+    @DisplayName("Успешное обновление события")
+    public void testUpdateEvent() {
+
+    }
+
 }

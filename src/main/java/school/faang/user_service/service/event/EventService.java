@@ -28,6 +28,11 @@ public class EventService {
         return event;
     }
 
+    public Event getEvent(long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataValidationException("Not found event by Id - " + eventId));
+    }
+
     public void validateOwnerHasSkills(Event event) {
         Optional<User> owner = userRepository.findById(event.getOwner().getId());
         User ownerById = owner
@@ -42,5 +47,4 @@ public class EventService {
         return new HashSet<>(ownerById.getSkills())
                 .containsAll(event.getRelatedSkills());
     }
-
 }

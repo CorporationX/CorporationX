@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
@@ -103,7 +104,7 @@ public class EventServiceTest {
         eventService.create(eventDto1);
 
         ArgumentCaptor<Event> argumentCaptor = ArgumentCaptor.forClass(Event.class);
-        Mockito.verify(eventRepository, Mockito.times(1)).save(argumentCaptor.capture());
+        Mockito.verify(eventRepository, times(1)).save(argumentCaptor.capture());
         Event capturedEvent = argumentCaptor.getValue();
 
         assertEquals(event.getTitle(), capturedEvent.getTitle());
@@ -116,4 +117,28 @@ public class EventServiceTest {
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.empty());
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto2));
     }
+
+    @Test
+    @DisplayName("Успешный поиск события по верному Id")
+    public void testSuccessGetEventById() {
+        Event eventGetById = Event.builder().id(6L).maxAttendees(5).build();
+        long eventId = eventGetById.getId();
+
+        Mockito.when(eventRepository.findById(eventId)).thenReturn(Optional.of(eventGetById));
+
+        eventService.getEvent(eventId);
+
+        Mockito.verify(eventRepository, times(1)).findById(eventId);
+    }
+
+    @Test
+    @DisplayName("Неуспешный поиск события по неверному Id")
+    public void testFailedGetEventByIncorrectId() {
+        long wrongId = 11L;
+
+        Mockito.when(eventRepository.findById(wrongId)).thenReturn(Optional.empty());
+
+        assertThrows(DataValidationException.class, () -> eventService.getEvent(wrongId));
+    }
+
 }

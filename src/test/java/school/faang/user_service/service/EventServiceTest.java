@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
@@ -103,7 +104,7 @@ public class EventServiceTest {
         eventService.create(eventDto1);
 
         ArgumentCaptor<Event> argumentCaptor = ArgumentCaptor.forClass(Event.class);
-        Mockito.verify(eventRepository, Mockito.times(1)).save(argumentCaptor.capture());
+        Mockito.verify(eventRepository, times(1)).save(argumentCaptor.capture());
         Event capturedEvent = argumentCaptor.getValue();
 
         assertEquals(event.getTitle(), capturedEvent.getTitle());
@@ -116,4 +117,44 @@ public class EventServiceTest {
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.empty());
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto2));
     }
+
+    @Test
+    @DisplayName("Успешное получение всех событий по верному Id пользователя")
+    public void testSuccessGetEventById() {
+        Event event1 = Event.builder()
+                .id(21L)
+                .title("EventOne")
+                .maxAttendees(2)
+                .build();
+        Event event2 = Event.builder()
+                .id(22L)
+                .title("EventTwo")
+                .maxAttendees(2)
+                .build();
+        User user1 = User.builder().id(21L).active(true).build();
+        long userId = user1.getId();
+        List<User> attendees = new ArrayList<>();
+        attendees.add(user1);
+        event1.setAttendees(attendees);
+        event2.setAttendees(attendees);
+        List<Event> events = new ArrayList<>(List.of(event1, event2));
+
+        Mockito.when(eventRepository.findAllByUserId(userId)).thenReturn(events);
+
+        eventService.getAllEventsByUserId(userId);
+
+        Mockito.verify(eventRepository, times(1)).findAllByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("Неуспешное получение всех событий по не верному Id пользователя")
+    public void testFailedGetEventByIncorrectId() {
+        User user1 = User.builder().id(-5L).active(true).build();
+        long userId = user1.getId();
+        assertThrows(DataValidationException.class,
+                () -> eventService.getAllEventsByUserId(userId));
+
+        Mockito.verify(eventRepository, Mockito.never()).findAllByUserId(userId);
+    }
+
 }

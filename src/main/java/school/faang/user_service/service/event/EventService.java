@@ -11,6 +11,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -26,6 +27,13 @@ public class EventService {
         Event savedEvent = eventRepository.save(eventEntity);
         event.setId(savedEvent.getId());
         return event;
+    }
+
+    public List<Event> getAllEventsByUserId(long userId) {
+        if (userId <= 0) {
+            throw new DataValidationException("Id user must be above zero");
+        }
+        return eventRepository.findAllByUserId(userId);
     }
 
     public void validateOwnerHasSkills(Event event) {

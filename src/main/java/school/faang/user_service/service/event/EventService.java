@@ -29,7 +29,7 @@ public class EventService {
     }
 
     public EventDto updateEvent(EventDto event) {
-        Event targetEvent = eventRepository.findById(event.getId())
+        eventRepository.findById(event.getId())
                 .orElseThrow(() -> new DataValidationException("Event not found"));
         Event updateEvent = eventMapper.toEntity(event);
         validateOwnerHasSkills(updateEvent);

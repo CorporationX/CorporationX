@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
@@ -103,7 +104,7 @@ public class EventServiceTest {
         eventService.create(eventDto1);
 
         ArgumentCaptor<Event> argumentCaptor = ArgumentCaptor.forClass(Event.class);
-        Mockito.verify(eventRepository, Mockito.times(1)).save(argumentCaptor.capture());
+        Mockito.verify(eventRepository, times(1)).save(argumentCaptor.capture());
         Event capturedEvent = argumentCaptor.getValue();
 
         assertEquals(event.getTitle(), capturedEvent.getTitle());
@@ -120,7 +121,41 @@ public class EventServiceTest {
     @Test
     @DisplayName("Успешное обновление события")
     public void testUpdateEvent() {
+        long correctEventId = 10L;
+        long correctOwnerId = 10L;
 
+        List<Skill> skills = new ArrayList<>();
+        skills.add(new Skill());
+        skills.add(new Skill());
+        List<SkillDto> skillDtos = new ArrayList<>();
+        skillDtos.add(new SkillDto());
+        skillDtos.add(new SkillDto());
+
+        EventDto eventDto = new EventDto();
+        eventDto.setId(correctEventId);
+        eventDto.setOwnerId(correctOwnerId);
+        eventDto.setRelatedSkills(skillDtos);
+
+        User owner = new User();
+        owner.setId(correctOwnerId);
+        owner.setSkills(skills);
+
+        Mockito.when(eventRepository.findById(correctEventId)).thenReturn(Optional.of(new Event()));
+        Mockito.when(userRepository.findById(correctOwnerId)).thenReturn(Optional.of(owner));
+
+        eventService.updateEvent(eventDto);
+
+        Mockito.verify(eventRepository, Mockito.times(1)).save(eventMapper.toEntity(eventDto));
+    }
+
+    @Test
+    @DisplayName("Неуспешное обновление события")
+    public void testFailedUpdateEvent() {
+        EventDto eventDtoFailedUpdate = EventDto.builder()
+                .id(32L)
+                .build();
+        Mockito.when(eventRepository.findById(eventDtoFailedUpdate.getId())).thenReturn(Optional.empty());
+        assertThrows(DataValidationException.class, () -> eventService.updateEvent(eventDtoFailedUpdate));
     }
 
 }

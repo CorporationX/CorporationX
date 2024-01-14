@@ -21,6 +21,10 @@ public class EventController {
         return eventService.create(event);
     }
 
+    public void deleteEvent(long eventId) {
+        eventService.deleteEvent(eventId);
+    }
+
     public boolean isValidate(EventDto event) {
         return (event.getTitle() != null && !event.getTitle().isEmpty())
                 && event.getStartDate().isAfter(LocalDateTime.now())

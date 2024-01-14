@@ -28,6 +28,16 @@ public class EventService {
         return event;
     }
 
+    public void deleteEvent(long eventId) {
+        Event event = validateAndGetEvent(eventId);
+        eventRepository.deleteById(event.getId());
+    }
+
+    public Event validateAndGetEvent(long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataValidationException("Event not found with ID - " + eventId));
+    }
+
     public void validateOwnerHasSkills(Event event) {
         Optional<User> owner = userRepository.findById(event.getOwner().getId());
         User ownerById = owner

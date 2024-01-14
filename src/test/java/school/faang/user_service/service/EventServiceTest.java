@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
@@ -103,7 +104,7 @@ public class EventServiceTest {
         eventService.create(eventDto1);
 
         ArgumentCaptor<Event> argumentCaptor = ArgumentCaptor.forClass(Event.class);
-        Mockito.verify(eventRepository, Mockito.times(1)).save(argumentCaptor.capture());
+        Mockito.verify(eventRepository, times(1)).save(argumentCaptor.capture());
         Event capturedEvent = argumentCaptor.getValue();
 
         assertEquals(event.getTitle(), capturedEvent.getTitle());
@@ -116,4 +117,29 @@ public class EventServiceTest {
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.empty());
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto2));
     }
+
+    @Test
+    @DisplayName("Успешное получение собственных событий по Id")
+    public void testSuccessGetEventsById() {
+        User user1 = User.builder().id(1L).active(true).build();
+        long userId = user1.getId();
+        Event event1 = Event.builder()
+                .id(21L)
+                .title("EventOne")
+                .maxAttendees(2)
+                .owner(user1)
+                .build();
+        Event event2 = Event.builder()
+                .id(22L)
+                .title("EventTwo")
+                .maxAttendees(2)
+                .owner(user1)
+                .build();
+        List<Event> events = new ArrayList<>(List.of(event1, event2));
+
+        Mockito.when(eventRepository.findAllByUserId(userId)).thenReturn(events);
+        eventService.getOwnedEvents(userId);
+        Mockito.verify(eventRepository, times(1)).findAllByUserId(userId);
+    }
+
 }

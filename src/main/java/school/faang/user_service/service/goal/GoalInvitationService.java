@@ -39,6 +39,10 @@ public class GoalInvitationService {
         }
     }
 
+    public void rejectGoalInvitation(long id) {
+
+    }
+
     private boolean checkData(User user, GoalInvitation goalInvitation) {
         if (!userRepository.existsById(user.getId())) {
             throw new IllegalArgumentException("User is not found");
@@ -52,4 +56,6 @@ public class GoalInvitationService {
             return true;
         }
     }
+
+
 }

@@ -18,7 +18,7 @@ public class GoalInvitationController {
 
     private final GoalInvitationService goalInvitationService;
 
-    @PutMapping(name = "/accept/{id}")
+    @PutMapping("/accept/{id}")
     public ResponseEntity<GoalInvitationDto> acceptGoalInvitation(long id) {
         goalInvitationService.acceptGoalInvitation(id);
         return ResponseEntity.ok().build();

@@ -27,71 +27,71 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceTest {
- @Mock
- private GoalInvitationRepository goalInvitationRepository;
- @Mock
- private UserRepository userRepository;
- @InjectMocks
- private GoalInvitationService goalInvitationService;
+    @Mock
+    private GoalInvitationRepository goalInvitationRepository;
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private GoalInvitationService goalInvitationService;
 
 
- @Test
- @DisplayName("Test accept goal invitation")
- public void acceptGoalInvitation_shouldAddInvitationToUserGoals() {
-  long id = 1L;
+    @Test
+    @DisplayName("Test accept goal invitation")
+    public void testAcceptGoalInvitation_shouldAddInvitationToUserGoals() {
+        long id = 1L;
 
-  User invitedUser = new User();
-  invitedUser.setId(1L);
+        User invitedUser = new User();
+        invitedUser.setId(1L);
 
-  GoalInvitation goalInvitation = new GoalInvitation();
-  goalInvitation.setId(id);
-  goalInvitation.setInvited(invitedUser);
+        GoalInvitation goalInvitation = new GoalInvitation();
+        goalInvitation.setId(id);
+        goalInvitation.setInvited(invitedUser);
 
-  Goal goal = new Goal();
-  goal.setId(1L);
+        Goal goal = new Goal();
+        goal.setId(1L);
 
-  List<Goal> goals = new ArrayList<>();
-  goals.add(goal);
+        List<Goal> goals = new ArrayList<>();
+        goals.add(goal);
 
-  invitedUser.setGoals(goals);
+        invitedUser.setGoals(goals);
 
-  when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
-  when(userRepository.existsById(invitedUser.getId())).thenReturn(true);
-  when(goalInvitationRepository.existsById(goalInvitation.getId())).thenReturn(true);
+        when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
+        when(userRepository.existsById(invitedUser.getId())).thenReturn(true);
+        when(goalInvitationRepository.existsById(goalInvitation.getId())).thenReturn(true);
 
-  goalInvitationService.acceptGoalInvitation(id);
+        goalInvitationService.acceptGoalInvitation(id);
 
-  assertTrue(invitedUser.getReceivedGoalInvitations().contains(goalInvitation));
-  assertTrue(invitedUser.getGoals().contains(goalInvitation.getGoal()));
- }
+        assertTrue(invitedUser.getReceivedGoalInvitations().contains(goalInvitation));
+        assertTrue(invitedUser.getGoals().contains(goalInvitation.getGoal()));
+    }
 
- @Test
- @DisplayName("Test accept goal invitation when user not found")
- void acceptGoalInvitation_shouldThrowExceptionWhenUserNotFound() {
-  long invitationId = 1L;
+    @Test
+    @DisplayName("Test accept goal invitation when user not found")
+    public void testAcceptGoalInvitation_shouldThrowExceptionWhenUserNotFound() {
+        long invitationId = 1L;
 
-  User invitedUser = new User();
-  invitedUser.setId(1L);
+        User invitedUser = new User();
+        invitedUser.setId(1L);
 
-  GoalInvitation goalInvitation = new GoalInvitation();
-  goalInvitation.setId(invitationId);
-  goalInvitation.setInvited(invitedUser);
+        GoalInvitation goalInvitation = new GoalInvitation();
+        goalInvitation.setId(invitationId);
+        goalInvitation.setInvited(invitedUser);
 
-  when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(goalInvitation));
-  when(userRepository.existsById(invitedUser.getId())).thenReturn(false);
+        when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(goalInvitation));
+        when(userRepository.existsById(invitedUser.getId())).thenReturn(false);
 
-  assertThrows(IllegalArgumentException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
- }
+        assertThrows(IllegalArgumentException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+    }
 
- @Test
- @DisplayName("Test accept goal invitation when goal invitation not found")
- void acceptGoalInvitation_shouldThrowExceptionWhenGoalInvitationNotFound() {
-  long invitationId = 1L;
-  User invitedUser = new User();
-  invitedUser.setId(1L);
+    @Test
+    @DisplayName("Test accept goal invitation when goal invitation not found")
+    public void testAcceptGoalInvitation_shouldThrowExceptionWhenGoalInvitationNotFound() {
+        long invitationId = 1L;
+        User invitedUser = new User();
+        invitedUser.setId(1L);
 
-  when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.empty());
+        when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.empty());
 
-  assertThrows(NoSuchElementException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
- }
+        assertThrows(NoSuchElementException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+    }
 }

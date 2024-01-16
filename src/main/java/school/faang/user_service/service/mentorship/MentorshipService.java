@@ -4,23 +4,25 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 @Service
 @RequiredArgsConstructor
 public class MentorshipService {
+    private final UserRepository userRepository;
     private final MentorshipRepository mentorshipRepository;
 
     public void deleteMentee(long menteeId, long mentorId) {
-        User mentorOfTheMentee = validateAndGet(mentorId);
-        User menteeToDelete = validateAndGet(menteeId);
-        //delete mentee if mentee contains mentor
-        mentorOfTheMentee.getMentees().removeIf(mentee -> mentee.equals(menteeToDelete)
-                && menteeToDelete.getMentors().contains(mentorOfTheMentee));
+        User mentor = getExistingUserById(mentorId);
+        User mentee = getExistingUserById(menteeId);
+        if (mentor.getMentees().remove(mentee)) {
+            mentorshipRepository.save(mentor);
+        }
     }
 
-    private User validateAndGet(long id) {
-        return mentorshipRepository.findById(id)
+    private User getExistingUserById(long id) {
+        return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User with id = " + id + " is not found"));
     }
 }

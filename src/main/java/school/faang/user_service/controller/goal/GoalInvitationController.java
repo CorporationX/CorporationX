@@ -2,6 +2,7 @@ package school.faang.user_service.controller.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,8 +26,9 @@ public class GoalInvitationController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping
-    public void rejectGoalInvitation(long id) {
+    @PutMapping("/reject/{id}")
+    public ResponseEntity<GoalInvitationDto> rejectGoalInvitation(@PathVariable long id) {
         goalInvitationService.rejectGoalInvitation(id);
+        return ResponseEntity.ok().build();
     }
 }

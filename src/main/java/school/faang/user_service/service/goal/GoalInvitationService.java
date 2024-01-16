@@ -7,6 +7,7 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class GoalInvitationService {
     private static final int MAX_ACTIVE_GOALS = 3;
 
     private final GoalInvitationRepository goalInvitationRepository;
+    private final GoalRepository goalRepository;
     private final UserRepository userRepository;
 
     public void acceptGoalInvitation(long id) {
@@ -40,7 +42,19 @@ public class GoalInvitationService {
     }
 
     public void rejectGoalInvitation(long id) {
+        GoalInvitation goalInvitation = goalInvitationRepository.findById(id).orElseThrow();
+        Goal goal = goalInvitation.getGoal();
 
+        if (checkGoalIsExist(goal)) {
+            goalInvitationRepository.delete(goalInvitation);
+        }
+    }
+
+    private boolean checkGoalIsExist(Goal goal) {
+        if (!goalRepository.existsById(goal.getId())) {
+            throw new IllegalArgumentException("Goal not found");
+        }
+        return true;
     }
 
     private boolean checkData(User user, GoalInvitation goalInvitation) {

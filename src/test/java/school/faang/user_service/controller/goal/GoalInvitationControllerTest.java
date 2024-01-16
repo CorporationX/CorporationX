@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.goal;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +37,19 @@ public class GoalInvitationControllerTest {
 
         assertEquals(expected, actual);
         verify(goalInvitationService, times(1)).acceptGoalInvitation(anyLong());
+    }
+
+    @Test
+    @DisplayName("Test reject goal invitation")
+    public void testRejectGoalInvitation() {
+        var expected = HttpStatus.OK;
+
+        ResponseEntity<GoalInvitationDto> goalInvitationDtoResponseEntity = goalInvitationController.rejectGoalInvitation(anyLong());
+
+        var actual = goalInvitationDtoResponseEntity.getStatusCode();
+
+        assertEquals(expected, actual);
+        verify(goalInvitationService, times(1)).rejectGoalInvitation(anyLong());
     }
 
 }

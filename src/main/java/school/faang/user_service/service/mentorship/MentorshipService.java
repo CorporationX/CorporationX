@@ -7,16 +7,14 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class MentorshipService {
-    private final MentorshipRepository mentorshipRepository;
     private final UserMapper userMapper;
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public List<UserDto> getMentees(long id) {
         User user = getUserOrThrow(id);

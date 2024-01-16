@@ -2,12 +2,12 @@ package school.faang.user_service.service.mentorship;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
     @Mock
     private MentorshipRepository mentorshipRepository;
@@ -27,12 +28,6 @@ public class MentorshipServiceTest {
     private MentorshipService mentorshipService;
     private static final long EXISTENT_USER_ID = 1L;
     private static final long NON_EXISTENT_USER_ID = 100_000L;
-
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     public void testGetMentees_EntityNotFoundException() {

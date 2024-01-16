@@ -13,10 +13,7 @@ public class SubscriptionService {
     private final SubscriptionValidator subscriptionValidator;
 
     public void unfollowUser(long followerId, long followeeId) {
-        subscriptionValidator.validateNonExistsSubscription(followerId, followeeId);
-        subscriptionValidator.validateExistsUser(followerId);
-        subscriptionValidator.validateExistsUser(followeeId);
-        subscriptionValidator.validateUserUnfollowToYourself(followerId, followeeId);
+        subscriptionValidator.validate(followerId, followeeId);
         subscriptionRepo.unfollowUser(followerId, followeeId);
     }
 }

@@ -9,12 +9,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
+import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -35,47 +37,96 @@ public class GoalInvitationServiceTest {
     private GoalInvitationMapper invitationMapper;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @InjectMocks
     private GoalInvitationService goalInvitationService;
 
     @Test
-    @DisplayName("Test save Invitation")
+    @DisplayName("Test create invitation")
     public void testCreateInvitation() {
         GoalInvitationDto invitationDto = new GoalInvitationDto();
+        invitationDto.setId(1L);
         invitationDto.setInviterId(1L);
         invitationDto.setInvitedUserId(3L);
+
+        User inviter = new User();
+        inviter.setId(1L);
+
+        User invited = new User();
+        invited.setId(3L);
+
         GoalInvitation goalInvitation = new GoalInvitation();
-        User inviterUser = new User();
-        inviterUser.setId(1L);
-        User invitedUser = new User();
-        invitedUser.setId(3L);
+        goalInvitation.setId(1L);
+        goalInvitation.setInvited(invited);
+        goalInvitation.setInviter(inviter);
+
 
         when(invitationMapper.toEntity(invitationDto)).thenReturn(goalInvitation);
-        when(userRepository.findById(invitationDto.getInviterId())).thenReturn(Optional.of(inviterUser));
-        when(userRepository.findById(invitationDto.getInvitedUserId())).thenReturn(Optional.of(invitedUser));
-        when(userRepository.existsById(inviterUser.getId())).thenReturn(true);
-        when(userRepository.existsById(invitedUser.getId())).thenReturn(true);
+        when(invitationMapper.toDto(goalInvitation)).thenReturn(invitationDto);
+        when(userService.findUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
+        when(userService.findUserById(invitationDto.getInvitedUserId())).thenReturn(Optional.of(invited));
+        when(userService.existsUserById(inviter.getId())).thenReturn(true);
 
-        goalInvitationService.createInvitation(invitationDto);
+        var result = goalInvitationService.createInvitation(invitationDto);
 
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
+
+        assertEquals(invitationDto, invitationMapper.toDto(invitationMapper.toEntity(result)));
     }
 
     @Test
-    @DisplayName("Test save Invitation with invalid input")
-    void testCreateInvitationWithInvalidInput() {
-        // Arrange
+    @DisplayName("Test inviter does not exist")
+    public void testCreateInvitationWithInviterNotFound() {
         GoalInvitationDto invitationDto = new GoalInvitationDto();
         invitationDto.setInviterId(1L);
-        invitationDto.setInvitedUserId(1L); // Same user ID as inviter
-        User inviterUser = new User();
-        inviterUser.setId(1L);
+        invitationDto.setInvitedUserId(3L);
 
-        when(userRepository.findById(invitationDto.getInviterId())).thenReturn(Optional.of(inviterUser));
+        User inviter = new User();
+        inviter.setId(1L);
 
-        assertThrows(IllegalArgumentException.class, () -> goalInvitationService.createInvitation(invitationDto));
+        when(userService.findUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
+
+        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.createInvitation(invitationDto));
+
+        verify(goalInvitationRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Test invited does not exist")
+    public void testCreateInvitationWithInvitedNotFound() {
+        GoalInvitationDto invitationDto = new GoalInvitationDto();
+        invitationDto.setInviterId(1L);
+        invitationDto.setInvitedUserId(3L);
+
+        User invited = new User();
+        invited.setId(1L);
+
+        when(userService.findUserById(invitationDto.getInviterId())).thenReturn(Optional.of(invited));
+
+        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.createInvitation(invitationDto));
+
+        verify(goalInvitationRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Test users is the same")
+    public void testCreateInvitationWithUsersIsTheSame() {
+        GoalInvitationDto invitationDto = new GoalInvitationDto();
+        invitationDto.setInviterId(1L);
+        invitationDto.setInvitedUserId(1L);
+
+        User inviter = new User();
+        inviter.setId(1L);
+
+        User invited = new User();
+        inviter.setId(1L);
+
+        when(userService.findUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
+        when(userService.findUserById(invitationDto.getInvitedUserId())).thenReturn(Optional.of(invited));
+
+        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.createInvitation(invitationDto));
+
         verify(goalInvitationRepository, never()).save(any());
     }
 }

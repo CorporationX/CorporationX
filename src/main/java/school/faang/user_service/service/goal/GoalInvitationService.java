@@ -43,10 +43,10 @@ public class GoalInvitationService {
     private boolean checkUser(User inviter, User invited) {
         if (!userService.existsUserById(inviter.getId())) {
             throw new EntityNotFoundException("User does not exists");
-        } else if (!userService.existsUserById(inviter.getId())) {
+        } else if (!userService.existsUserById(invited.getId())) {
             throw new EntityNotFoundException("User does not exists");
         } else if (inviter.getId() == invited.getId()) {
-            throw new EntityNotFoundException("This user is the same");
+            throw new EntityNotFoundException("This users is the same");
         } else {
             return true;
         }

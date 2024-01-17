@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.mentorship;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,10 @@ public class MentorshipController {
     private final MentorshipService mentorshipService;
 
     @DeleteMapping("/mentor")
-    public void deleteMentee(@RequestParam long menteeId, @RequestParam long mentorId) {
+    public void deleteMentor(@RequestParam @Positive long menteeId, @RequestParam @Positive long mentorId) {
+        if (menteeId == mentorId) {
+            throw new UnsupportedOperationException("You cannot delete the mentor-user who is the same as the mentee-user.");
+        }
         mentorshipService.deleteMentor(menteeId, mentorId);
     }
 }

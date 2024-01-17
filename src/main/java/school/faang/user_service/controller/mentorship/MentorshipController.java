@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
@@ -27,19 +29,21 @@ public class MentorshipController {
         return mentorshipService.getMentees(id);
     }
 
-    @DeleteMapping("/mentee")
-    public void deleteMentee(@RequestParam @Positive long mentorId, @RequestParam @Positive long menteeId) {
-        if (mentorId == menteeId) {
-            throw new UnsupportedOperationException("You cannot delete the mentee-user who is the same as the mentor-user.");
-        }
-        mentorshipService.deleteMentee(mentorId, menteeId);
-    }
-
     @DeleteMapping("/mentor")
     public void deleteMentor(@RequestParam @Positive long menteeId, @RequestParam @Positive long mentorId) {
         if (menteeId == mentorId) {
-            throw new UnsupportedOperationException("You cannot delete the mentor-user who is the same as the mentee-user.");
+            throw new UnsupportedOperationException
+                    ("You cannot delete the mentor-user who is the same as the mentee-user.");
         }
         mentorshipService.deleteMentor(menteeId, mentorId);
+    }
+
+    @DeleteMapping("/mentee")
+    public void deleteMentee(@RequestParam @Positive long mentorId, @RequestParam @Positive long menteeId) {
+        if (mentorId == menteeId) {
+            throw new UnsupportedOperationException
+                    ("You cannot delete the mentee-user who is the same as the mentor-user.");
+        }
+        mentorshipService.deleteMentee(mentorId, menteeId);
     }
 }

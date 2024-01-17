@@ -9,13 +9,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
     @Mock
+    private MentorshipRepository mentorshipRepository;
+    @Mock
     private UserRepository userRepository;
     @Mock
     private UserMapper userMapper;
@@ -34,6 +34,20 @@ public class MentorshipServiceTest {
     private MentorshipService mentorshipService;
     private static final long EXISTENT_USER_ID = 1L;
     private static final long NON_EXISTENT_USER_ID = 100_000L;
+    private static final long EXISTENT_MENTEE_ID = 1L;
+    private static final long EXISTENT_MENTOR_ID = 2L;
+    private User mentor;
+    private User mentee;
+
+    @BeforeEach
+    public void setUp() {
+        mentor = User.builder().id(EXISTENT_MENTOR_ID).build();
+        mentee = User.builder().id(EXISTENT_MENTEE_ID).build();
+        User anotherMentee = User.builder().id(3L).build();
+        User anotherMentor = User.builder().id(4L).build();
+        mentor.setMentees(new ArrayList<>(List.of(mentee, anotherMentee)));
+        mentee.setMentors(new ArrayList<>(List.of(mentor, anotherMentor)));
+    }
 
     @Test
     public void testGetMentors_UserNotExist_ThrowsEntityNotFoundException() {
@@ -97,21 +111,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testGetMentees_UserExistsWithNoMentees_ReturnsEmptyList () {
-        User user = new User();
-        user.setId(EXISTENT_USER_ID);
-        user.setMentees(new ArrayList<>());//no mentees
-
-        Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
-        List<UserDto> result = mentorshipService.getMentees(EXISTENT_USER_ID);
-
-        assertEquals(0, result.size());
-        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
-        Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentees());
-    }
-
-    @Test
-    public void testGetMentees_UserExistsWithNoMentors_ReturnsEmptyList() {
+    public void testGetMentors_UserExistsWithNoMentors_ReturnsEmptyList() {
         User user = new User();
         user.setId(EXISTENT_USER_ID);
         user.setMentors(new ArrayList<>());//no mentors
@@ -123,27 +123,19 @@ public class MentorshipServiceTest {
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
         Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentors());
     }
-}
 
-    private MentorshipRepository mentorshipRepository;
-    @Mock
-    private UserRepository userRepository;
-    @InjectMocks
-    private MentorshipService mentorshipService;
-    private static final long EXISTENT_MENTEE_ID = 1L;
-    private static final long EXISTENT_MENTOR_ID = 2L;
-    private static final long NON_EXISTENT_USER_ID = 100_000L;
-    private User mentor;
-    private User mentee;
+    @Test
+    public void testGetMentees_UserExistsWithNoMentees_ReturnsEmptyList() {
+        User user = new User();
+        user.setId(EXISTENT_USER_ID);
+        user.setMentees(new ArrayList<>());//no mentees
 
-    @BeforeEach
-    public void setUp() {
-        mentor = User.builder().id(EXISTENT_MENTOR_ID).build();
-        mentee = User.builder().id(EXISTENT_MENTEE_ID).build();
-        User anotherMentee = User.builder().id(3L).build();
-        User anotherMentor = User.builder().id(4L).build();
-        mentor.setMentees(new ArrayList<>(List.of(mentee, anotherMentee)));
-        mentee.setMentors(new ArrayList<>(List.of(mentor, anotherMentor)));
+        Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
+        List<UserDto> result = mentorshipService.getMentees(EXISTENT_USER_ID);
+
+        assertEquals(0, result.size());
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentees());
     }
 
     @Test
@@ -204,6 +196,27 @@ public class MentorshipServiceTest {
     }
 
     @Test
+    public void testDeleteMentee_UsersExistsWithMentorship_MenteeDeletedAndMentorSaved() {
+        Mockito.when(userRepository.findById(EXISTENT_MENTEE_ID)).thenReturn(Optional.of(mentee));
+        Mockito.when(userRepository.findById(EXISTENT_MENTOR_ID)).thenReturn(Optional.of(mentor));
+
+        List<User> menteesOfMentor = mentor.getMentees();
+        int menteesBeforeRemovalCount = menteesOfMentor.size();
+
+        mentorshipService.deleteMentee(EXISTENT_MENTOR_ID, EXISTENT_MENTEE_ID);
+
+        int menteesAfterRemovalCount = menteesOfMentor.size();
+
+        assertEquals(2, menteesBeforeRemovalCount);
+        assertEquals(1, menteesAfterRemovalCount);
+        assertFalse(menteesOfMentor.contains(mentee));
+
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTEE_ID);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTOR_ID);
+        Mockito.verify(mentorshipRepository, Mockito.times(1)).save(mentor);
+    }
+
+    @Test
     public void testDeleteMentor_UsersExistsWithNoMentorship_MentorNotDeletedAndMenteeNotSaved() {
         mentee.getMentors().remove(mentor);
         //mentee NOW do not have deleting mentor
@@ -225,27 +238,6 @@ public class MentorshipServiceTest {
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTEE_ID);
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTOR_ID);
         Mockito.verify(mentorshipRepository, Mockito.never()).save(mentee);
-    }
-
-    @Test
-    public void testDeleteMentee_UsersExistsWithMentorship_MenteeDeletedAndMentorSaved() {
-        Mockito.when(userRepository.findById(EXISTENT_MENTEE_ID)).thenReturn(Optional.of(mentee));
-        Mockito.when(userRepository.findById(EXISTENT_MENTOR_ID)).thenReturn(Optional.of(mentor));
-
-        List<User> menteesOfMentor = mentor.getMentees();
-        int menteesBeforeRemovalCount = menteesOfMentor.size();
-
-        mentorshipService.deleteMentee(EXISTENT_MENTOR_ID, EXISTENT_MENTEE_ID);
-
-        int menteesAfterRemovalCount = menteesOfMentor.size();
-
-        assertEquals(2, menteesBeforeRemovalCount);
-        assertEquals(1, menteesAfterRemovalCount);
-        assertFalse(menteesOfMentor.contains(mentee));
-
-        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTEE_ID);
-        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTOR_ID);
-        Mockito.verify(mentorshipRepository, Mockito.times(1)).save(mentor);
     }
 
     @Test

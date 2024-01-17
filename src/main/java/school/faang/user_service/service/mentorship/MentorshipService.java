@@ -13,7 +13,7 @@ public class MentorshipService {
     private final UserRepository userRepository;
     private final MentorshipRepository mentorshipRepository;
 
-    public void deleteMentee(long menteeId, long mentorId) {
+    public void deleteMentee(long mentorId, long menteeId) {
         User mentor = getExistingUserById(mentorId);
         User mentee = getExistingUserById(menteeId);
         if (mentor.getMentees().remove(mentee)) {

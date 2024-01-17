@@ -2,25 +2,27 @@ package school.faang.user_service.service.mentorship;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
     @Mock
-    private MentorshipRepository mentorshipRepository;
+    private UserRepository userRepository;
     @Mock
     private UserMapper userMapper;
     @InjectMocks
@@ -28,54 +30,48 @@ public class MentorshipServiceTest {
     private static final long EXISTENT_USER_ID = 1L;
     private static final long NON_EXISTENT_USER_ID = 100_000L;
 
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
     @Test
-    public void testGetMentees_EntityNotFoundException() {
-        Mockito.when(mentorshipRepository.findById(NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
+    public void testGetMentors_UserNotExist_ThrowsEntityNotFoundException() {
+        Mockito.when(userRepository.findById(NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
         Assert.assertThrows(
                 EntityNotFoundException.class,
                 () -> mentorshipService.getMentors(NON_EXISTENT_USER_ID)
         );
-        Mockito.verify(mentorshipRepository, Mockito.times(1)).findById(NON_EXISTENT_USER_ID);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(NON_EXISTENT_USER_ID);
     }
 
     @Test
-    public void testGetMentors_EntityFound_userHasMentors() {
-        User user = new User();
+    public void testGetMentors_UserExistsWithMentors_ReturnsMentors() {
         User mentor = new User();
+        List<User> usersMentors = List.of(mentor);
+
+        User user = new User();
         user.setId(EXISTENT_USER_ID);
-        user.setMentors(List.of(mentor));
+        user.setMentors(usersMentors);
 
-        UserDto resultDto = new UserDto();
+        List<UserDto> resultMentorsDtos = List.of(new UserDto());
 
-        Mockito.when(mentorshipRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
-        Mockito.when(userMapper.toDto(mentor)).thenReturn(resultDto);
+        Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
+        Mockito.when(userMapper.listToDto(usersMentors)).thenReturn(resultMentorsDtos);
+
         List<UserDto> result = mentorshipService.getMentors(EXISTENT_USER_ID);
 
-        assertEquals(resultDto, result.get(0));
-        Mockito.verify(mentorshipRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
-        Mockito.verify(userMapper, Mockito.times(1)).toDto(mentor);
+        assertEquals(resultMentorsDtos, result);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(usersMentors);
     }
 
     @Test
-    public void testGetMentors_EntityFound_userHasNotMentors() {
+    public void testGetMentees_UserExistsWithNoMentees_ReturnsEmptyList() {
         User user = new User();
-        User mentor = new User();
         user.setId(EXISTENT_USER_ID);
-        user.setMentors(null);//no mentors
+        user.setMentors(new ArrayList<>());//no mentors
 
-        UserDto resultDto = new UserDto();
-
-        Mockito.when(mentorshipRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
-        Mockito.when(userMapper.toDto(mentor)).thenReturn(resultDto);
+        Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
         List<UserDto> result = mentorshipService.getMentors(EXISTENT_USER_ID);
 
         assertEquals(0, result.size());
-        Mockito.verify(mentorshipRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
-        Mockito.verify(userMapper, Mockito.times(0)).toDto(Mockito.any());
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentors());
     }
 }

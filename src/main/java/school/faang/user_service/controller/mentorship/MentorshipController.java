@@ -21,8 +21,25 @@ public class MentorshipController {
     public List<UserDto> getMentors(@PathVariable @Positive long id) {
         return mentorshipService.getMentors(id);
     }
+
     @GetMapping("/mentees/{id}")
     public List<UserDto> getMentees(@PathVariable @Positive long id) {
         return mentorshipService.getMentees(id);
+    }
+
+    @DeleteMapping("/mentee")
+    public void deleteMentee(@RequestParam @Positive long mentorId, @RequestParam @Positive long menteeId) {
+        if (mentorId == menteeId) {
+            throw new UnsupportedOperationException("You cannot delete the mentee-user who is the same as the mentor-user.");
+        }
+        mentorshipService.deleteMentee(mentorId, menteeId);
+    }
+
+    @DeleteMapping("/mentor")
+    public void deleteMentor(@RequestParam @Positive long menteeId, @RequestParam @Positive long mentorId) {
+        if (menteeId == mentorId) {
+            throw new UnsupportedOperationException("You cannot delete the mentor-user who is the same as the mentee-user.");
+        }
+        mentorshipService.deleteMentor(menteeId, mentorId);
     }
 }

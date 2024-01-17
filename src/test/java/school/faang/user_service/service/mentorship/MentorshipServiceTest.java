@@ -42,23 +42,22 @@ public class MentorshipServiceTest {
 
     @Test
     public void testGetMentors_UserExistsWithMentors_ReturnsMentors() {
-        User mentor = new User();
-        List<User> usersMentors = List.of(mentor);
+        List<User> userMentors = List.of(new User());
 
         User user = new User();
         user.setId(EXISTENT_USER_ID);
-        user.setMentors(usersMentors);
+        user.setMentors(userMentors);
 
         List<UserDto> resultMentorsDtos = List.of(new UserDto());
 
         Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
-        Mockito.when(userMapper.listToDto(usersMentors)).thenReturn(resultMentorsDtos);
+        Mockito.when(userMapper.listToDto(userMentors)).thenReturn(resultMentorsDtos);
 
         List<UserDto> result = mentorshipService.getMentors(EXISTENT_USER_ID);
 
         assertEquals(resultMentorsDtos, result);
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
-        Mockito.verify(userMapper, Mockito.times(1)).listToDto(usersMentors);
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(userMentors);
     }
 
     @Test

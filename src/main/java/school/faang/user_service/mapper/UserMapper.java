@@ -11,7 +11,7 @@ import java.util.List;
 public interface UserMapper {
     UserDto toDto(User user);
 
-    List<UserDto> listToDto(List<User> mentors);
+    List<UserDto> listToDto(List<User> users);
 
     User toEntity(UserDto userDto);
 }

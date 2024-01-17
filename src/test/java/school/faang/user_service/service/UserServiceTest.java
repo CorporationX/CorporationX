@@ -31,16 +31,13 @@ class UserServiceTest {
 
     @Test
     public void testGetUserById() {
-        // Arrange
         long userId = 1L;
         User user = new User();
         user.setId(userId);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        // Act
         User result = userService.getUserById(userId).get();
 
-        // Assert
         assertEquals(userId, result.getId());
         verify(userRepository, times(1)).findById(userId);
     }

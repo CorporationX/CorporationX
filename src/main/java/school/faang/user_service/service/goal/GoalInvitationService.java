@@ -1,12 +1,15 @@
 package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.exception.goal.DataValidationException;
+import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +23,12 @@ public class GoalInvitationService {
     private static final int MAX_ACTIVE_GOALS = 3;
 
     private final GoalInvitationRepository goalInvitationRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
+    @SneakyThrows
     public void acceptGoalInvitation(long id) {
-        GoalInvitation goalInvitation = goalInvitationRepository.findById(id).orElseThrow();
+        GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("GoalInvitation is not found"));
 
         List<GoalInvitation> receivedGoalInvitations = new ArrayList<>();
         receivedGoalInvitations.add(goalInvitation);
@@ -39,15 +44,16 @@ public class GoalInvitationService {
         }
     }
 
+    @SneakyThrows
     private boolean checkData(User user, GoalInvitation goalInvitation) {
-        if (!userRepository.existsById(user.getId())) {
-            throw new IllegalArgumentException("User is not found");
+        if (!userService.existsUserById(user.getId())) {
+            throw new EntityNotFoundException("User is not found");
         } else if (!goalInvitationRepository.existsById(goalInvitation.getId())) {
-            throw new IllegalArgumentException("GoalInvitation is not found");
+            throw new EntityNotFoundException("GoalInvitation is not found");
         } else if (user.getGoals().contains(goalInvitation.getGoal())) {
-            throw new IllegalArgumentException("User already exist this goal");
+            throw new DataValidationException("User already exist this goal");
         } else if (!(user.getGoals().size() < MAX_ACTIVE_GOALS)) {
-            throw new IllegalArgumentException("User already have maximum active goals");
+            throw new DataValidationException("User already have maximum active goals");
         } else {
             return true;
         }

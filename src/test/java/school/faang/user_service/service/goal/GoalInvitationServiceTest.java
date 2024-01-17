@@ -64,8 +64,8 @@ public class GoalInvitationServiceTest {
 
         when(invitationMapper.toEntity(invitationDto)).thenReturn(goalInvitation);
         when(invitationMapper.toDto(goalInvitation)).thenReturn(invitationDto);
-        when(userService.findUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
-        when(userService.findUserById(invitationDto.getInvitedUserId())).thenReturn(Optional.of(invited));
+        when(userService.getUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
+        when(userService.getUserById(invitationDto.getInvitedUserId())).thenReturn(Optional.of(invited));
         when(userService.existsUserById(inviter.getId())).thenReturn(true);
 
         var result = goalInvitationService.createInvitation(invitationDto);
@@ -85,7 +85,7 @@ public class GoalInvitationServiceTest {
         User inviter = new User();
         inviter.setId(1L);
 
-        when(userService.findUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
+        when(userService.getUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
 
         assertThrows(EntityNotFoundException.class, () -> goalInvitationService.createInvitation(invitationDto));
 
@@ -102,7 +102,7 @@ public class GoalInvitationServiceTest {
         User invited = new User();
         invited.setId(1L);
 
-        when(userService.findUserById(invitationDto.getInviterId())).thenReturn(Optional.of(invited));
+        when(userService.getUserById(invitationDto.getInviterId())).thenReturn(Optional.of(invited));
 
         assertThrows(EntityNotFoundException.class, () -> goalInvitationService.createInvitation(invitationDto));
 
@@ -122,8 +122,8 @@ public class GoalInvitationServiceTest {
         User invited = new User();
         inviter.setId(1L);
 
-        when(userService.findUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
-        when(userService.findUserById(invitationDto.getInvitedUserId())).thenReturn(Optional.of(invited));
+        when(userService.getUserById(invitationDto.getInviterId())).thenReturn(Optional.of(inviter));
+        when(userService.getUserById(invitationDto.getInvitedUserId())).thenReturn(Optional.of(invited));
 
         assertThrows(EntityNotFoundException.class, () -> goalInvitationService.createInvitation(invitationDto));
 

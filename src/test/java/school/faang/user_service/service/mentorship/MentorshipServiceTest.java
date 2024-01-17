@@ -59,17 +59,17 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testGetMentees_UserExistsWithNoMentees_ReturnsMentees () {
+    public void testGetMentees_UserExistsWithNoMentees_ReturnsEmptyList () {
         User user = new User();
         User mentee = new User();
         user.setId(EXISTENT_USER_ID);
-        user.setMentees(new ArrayList<>());
+        user.setMentees(new ArrayList<>());//no mentees
 
         Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
         List<UserDto> result = mentorshipService.getMentees(EXISTENT_USER_ID);
 
         assertEquals(0, result.size());
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
-        Mockito.verify(userMapper, Mockito.times(0)).toDto(mentee);
+        Mockito.verify(userMapper, Mockito.times(0)).toDto(Mockito.any());
     }
 }

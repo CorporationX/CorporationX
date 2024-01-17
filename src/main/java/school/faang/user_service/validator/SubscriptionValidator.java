@@ -14,13 +14,13 @@ public class SubscriptionValidator {
     private final UserRepository userRepo;
 
     public void validate(long followerId, long followeeId) {
-        if (!subscriptionRepo.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException("Subscription non exists!");
-        }
         if (followerId == followeeId) {
             throw new DataValidationException("You can't unfollow to yourself!");
         }
-        if (userRepo.existsById(followeeId) || userRepo.existsById(followerId)) {
+        if (!subscriptionRepo.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new DataValidationException("Subscription non exists!");
+        }
+        if (!userRepo.existsById(followeeId) || !userRepo.existsById(followerId)) {
             throw new DataValidationException("This user is not registered");
         }
     }

@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.validator.SubscriptionValidator;
 
@@ -12,6 +13,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepo;
     private final SubscriptionValidator subscriptionValidator;
 
+    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
         subscriptionValidator.validate(followerId, followeeId);
         subscriptionRepo.unfollowUser(followerId, followeeId);

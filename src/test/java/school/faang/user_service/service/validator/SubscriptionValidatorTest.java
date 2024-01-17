@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.validator.SubscriptionValidator;
 
 @ExtendWith(MockitoExtension.class)
@@ -16,6 +17,9 @@ public class SubscriptionValidatorTest {
 
     @Mock
     private SubscriptionRepository subscriptionRepo;
+
+    @Mock
+    private UserRepository userRepo;
 
     @InjectMocks
     private SubscriptionValidator subscriptionValidator;
@@ -25,18 +29,20 @@ public class SubscriptionValidatorTest {
         Mockito.when(subscriptionRepo.existsByFollowerIdAndFolloweeId(1L, 2L))
                 .thenReturn(true);
         Assert.assertThrows(DataValidationException.class, () ->
-                subscriptionValidator.validateExistsSubscription(1L, 2L));
+                subscriptionValidator.validate(1L, 2L));
     }
 
     @Test
     public void testFollowUserThrowsException() {
         Assert.assertThrows(DataValidationException.class, () ->
-                subscriptionValidator.validateUserSubscriptionToYourself(1L, 1L));
+                subscriptionValidator.validate(1L, 1L));
     }
 
     @Test
-    public void testFollowerExists() {
+    public void testFollowerAndFolloweeExists() {
+        Mockito.lenient().when(userRepo.existsById(1L)).thenReturn(true);
+        Mockito.lenient().when(userRepo.existsById(2L)).thenReturn(false);
         Assert.assertThrows(DataValidationException.class, () ->
-                subscriptionValidator.validateExistsUser(1L));
+                subscriptionValidator.validate(1L, 2L));
     }
 }

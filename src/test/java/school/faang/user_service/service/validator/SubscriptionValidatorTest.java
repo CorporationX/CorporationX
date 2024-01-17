@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
@@ -21,6 +22,7 @@ public class SubscriptionValidatorTest {
 
     @Test
     public void testUserExists() {
+        Mockito.lenient().when(userRepo.existsById(1L)).thenReturn(false);
         Assert.assertThrows(DataValidationException.class, () ->
                 subscriptionValidator.validate(1L));
     }

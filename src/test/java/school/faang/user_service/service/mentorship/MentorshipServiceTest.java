@@ -61,7 +61,6 @@ public class MentorshipServiceTest {
     @Test
     public void testGetMentees_UserExistsWithNoMentees_ReturnsEmptyList () {
         User user = new User();
-        User mentee = new User();
         user.setId(EXISTENT_USER_ID);
         user.setMentees(new ArrayList<>());//no mentees
 
@@ -70,6 +69,6 @@ public class MentorshipServiceTest {
 
         assertEquals(0, result.size());
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
-        Mockito.verify(userMapper, Mockito.times(0)).toDto(Mockito.any());
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentors());
     }
 }

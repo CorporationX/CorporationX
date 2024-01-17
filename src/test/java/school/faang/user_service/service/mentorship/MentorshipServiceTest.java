@@ -125,8 +125,6 @@ public class MentorshipServiceTest {
         Mockito.verify(mentorshipRepository, Mockito.never()).save(mentee);
     }
 
-}
-
     @Test
     public void testDeleteMentee_UsersExistsWithMentorship_MenteeDeletedAndMentorSaved() {
         Mockito.when(userRepository.findById(EXISTENT_MENTEE_ID)).thenReturn(Optional.of(mentee));

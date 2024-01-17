@@ -19,6 +19,7 @@ public class MentorshipService {
     public List<UserDto> getMentors(long id) {
         User user = getExistingUserById(id);
         return userMapper.listToDto(user.getMentors());
+    }
 
     public List<UserDto> getMentees(long id) {
         User user = getExistingUserById(id);

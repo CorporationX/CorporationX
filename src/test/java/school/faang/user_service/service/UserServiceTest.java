@@ -1,13 +1,44 @@
 package school.faang.user_service.service;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.user.UserService;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private UserService userService;
 
     @Test
     void getUsers() {
         assertTrue(true);
+    }
+
+    @Test
+    public void testGetUserById() {
+        long userId = 1L;
+        User user = new User();
+        user.setId(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        User result = userService.getUserById(userId).get();
+
+        assertEquals(userId, result.getId());
+        verify(userRepository, times(1)).findById(userId);
     }
 }

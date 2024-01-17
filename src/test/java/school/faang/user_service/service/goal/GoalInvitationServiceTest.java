@@ -9,13 +9,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.exception.goal.DataValidationException;
+import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.Assert.assertThrows;
@@ -33,9 +33,9 @@ public class GoalInvitationServiceTest {
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
     @Mock
-    private GoalRepository goalRepository;
+    private GoalService goalService;
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
     @InjectMocks
     private GoalInvitationService goalInvitationService;
 
@@ -61,7 +61,7 @@ public class GoalInvitationServiceTest {
         invitedUser.setGoals(goals);
 
         when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
-        when(userRepository.existsById(invitedUser.getId())).thenReturn(true);
+        when(userService.existsUserById(invitedUser.getId())).thenReturn(true);
         when(goalInvitationRepository.existsById(goalInvitation.getId())).thenReturn(true);
 
         goalInvitationService.acceptGoalInvitation(id);
@@ -83,9 +83,11 @@ public class GoalInvitationServiceTest {
         goalInvitation.setInvited(invitedUser);
 
         when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(goalInvitation));
-        when(userRepository.existsById(invitedUser.getId())).thenReturn(false);
+        when(userService.existsUserById(invitedUser.getId())).thenReturn(false);
+        when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(goalInvitation));
+        when(userService.existsUserById(invitedUser.getId())).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
     }
 
     @Test
@@ -97,7 +99,75 @@ public class GoalInvitationServiceTest {
 
         when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+    }
+
+    @Test
+    @DisplayName("Test accept goal invitation when goal invitation does not exists")
+    public void testAcceptGoalInvitation_shouldThrowExceptionWhenGoalInvitationDoesNotExists() {
+        GoalInvitation goalInvitation = new GoalInvitation();
+        goalInvitation.setId(1L);
+
+        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
+    }
+
+    @Test
+    @DisplayName("Test accept when users goals contain this goal")
+    public void testAcceptGoalInvitationWhenUserGoalsContainsGoal() {
+        long id = 1L;
+
+        Goal goal = new Goal();
+        goal.setId(1L);
+
+        List<Goal> goals = List.of(goal);
+
+        User invited = new User();
+        invited.setId(1L);
+        invited.setGoals(goals);
+
+        GoalInvitation goalInvitation = new GoalInvitation();
+        goalInvitation.setId(1L);
+        goalInvitation.setInvited(invited);
+        goalInvitation.setGoal(goal);
+
+        when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
+        when(userService.existsUserById(invited.getId())).thenReturn(true);
+        when(goalInvitationRepository.existsById(goalInvitation.getId())).thenReturn(true);
+
+        assertThrows(DataValidationException.class, () -> goalInvitationService.acceptGoalInvitation(id));
+    }
+
+    @Test
+    @DisplayName("Test accept when users goals is full")
+    public void testAcceptGoalInvitationWhenUserGoalsIsFull() {
+        long id = 1L;
+
+        Goal goal1 = new Goal();
+        goal1.setId(1L);
+        Goal goal2 = new Goal();
+        goal1.setId(2L);
+        Goal goal3 = new Goal();
+        goal1.setId(3L);
+
+        Goal addedGoal = new Goal();
+        addedGoal.setId(4L);
+
+        List<Goal> goals = List.of(goal1, goal2, goal3);
+
+        User invited = new User();
+        invited.setId(1L);
+        invited.setGoals(goals);
+
+        GoalInvitation goalInvitation = new GoalInvitation();
+        goalInvitation.setId(1L);
+        goalInvitation.setInvited(invited);
+        goalInvitation.setGoal(addedGoal);
+
+        when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
+        when(userService.existsUserById(invited.getId())).thenReturn(true);
+        when(goalInvitationRepository.existsById(goalInvitation.getId())).thenReturn(true);
+
+        assertThrows(DataValidationException.class, () -> goalInvitationService.acceptGoalInvitation(id));
     }
 
     @Test
@@ -113,7 +183,7 @@ public class GoalInvitationServiceTest {
         goalInvitation.setGoal(goal);
 
         when(goalInvitationRepository.findById(invitationId)).thenReturn(java.util.Optional.of(goalInvitation));
-        when(goalRepository.existsById(goal.getId())).thenReturn(true);
+        when(goalService.existsGoalById(goal.getId())).thenReturn(true);
 
         goalInvitationService.rejectGoalInvitation(invitationId);
 

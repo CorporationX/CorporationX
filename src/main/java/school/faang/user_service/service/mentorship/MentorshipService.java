@@ -7,11 +7,19 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class MentorshipService {
-    private final MentorshipRepository mentorshipRepository;
     private final UserRepository userRepository;
+    private final MentorshipRepository mentorshipRepository;
+
+    public void deleteMentee(long mentorId, long menteeId) {
+        User mentor = getExistingUserById(mentorId);
+        User mentee = getExistingUserById(menteeId);
+        if (mentor.getMentees().remove(mentee)) {
+            mentorshipRepository.save(mentor);
+        }
+    }
 
     public void deleteMentor(long menteeId, long mentorId) {
         User mentee = getExistingUserById(menteeId);

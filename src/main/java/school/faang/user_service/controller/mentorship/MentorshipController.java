@@ -14,6 +14,13 @@ import school.faang.user_service.service.mentorship.MentorshipService;
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
+    @DeleteMapping("/mentee")
+    public void deleteMentee(@RequestParam @Positive long mentorId, @RequestParam @Positive long menteeId) {
+        if (mentorId == menteeId) {
+            throw new UnsupportedOperationException("You cannot delete the mentee-user who is the same as the mentor-user.");
+        }
+        mentorshipService.deleteMentee(mentorId, menteeId);
+    }
     @DeleteMapping("/mentor")
     public void deleteMentor(@RequestParam @Positive long menteeId, @RequestParam @Positive long mentorId) {
         if (menteeId == mentorId) {

@@ -63,6 +63,24 @@ public class MentorshipServiceTest {
     }
 
     @Test
+    public void testDeleteMentee_AnyUserNotExist_EntityNotFoundException() {
+        Mockito.when(userRepository.findById(NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
+
+        Assert.assertThrows(
+                EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentee(NON_EXISTENT_USER_ID, NON_EXISTENT_USER_ID)
+        );
+        Assert.assertThrows(
+                EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentee(EXISTENT_MENTOR_ID, NON_EXISTENT_USER_ID)
+        );
+        Assert.assertThrows(
+                EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentee(NON_EXISTENT_USER_ID, EXISTENT_MENTEE_ID)
+        );
+    }
+
+    @Test
     public void testDeleteMentor_UsersExistsWithMentorship_MentorDeletedAndMenteeSaved() {
         Mockito.when(userRepository.findById(EXISTENT_MENTOR_ID)).thenReturn(Optional.of(mentor));
         Mockito.when(userRepository.findById(EXISTENT_MENTEE_ID)).thenReturn(Optional.of(mentee));
@@ -84,7 +102,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testDeleteMentor_UsersExistsWithMentorship_MentorNotDeletedAndMenteeNotSaved() {
+    public void testDeleteMentor_UsersExistsWithNoMentorship_MentorNotDeletedAndMenteeNotSaved() {
         mentee.getMentors().remove(mentor);
         //mentee NOW do not have deleting mentor
 
@@ -105,5 +123,52 @@ public class MentorshipServiceTest {
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTEE_ID);
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTOR_ID);
         Mockito.verify(mentorshipRepository, Mockito.never()).save(mentee);
+    }
+
+}
+
+    @Test
+    public void testDeleteMentee_UsersExistsWithMentorship_MenteeDeletedAndMentorSaved() {
+        Mockito.when(userRepository.findById(EXISTENT_MENTEE_ID)).thenReturn(Optional.of(mentee));
+        Mockito.when(userRepository.findById(EXISTENT_MENTOR_ID)).thenReturn(Optional.of(mentor));
+
+        List<User> menteesOfMentor = mentor.getMentees();
+        int menteesBeforeRemovalCount = menteesOfMentor.size();
+
+        mentorshipService.deleteMentee(EXISTENT_MENTOR_ID, EXISTENT_MENTEE_ID);
+
+        int menteesAfterRemovalCount = menteesOfMentor.size();
+
+        assertEquals(2, menteesBeforeRemovalCount);
+        assertEquals(1, menteesAfterRemovalCount);
+        assertFalse(menteesOfMentor.contains(mentee));
+
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTEE_ID);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTOR_ID);
+        Mockito.verify(mentorshipRepository, Mockito.times(1)).save(mentor);
+    }
+
+    @Test
+    public void testDeleteMentee_UsersExistsWithNoMentorship_MenteeNotDeletedAndMentorNotSaved() {
+        mentor.getMentees().remove(mentee);
+        //mentor NOW do not have deleting mentee
+
+        Mockito.when(userRepository.findById(EXISTENT_MENTEE_ID)).thenReturn(Optional.of(mentee));
+        Mockito.when(userRepository.findById(EXISTENT_MENTOR_ID)).thenReturn(Optional.of(mentor));
+
+        List<User> menteesOfMentor = mentor.getMentees();
+        int menteesBeforeRemovalCount = menteesOfMentor.size();
+
+        mentorshipService.deleteMentee(EXISTENT_MENTOR_ID, EXISTENT_MENTEE_ID);
+
+        int menteesAfterRemovalCount = menteesOfMentor.size();
+
+        assertEquals(1, menteesBeforeRemovalCount);
+        assertEquals(1, menteesAfterRemovalCount);
+        assertFalse(menteesOfMentor.contains(mentee));
+
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTEE_ID);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_MENTOR_ID);
+        Mockito.verify(mentorshipRepository, Mockito.never()).save(mentor);
     }
 }

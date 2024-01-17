@@ -61,7 +61,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testDeleteMentee_UsersExistsWithMentorship_MenteeWasDeletedAndMentorSaved() {
+    public void testDeleteMentee_UsersExistsWithMentorship_MenteeDeletedAndMentorSaved() {
         Mockito.when(userRepository.findById(EXISTENT_MENTEE_ID)).thenReturn(Optional.of(mentee));
         Mockito.when(userRepository.findById(EXISTENT_MENTOR_ID)).thenReturn(Optional.of(mentor));
 
@@ -82,7 +82,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testDeleteMentee_UsersExistsWithNoMentorship_MenteeWasNotDeletedAndMentorWasNotSaved() {
+    public void testDeleteMentee_UsersExistsWithNoMentorship_MenteeNotDeletedAndMentorNotSaved() {
         mentor.getMentees().remove(mentee);
         //mentor NOW do not have deleting mentee
 

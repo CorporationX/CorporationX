@@ -17,6 +17,9 @@ import java.util.List;
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
+    @GetMapping("/mentors/{id}")
+    public List<UserDto> getMentors(@PathVariable @Positive long id) {
+        return mentorshipService.getMentors(id);
     @GetMapping("/mentees/{id}")
     public List<UserDto> getMentees(@PathVariable @Positive long id) {
         return mentorshipService.getMentees(id);

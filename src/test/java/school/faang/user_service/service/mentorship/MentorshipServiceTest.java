@@ -31,6 +31,16 @@ public class MentorshipServiceTest {
     private static final long NON_EXISTENT_USER_ID = 100_000L;
 
     @Test
+    public void testGetMentors_UserNotExist_ThrowsEntityNotFoundException() {
+        Mockito.when(userRepository.findById(NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
+        Assert.assertThrows(
+                EntityNotFoundException.class,
+                () -> mentorshipService.getMentors(NON_EXISTENT_USER_ID)
+        );
+        Mockito.verify(userRepository, Mockito.times(1)).findById(NON_EXISTENT_USER_ID);
+    }
+
+    @Test
     public void testGetMentees_UserNotExist_ThrowsEntityNotFoundException() {
         Mockito.when(userRepository.findById(NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
         Assert.assertThrows(
@@ -38,6 +48,27 @@ public class MentorshipServiceTest {
                 () -> mentorshipService.getMentees(NON_EXISTENT_USER_ID)
         );
         Mockito.verify(userRepository, Mockito.times(1)).findById(NON_EXISTENT_USER_ID);
+    }
+
+    @Test
+    public void testGetMentors_UserExistsWithMentors_ReturnsMentors() {
+        User mentor = new User();
+        List<User> usersMentors = List.of(mentor);
+
+        User user = new User();
+        user.setId(EXISTENT_USER_ID);
+        user.setMentors(usersMentors);
+
+        List<UserDto> resultMentorsDtos = List.of(new UserDto());
+
+        Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
+        Mockito.when(userMapper.listToDto(usersMentors)).thenReturn(resultMentorsDtos);
+
+        List<UserDto> result = mentorshipService.getMentors(EXISTENT_USER_ID);
+
+        assertEquals(resultMentorsDtos, result);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(usersMentors);
     }
 
     @Test
@@ -61,6 +92,20 @@ public class MentorshipServiceTest {
     }
 
     @Test
+    public void testGetMentees_UserExistsWithNoMentees_ReturnsEmptyList() {
+        User user = new User();
+        user.setId(EXISTENT_USER_ID);
+        user.setMentors(new ArrayList<>());//no mentors
+
+        Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
+        List<UserDto> result = mentorshipService.getMentors(EXISTENT_USER_ID);
+
+        assertEquals(0, result.size());
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentors());
+    }
+
+    @Test
     public void testGetMentees_UserExistsWithNoMentees_ReturnsEmptyList () {
         User user = new User();
         user.setId(EXISTENT_USER_ID);
@@ -74,3 +119,4 @@ public class MentorshipServiceTest {
         Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentees());
     }
 }
+

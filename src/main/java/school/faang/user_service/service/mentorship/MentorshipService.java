@@ -13,8 +13,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MentorshipService {
-    private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
+
+    public List<UserDto> getMentors(long id) {
+        User user = getExistingUserById(id);
+        return userMapper.listToDto(user.getMentors());
 
     public List<UserDto> getMentees(long id) {
         User user = getExistingUserById(id);

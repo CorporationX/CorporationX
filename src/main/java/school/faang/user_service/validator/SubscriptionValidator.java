@@ -4,17 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.repository.UserRepository;
 
 @Component
 @RequiredArgsConstructor
 public class SubscriptionValidator {
 
-    private final UserRepository userRepo;
+    private final SubscriptionRepository subscriptionRepo;
 
-    public void validate(long userId) {
-        if (!userRepo.existsById(userId)) {
-            throw new DataValidationException("This user is not registered");
+    public void validateUserExists(long userId) {
+        if (subscriptionRepo.findByFollowerId(userId).findAny().isEmpty()) {
+            throw new DataValidationException("User with id: " + userId + " is not registered");
         }
     }
 }

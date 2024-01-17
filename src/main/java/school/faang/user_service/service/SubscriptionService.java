@@ -13,7 +13,7 @@ public class SubscriptionService {
     private final SubscriptionValidator subscriptionValidator;
 
     public int getFollowingCount(long followerId) {
-        subscriptionValidator.validate(followerId);
+        subscriptionValidator.validateUserExists(followerId);
         return subscriptionRepo.findFolloweesAmountByFollowerId(followerId);
     }
 }

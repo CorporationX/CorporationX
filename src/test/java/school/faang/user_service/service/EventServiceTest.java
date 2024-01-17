@@ -116,4 +116,28 @@ public class EventServiceTest {
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.empty());
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto2));
     }
+
+    @Test
+    @DisplayName("У создателя события нет необходимых навыков")
+    public void testOwnerDoNotHaveRequiredSkills() {
+        SkillDto skill1 = SkillDto.builder().id(1L).title("Skill1").build();
+        Skill skill1Entity = skillMapper.toEntity(skill1);
+
+        SkillDto skill2 = SkillDto.builder().id(2L).title("Skill2").build();
+        List<SkillDto> skillDtos = new ArrayList<>(List.of(skill1, skill2));
+
+        User owner = User.builder()
+                .id(1L)
+                .skills(new ArrayList<>(List.of(skill1Entity)))
+                .active(true).build();
+        EventDto eventDto1 = EventDto.builder()
+                .id(1L)
+                .ownerId(1L)
+                .relatedSkills(skillDtos)
+                .build();
+
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(owner));
+        assertThrows(DataValidationException.class, () -> eventService.create(eventDto1));
+    }
+
 }

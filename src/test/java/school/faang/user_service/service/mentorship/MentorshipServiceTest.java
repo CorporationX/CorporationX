@@ -42,20 +42,22 @@ public class MentorshipServiceTest {
 
     @Test
     public void testGetMentees_UserExistsWithMentees_ReturnsMentees() {
-        User user = new User();
-        User mentee = new User();
-        user.setId(EXISTENT_USER_ID);
-        user.setMentees(List.of(mentee));
+        List<User> userMentees = List.of(new User());
 
-        UserDto resultDto = new UserDto();
+        User user = new User();
+        user.setId(EXISTENT_USER_ID);
+        user.setMentees(userMentees);
+
+        List<UserDto> resultMenteeDtos = List.of(new UserDto());
 
         Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
-        Mockito.when(userMapper.toDto(mentee)).thenReturn(resultDto);
+        Mockito.when(userMapper.listToDto(userMentees)).thenReturn(resultMenteeDtos);
+
         List<UserDto> result = mentorshipService.getMentees(EXISTENT_USER_ID);
 
-        assertEquals(resultDto, result.get(0));
+        assertEquals(resultMenteeDtos, result);
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
-        Mockito.verify(userMapper, Mockito.times(1)).toDto(mentee);
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(userMentees);
     }
 
     @Test
@@ -69,6 +71,6 @@ public class MentorshipServiceTest {
 
         assertEquals(0, result.size());
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
-        Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentors());
+        Mockito.verify(userMapper, Mockito.times(1)).listToDto(user.getMentees());
     }
 }

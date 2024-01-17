@@ -18,9 +18,7 @@ public class MentorshipService {
 
     public List<UserDto> getMentees(long id) {
         User user = getExistingUserById(id);
-        return user.getMentees()
-                .stream()
-                .map(userMapper::toDto).toList();
+        return userMapper.listToDto(user.getMentees());
     }
 
     private User getExistingUserById(long id) {

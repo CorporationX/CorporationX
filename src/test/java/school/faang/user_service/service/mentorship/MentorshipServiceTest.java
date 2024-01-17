@@ -68,7 +68,7 @@ public class MentorshipServiceTest {
         List<User> menteesOfMentor = mentor.getMentees();
         int menteesBeforeRemovalCount = menteesOfMentor.size();
 
-        mentorshipService.deleteMentee(EXISTENT_MENTEE_ID, EXISTENT_MENTOR_ID);
+        mentorshipService.deleteMentee(EXISTENT_MENTOR_ID, EXISTENT_MENTEE_ID);
 
         int menteesAfterRemovalCount = menteesOfMentor.size();
 
@@ -92,7 +92,7 @@ public class MentorshipServiceTest {
         List<User> menteesOfMentor = mentor.getMentees();
         int menteesBeforeRemovalCount = menteesOfMentor.size();
 
-        mentorshipService.deleteMentee(EXISTENT_MENTEE_ID, EXISTENT_MENTOR_ID);
+        mentorshipService.deleteMentee(EXISTENT_MENTOR_ID, EXISTENT_MENTEE_ID);
 
         int menteesAfterRemovalCount = menteesOfMentor.size();
 

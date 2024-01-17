@@ -10,6 +10,9 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.skill.SkillMapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         injectionStrategy = InjectionStrategy.CONSTRUCTOR, uses = SkillMapper.class)
 public interface EventMapper {
@@ -21,12 +24,18 @@ public interface EventMapper {
     @Mapping(source = "ownerId", target = "owner", qualifiedByName = "toUser")
     Event toEntity(EventDto eventDto);
 
-    @Named("toUser")
+    @Named(value = "toUser")
     default User toUser(Long id) {
         return User.builder()
                 .id(id)
                 .active(true)
                 .build();
+    }
+
+    default List<EventDto> toListDto(List<Event> events) {
+        return events.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
 }

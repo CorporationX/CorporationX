@@ -19,7 +19,7 @@ public class SubscriptionControllerTest {
     private SubscriptionController subscriptionController;
 
     @Test
-    public void testFollowedUser() {
+    public void testFollowersCount() {
         subscriptionController.getFollowersCount(1L);
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowersCount(1L);

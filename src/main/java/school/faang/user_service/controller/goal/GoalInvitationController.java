@@ -18,8 +18,8 @@ public class GoalInvitationController {
 
     private final GoalInvitationService goalInvitationService;
 
-    @PostMapping
-    public void createInvitation(GoalInvitationDto invitation) {
-        goalInvitationService.createInvitation(invitation);
+    @PostMapping("/create")
+    public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
+        return goalInvitationService.createInvitation(invitation);
     }
 }

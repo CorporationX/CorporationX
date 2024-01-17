@@ -42,7 +42,8 @@ public class MentorshipServiceTest {
 
     @Test
     public void testGetMentors_UserExistsWithMentors_ReturnsMentors() {
-        List<User> usersMentors = List.of(new User());
+        User mentor = new User();
+        List<User> usersMentors = List.of(mentor);
 
         User user = new User();
         user.setId(EXISTENT_USER_ID);

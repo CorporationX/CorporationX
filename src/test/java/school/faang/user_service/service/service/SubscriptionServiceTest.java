@@ -12,12 +12,15 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.UserFilter;
+import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.SubscriptionService;
 import school.faang.user_service.validator.SubscriptionValidator;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
@@ -38,31 +41,29 @@ public class SubscriptionServiceTest {
     private SubscriptionService subscriptionService;
 
     private static List<User> users;
-    private static UserFilterDto filter;
+    private static UserFilterDto dtoFilter;
 
 
     @BeforeEach
     public void init() {
-
         users = List.of(
-                User.builder().username("Ruslan").build()
+                User.builder().username("Ruslan").build(),
+                User.builder().username("Oleg").build(),
+                User.builder().username("Roman").build()
         );
+        UserFilter userNameFilter = new UserNameFilter();
+        userFilters = List.of(userNameFilter);
+        dtoFilter = new UserFilterDto();
+        dtoFilter.setNamePattern("R");
     }
 
     @Test
-    public void testGetFollowersSuccess() {
+    void getFollowersReturnValidUsers() {
         long followeeId = 1L;
-        filter = new UserFilterDto();
-        UserDto userDto = new UserDto();
-        userDto.setUsername("Ruslan");
-        filter.setNamePattern("R");
 
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(users.stream());
-        Mockito.when(userMapper.toDto(users.get(0))).thenReturn(userDto);
+        List<UserDto> userDtoList = subscriptionService.getFollowers(followeeId, dtoFilter);
+        Assertions.assertEquals(2, userDtoList.size());
 
-        List<UserDto> userDtos = subscriptionService.getFollowers(followeeId, filter);
-        Assertions.assertEquals(1, userDtos.size());
-        Assertions.assertEquals("Ruslan", userDtos.get(0).getUsername());
-        Mockito.verify(subscriptionRepository, Mockito.times(1)).findByFolloweeId(followeeId);
     }
 }

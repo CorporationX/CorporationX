@@ -2,10 +2,18 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.UserFilter;
+import school.faang.user_service.filter.user.UserAboutFilter;
+import school.faang.user_service.filter.user.UserCityFilter;
+import school.faang.user_service.filter.user.UserContactFilter;
+import school.faang.user_service.filter.user.UserEmailFilter;
+import school.faang.user_service.filter.user.UserNameFilter;
+import school.faang.user_service.filter.user.UserPhoneFilter;
+import school.faang.user_service.filter.user.UserSkillFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.validator.SubscriptionValidator;
@@ -24,14 +32,14 @@ public class SubscriptionService {
 
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
         subscriptionValidator.validateUserExists(followeeId);
-        Stream<User> followers = subscriptionRepo.findByFolloweeId(followeeId);
-        return filterUsers(followers, filter);
+        return filterUsers(subscriptionRepo.findByFolloweeId(followeeId), filter);
     }
 
-    public List<UserDto> filterUsers(Stream<User> followers, UserFilterDto filter) {
-        return filters.stream()
-                .filter(f -> f.isApplicable(filter))
-                .reduce(followers, (stream, f) -> f.apply(stream, filter), Stream::concat)
-                .map(userMapper::toDto).toList();
+    private List<UserDto> filterUsers(Stream<User> users, UserFilterDto dtoFilter) {
+        filters.stream()
+                .filter(filter -> filter.isApplicable(dtoFilter))
+                .forEach(filter -> filter.apply(users, dtoFilter));
+        return userMapper.toDtoList(users.toList());
     }
+
 }

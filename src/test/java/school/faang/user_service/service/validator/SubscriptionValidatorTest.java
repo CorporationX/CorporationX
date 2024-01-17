@@ -24,4 +24,5 @@ public class SubscriptionValidatorTest {
         Assert.assertThrows(DataValidationException.class, () ->
                 subscriptionValidator.validateUserExists(1L));
     }
+
 }

@@ -17,13 +17,13 @@ public class MentorshipService {
     private final UserRepository userRepository;
 
     public List<UserDto> getMentees(long id) {
-        User user = getUserOrThrow(id);
+        User user = getExistingUserById(id);
         return user.getMentees()
                 .stream()
                 .map(userMapper::toDto).toList();
     }
 
-    private User getUserOrThrow(long id) {
+    private User getExistingUserById(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User with id = " + id + " is not found in database"));
     }

@@ -13,6 +13,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class MentorshipServiceTest {
     private static final long NON_EXISTENT_USER_ID = 100_000L;
 
     @Test
-    public void testGetMentees_EntityNotFoundException() {
+    public void testGetMentees_UserNotExist_ThrowsEntityNotFoundException() {
         Mockito.when(userRepository.findById(NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
         Assert.assertThrows(
                 EntityNotFoundException.class,
@@ -40,7 +41,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testGetMentees_EntityFound() {
+    public void testGetMentees_UserExistsWithMentees_ReturnsMentees() {
         User user = new User();
         User mentee = new User();
         user.setId(EXISTENT_USER_ID);
@@ -55,5 +56,20 @@ public class MentorshipServiceTest {
         assertEquals(resultDto, result.get(0));
         Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
         Mockito.verify(userMapper, Mockito.times(1)).toDto(mentee);
+    }
+
+    @Test
+    public void testGetMentees_UserExistsWithNoMentees_ReturnsMentees () {
+        User user = new User();
+        User mentee = new User();
+        user.setId(EXISTENT_USER_ID);
+        user.setMentees(new ArrayList<>());
+
+        Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
+        List<UserDto> result = mentorshipService.getMentees(EXISTENT_USER_ID);
+
+        assertEquals(0, result.size());
+        Mockito.verify(userRepository, Mockito.times(1)).findById(EXISTENT_USER_ID);
+        Mockito.verify(userMapper, Mockito.times(0)).toDto(mentee);
     }
 }

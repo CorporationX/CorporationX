@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.mentorship;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,7 @@ public class MentorshipController {
     private final MentorshipService mentorshipService;
 
     @GetMapping("/mentees/{id}")
-    public List<UserDto> getMentees(@PathVariable long id) {
+    public List<UserDto> getMentees(@PathVariable @Positive long id) {
         return mentorshipService.getMentees(id);
     }
 }

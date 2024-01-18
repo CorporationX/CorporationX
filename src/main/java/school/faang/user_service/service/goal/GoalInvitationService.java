@@ -78,4 +78,10 @@ public class GoalInvitationService {
             return true;
         }
     }
+
+    public List<GoalInvitation> getInvitations() {
+        List<GoalInvitation> goalInvitations = new ArrayList<>();
+
+        return goalInvitations;
+    }
 }

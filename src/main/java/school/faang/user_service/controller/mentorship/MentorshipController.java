@@ -2,19 +2,20 @@ package school.faang.user_service.controller.mentorship;
 
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.validator.mentorship.MentorshipValidator;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/mentorship")
+@RequestMapping("api/v1/mentorship")
 @RequiredArgsConstructor
 public class MentorshipController {
     private final MentorshipService mentorshipService;
@@ -29,21 +30,15 @@ public class MentorshipController {
         return mentorshipService.getMentees(id);
     }
 
-    @DeleteMapping("/mentor")
+    @DeleteMapping("/mentors")
     public void deleteMentor(@RequestParam @Positive long menteeId, @RequestParam @Positive long mentorId) {
-        if (menteeId == mentorId) {
-            throw new UnsupportedOperationException
-                    ("You cannot delete the mentor-user who is the same as the mentee-user.");
-        }
+        MentorshipValidator.validateMentorshipIds(mentorId, menteeId);
         mentorshipService.deleteMentor(menteeId, mentorId);
     }
 
-    @DeleteMapping("/mentee")
+    @DeleteMapping("/mentees")
     public void deleteMentee(@RequestParam @Positive long mentorId, @RequestParam @Positive long menteeId) {
-        if (mentorId == menteeId) {
-            throw new UnsupportedOperationException
-                    ("You cannot delete the mentee-user who is the same as the mentor-user.");
-        }
+        MentorshipValidator.validateMentorshipIds(mentorId, menteeId);
         mentorshipService.deleteMentee(mentorId, menteeId);
     }
 }

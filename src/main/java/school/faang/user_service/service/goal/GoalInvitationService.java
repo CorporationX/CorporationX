@@ -3,11 +3,15 @@ package school.faang.user_service.service.goal;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
+import school.faang.user_service.filter.Filter;
+import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.user.UserService;
 
@@ -23,8 +27,10 @@ public class GoalInvitationService {
     private static final int MAX_ACTIVE_GOALS = 3;
 
     private final GoalInvitationRepository goalInvitationRepository;
+    private final GoalInvitationMapper goalInvitationMapper;
     private final UserService userService;
     private final GoalService goalService;
+    private final List<Filter<InvitationFilterDto, GoalInvitation>> goalInvitationFilters;
 
     @SneakyThrows
     public void acceptGoalInvitation(long id) {
@@ -56,6 +62,18 @@ public class GoalInvitationService {
         }
     }
 
+    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filter) {
+        List<GoalInvitation> goalInvitations = goalInvitationRepository.findAll();
+
+        List<GoalInvitation> filteredInvitations = goalInvitationFilters.stream()
+                .filter(f -> f.isApplicable(filter))
+                .map(f -> (GoalInvitation) f.apply(goalInvitations, filter))
+                .toList();
+
+        return new ArrayList<>(filteredInvitations.stream()
+                        .map(goalInvitationMapper::toDto).toList());
+    }
+
     @SneakyThrows
     private boolean checkGoalIsExist(Goal goal) {
         if (!goalService.existsGoalById(goal.getId())) {
@@ -77,11 +95,5 @@ public class GoalInvitationService {
         } else {
             return true;
         }
-    }
-
-    public List<GoalInvitation> getInvitations() {
-        List<GoalInvitation> goalInvitations = new ArrayList<>();
-
-        return goalInvitations;
     }
 }

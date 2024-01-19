@@ -213,6 +213,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
+    @DisplayName("Test get invitations with filters")
     public void testGetInvitations() {
         InvitationFilterDto filter = new InvitationFilterDto();
         filter.setInviterNamePattern("Alex");
@@ -235,6 +236,34 @@ public class GoalInvitationServiceTest {
         when(goalInvitationRepository.findAll()).thenReturn(goalInvitations);
         when(filters.get(0).isApplicable(any())).thenReturn(true);
         when(filters.get(0).apply(any(), any())).thenReturn(goalInvitations);
+        when(goalInvitationMapper.toDto(invitation)).thenReturn(goalInvitationDto);
+
+        List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Test get invitations with filters is nullable")
+    public void testGetInvitationsWhenFiltersIsNull() {
+        InvitationFilterDto filter = new InvitationFilterDto();
+
+        User inviter = new User();
+        inviter.setId(1L);
+        inviter.setUsername("Alexander Bulgakov");
+
+        GoalInvitation invitation = new GoalInvitation();
+        invitation.setId(1L);
+        invitation.setInviter(inviter);
+
+        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
+        goalInvitationDto.setId(1L);
+        goalInvitationDto.setInviterId(inviter.getId());
+
+        List<GoalInvitation> goalInvitations = new ArrayList<>();
+        goalInvitations.add(invitation);
+
+        when(goalInvitationRepository.findAll()).thenReturn(goalInvitations);
         when(goalInvitationMapper.toDto(invitation)).thenReturn(goalInvitationDto);
 
         List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);

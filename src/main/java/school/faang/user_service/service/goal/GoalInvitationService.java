@@ -66,6 +66,10 @@ public class GoalInvitationService {
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filter) {
         List<GoalInvitation> goalInvitations = goalInvitationRepository.findAll();
 
+        if (checkFilter(filter)) {
+            return new ArrayList<>(goalInvitations.stream().map(goalInvitationMapper::toDto).toList());
+        }
+
         List<List<GoalInvitation>> filteredInvitations;
         List<GoalInvitation> filteredGoalInvitations;
 
@@ -78,8 +82,9 @@ public class GoalInvitationService {
                 .flatMap(Collection::stream)
                 .toList();
 
+
         return new ArrayList<>(filteredGoalInvitations.stream()
-                        .map(goalInvitationMapper::toDto).toList());
+                .map(goalInvitationMapper::toDto).toList());
     }
 
     @SneakyThrows
@@ -103,5 +108,10 @@ public class GoalInvitationService {
         } else {
             return true;
         }
+    }
+
+    private boolean checkFilter(InvitationFilterDto filter) {
+        return filter.getInviterNamePattern() == null && filter.getInvitedNamePattern() == null
+                && filter.getInviterId() == null && filter.getInvitedId() == null;
     }
 }

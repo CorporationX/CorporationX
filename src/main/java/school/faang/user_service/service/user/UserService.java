@@ -1,4 +1,4 @@
-package school.faang.user_service.service.mentorship;
+package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

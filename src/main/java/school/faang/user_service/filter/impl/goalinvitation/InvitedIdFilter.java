@@ -22,7 +22,7 @@ public class InvitedIdFilter implements Filter<InvitationFilterDto, GoalInvitati
     public List<GoalInvitation> apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filterDto) {
         return goalInvitations.stream()
                 .filter(goalInvitation ->
-                        filterDto.getInviterId().equals(goalInvitation.getInviter().getId()))
+                        filterDto.getInvitedId().equals(goalInvitation.getInvited().getId()))
                 .collect(Collectors.toList());
     }
 }

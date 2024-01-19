@@ -20,10 +20,9 @@ public class InvitedNamePattern implements Filter<InvitationFilterDto, GoalInvit
 
     @Override
     public List<GoalInvitation> apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filterDto) {
-        return goalInvitations.stream()
-                .filter(goalInvitation ->
-                        goalInvitation.getInvited().getUsername()
-                                .matches(filterDto.getInvitedNamePattern()))
+        return goalInvitations.stream().filter(goalInvitation ->
+                goalInvitation.getInvited().getUsername()
+                        .contains(filterDto.getInvitedNamePattern()))
                 .collect(Collectors.toList());
     }
 }

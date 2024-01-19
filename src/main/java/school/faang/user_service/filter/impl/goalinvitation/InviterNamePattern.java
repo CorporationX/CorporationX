@@ -21,9 +21,8 @@ public class InviterNamePattern implements Filter<InvitationFilterDto, GoalInvit
     @Override
     public List<GoalInvitation> apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filter) {
         return goalInvitations.stream().filter(goalInvitation ->
-                goalInvitation.getInviter()
-                        .getUsername()
-                        .matches(filter.getInviterNamePattern()))
+                goalInvitation.getInviter().getUsername()
+                        .contains(filter.getInviterNamePattern()))
                 .collect(Collectors.toList());
     }
 }

@@ -58,7 +58,8 @@ public class MentorshipServiceTest {
     public void testGetMentors_UserNotExist_ThrowsEntityNotFoundException() {
         Mockito.when(userService.getExistingUserById(NON_EXISTENT_USER_ID)).thenThrow(EntityNotFoundException.class);
 
-        assertEntityNotFoundExceptionAndNotFoundResponse(
+        assertThrows(
+                EntityNotFoundException.class,
                 () -> mentorshipService.getMentors(NON_EXISTENT_USER_ID)
         );
 
@@ -181,16 +182,6 @@ public class MentorshipServiceTest {
         Mockito.verify(mentorshipRepository, Mockito.never()).save(Mockito.any());
     }
 
-    private void assertEntityNotFoundExceptionAndNotFoundResponse(Executable method) {
-        GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
-        EntityNotFoundException ex = assertThrows(
-                EntityNotFoundException.class,
-                method
-        );
-        ResponseEntity<ControllerError> responseEntity = exceptionHandler.handleEntityNotFoundException(ex);
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-    }
-
 
     @Test
     public void testDeleteMentor_UsersExistsWithMentorship_MentorDeletedAndMenteeSaved() {
@@ -280,5 +271,15 @@ public class MentorshipServiceTest {
         Mockito.verify(userService, Mockito.times(1)).getExistingUserById(EXISTENT_MENTEE_ID);
         Mockito.verify(userService, Mockito.times(1)).getExistingUserById(EXISTENT_MENTOR_ID);
         Mockito.verify(mentorshipRepository, Mockito.never()).save(mentor);
+    }
+
+    private void assertEntityNotFoundExceptionAndNotFoundResponse(Executable method) {
+        GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                method
+        );
+        ResponseEntity<ControllerError> responseEntity = exceptionHandler.handleEntityNotFoundException(ex);
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
 }

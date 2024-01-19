@@ -16,6 +16,7 @@ import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -65,21 +66,16 @@ public class GoalInvitationService {
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filter) {
         List<GoalInvitation> goalInvitations = goalInvitationRepository.findAll();
 
-//        List<List<GoalInvitation>> filteredInvitations;
-//        List<GoalInvitation> filteredGoalInvitations;
-//
-//        filteredInvitations = goalInvitationFilters.stream()
-//                .filter(goalInvitationFilter -> goalInvitationFilter.isApplicable(filter))
-//                .map(goalInvitationFilter -> goalInvitationFilter.apply(goalInvitations, filter))
-//                .toList();
-//
-//        filteredGoalInvitations = filteredInvitations.stream()
-//                .flatMap(Collection::stream)
-//                .toList();
+        List<List<GoalInvitation>> filteredInvitations;
+        List<GoalInvitation> filteredGoalInvitations;
 
-        List<GoalInvitation> filteredGoalInvitations = goalInvitationFilters.stream()
-                .filter(f -> f.isApplicable(filter))
-                .map(f -> (GoalInvitation) f.apply(goalInvitations, filter))
+        filteredInvitations = goalInvitationFilters.stream()
+                .filter(goalInvitationFilter -> goalInvitationFilter.isApplicable(filter))
+                .map(goalInvitationFilter -> goalInvitationFilter.apply(goalInvitations, filter))
+                .toList();
+
+        filteredGoalInvitations = filteredInvitations.stream()
+                .flatMap(Collection::stream)
                 .toList();
 
         return new ArrayList<>(filteredGoalInvitations.stream()

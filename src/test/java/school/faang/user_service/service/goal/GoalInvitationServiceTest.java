@@ -1,11 +1,11 @@
 package school.faang.user_service.service.goal;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -13,6 +13,7 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.filter.Filter;
+import school.faang.user_service.filter.impl.goalinvitation.InviterNamePattern;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.user.UserService;
@@ -22,7 +23,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,18 +37,29 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceTest {
-    @Mock
     private GoalInvitationRepository goalInvitationRepository;
-    @Mock
     private GoalInvitationMapper goalInvitationMapper;
-    @Mock
     private GoalService goalService;
-    @Mock
     private UserService userService;
-    @Mock
+
     private List<Filter<InvitationFilterDto, GoalInvitation>> filters;
-    @InjectMocks
+
     private GoalInvitationService goalInvitationService;
+
+
+    @BeforeEach
+    public void init() {
+        InviterNamePattern inviterNamePattern = mock(InviterNamePattern.class);
+
+        goalInvitationRepository = mock(GoalInvitationRepository.class);
+        goalInvitationMapper = mock(GoalInvitationMapper.class);
+        goalService = mock(GoalService.class);
+        userService = mock(UserService.class);
+
+        filters = List.of(inviterNamePattern);
+
+        goalInvitationService = new GoalInvitationService(goalInvitationRepository, goalInvitationMapper, userService, goalService, filters);
+    }
 
 
     @Test
@@ -197,34 +212,33 @@ public class GoalInvitationServiceTest {
         verify(goalInvitationRepository, times(1)).delete(goalInvitation);
     }
 
-//    @Test
-//    public void testGetInvitations() {
-//        InvitationFilterDto filter = new InvitationFilterDto();
-//        filter.setInvitedNamePattern("Alexander");
-//
-//        User invited = new User();
-//        invited.setId(1L);
-//        invited.setUsername("Alexander Bulgakov");
-//
-//        GoalInvitation invitation = new GoalInvitation();
-//        invitation.setId(1L);
-//        invitation.setInvited(invited);
-//
-//        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
-//        goalInvitationDto.setId(1L);
-//        goalInvitationDto.setInvitedUserId(invited.getId());
-//
-//        List<GoalInvitation> goalInvitations = new ArrayList<>();
-//        goalInvitations.add(invitation);
-//
-//        List<GoalInvitationDto> goalInvitationsDtoList = new ArrayList<>();
-//        goalInvitationsDtoList.add(goalInvitationDto);
-//
-//        when(goalInvitationRepository.findAll()).thenReturn(goalInvitations);
-//        when(goalInvitationMapper.toDto(goalInvitations.get(0))).thenReturn(new GoalInvitationDto());
-//
-//        List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
-//
-//        assertEquals(1, result.size());
-//    }
+    @Test
+    public void testGetInvitations() {
+        InvitationFilterDto filter = new InvitationFilterDto();
+        filter.setInviterNamePattern("Alex");
+
+        User inviter = new User();
+        inviter.setId(1L);
+        inviter.setUsername("Alexander Bulgakov");
+
+        GoalInvitation invitation = new GoalInvitation();
+        invitation.setId(1L);
+        invitation.setInviter(inviter);
+
+        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
+        goalInvitationDto.setId(1L);
+        goalInvitationDto.setInviterId(inviter.getId());
+
+        List<GoalInvitation> goalInvitations = new ArrayList<>();
+        goalInvitations.add(invitation);
+
+        when(goalInvitationRepository.findAll()).thenReturn(goalInvitations);
+        when(filters.get(0).isApplicable(any())).thenReturn(true);
+        when(filters.get(0).apply(any(), any())).thenReturn(goalInvitations);
+        when(goalInvitationMapper.toDto(invitation)).thenReturn(goalInvitationDto);
+
+        List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
+
+        assertEquals(1, result.size());
+    }
 }

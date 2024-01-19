@@ -65,12 +65,24 @@ public class GoalInvitationService {
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filter) {
         List<GoalInvitation> goalInvitations = goalInvitationRepository.findAll();
 
-        List<GoalInvitation> filteredInvitations = goalInvitationFilters.stream()
+//        List<List<GoalInvitation>> filteredInvitations;
+//        List<GoalInvitation> filteredGoalInvitations;
+//
+//        filteredInvitations = goalInvitationFilters.stream()
+//                .filter(goalInvitationFilter -> goalInvitationFilter.isApplicable(filter))
+//                .map(goalInvitationFilter -> goalInvitationFilter.apply(goalInvitations, filter))
+//                .toList();
+//
+//        filteredGoalInvitations = filteredInvitations.stream()
+//                .flatMap(Collection::stream)
+//                .toList();
+
+        List<GoalInvitation> filteredGoalInvitations = goalInvitationFilters.stream()
                 .filter(f -> f.isApplicable(filter))
                 .map(f -> (GoalInvitation) f.apply(goalInvitations, filter))
                 .toList();
 
-        return new ArrayList<>(filteredInvitations.stream()
+        return new ArrayList<>(filteredGoalInvitations.stream()
                         .map(goalInvitationMapper::toDto).toList());
     }
 

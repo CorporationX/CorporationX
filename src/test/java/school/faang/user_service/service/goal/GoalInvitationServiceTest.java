@@ -6,11 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
+import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.user.UserService;
@@ -33,13 +35,14 @@ import static org.mockito.Mockito.when;
 public class GoalInvitationServiceTest {
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
-
     @Mock
     private GoalInvitationMapper goalInvitationMapper;
     @Mock
     private GoalService goalService;
     @Mock
     private UserService userService;
+    @Mock
+    private List<Filter<InvitationFilterDto, GoalInvitation>> filters;
     @InjectMocks
     private GoalInvitationService goalInvitationService;
 
@@ -207,9 +210,15 @@ public class GoalInvitationServiceTest {
 //        invitation.setId(1L);
 //        invitation.setInvited(invited);
 //
+//        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
+//        goalInvitationDto.setId(1L);
+//        goalInvitationDto.setInvitedUserId(invited.getId());
 //
 //        List<GoalInvitation> goalInvitations = new ArrayList<>();
 //        goalInvitations.add(invitation);
+//
+//        List<GoalInvitationDto> goalInvitationsDtoList = new ArrayList<>();
+//        goalInvitationsDtoList.add(goalInvitationDto);
 //
 //        when(goalInvitationRepository.findAll()).thenReturn(goalInvitations);
 //        when(goalInvitationMapper.toDto(goalInvitations.get(0))).thenReturn(new GoalInvitationDto());

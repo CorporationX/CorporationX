@@ -2,10 +2,11 @@ name: Java CI with Gradle for Cerberus-bc2
 
 on:
   pull_request:
-    branches: pipline-BC-1634
-
-permissions:
-  contents: read
+    branches:
+      - feature/pipline-BC-1634
+  push:
+    branches:
+      - feature/pipline-BC-1634
 
 jobs:
   build:

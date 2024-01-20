@@ -2,7 +2,7 @@ name: Java CI with Gradle for Cerberus-bc2
 
 on:
   pull_request:
-    branches: [feature/pipline-BC-1634 feature/pipeline-test-BC-1634]
+    branches: [feature/pipline-BC-1634, feature/pipeline-test-BC-1634]
 
 permissions:
   contents: read

@@ -217,30 +217,45 @@ public class GoalInvitationServiceTest {
     public void testGetInvitations() {
         InvitationFilterDto filter = new InvitationFilterDto();
         filter.setInviterNamePattern("Alex");
+        filter.setInvitedId(2L);
 
         User inviter = new User();
         inviter.setId(1L);
         inviter.setUsername("Alexander Bulgakov");
 
-        GoalInvitation invitation = new GoalInvitation();
-        invitation.setId(1L);
-        invitation.setInviter(inviter);
+        User invited = new User();
+        invited.setId(2L);
 
-        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
-        goalInvitationDto.setId(1L);
-        goalInvitationDto.setInviterId(inviter.getId());
+        GoalInvitation invitation1 = new GoalInvitation();
+        invitation1.setId(1L);
+        invitation1.setInviter(inviter);
+
+        GoalInvitation invitation2 = new GoalInvitation();
+        invitation2.setId(2L);
+        invitation2.setInvited(invited);
 
         List<GoalInvitation> goalInvitations = new ArrayList<>();
-        goalInvitations.add(invitation);
+        goalInvitations.add(invitation1);
+        goalInvitations.add(invitation2);
+
+        GoalInvitationDto goalInvitationDto1 = new GoalInvitationDto();
+        goalInvitationDto1.setId(1L);
+        goalInvitationDto1.setInviterId(inviter.getId());
+
+        GoalInvitationDto goalInvitationDto2 = new GoalInvitationDto();
+        goalInvitationDto2.setId(2L);
+        goalInvitationDto2.setInvitedUserId(invited.getId());
+
 
         when(goalInvitationRepository.findAll()).thenReturn(goalInvitations);
         when(filters.get(0).isApplicable(any())).thenReturn(true);
         when(filters.get(0).apply(any(), any())).thenReturn(goalInvitations);
-        when(goalInvitationMapper.toDto(invitation)).thenReturn(goalInvitationDto);
+        when(goalInvitationMapper.toDto(invitation1)).thenReturn(goalInvitationDto1);
+        when(goalInvitationMapper.toDto(invitation2)).thenReturn(goalInvitationDto2);
 
         List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
 
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
     }
 
     @Test

@@ -70,18 +70,14 @@ public class GoalInvitationService {
             return new ArrayList<>(goalInvitations.stream().map(goalInvitationMapper::toDto).toList());
         }
 
-        List<List<GoalInvitation>> filteredInvitations;
-        List<GoalInvitation> filteredGoalInvitations;
-
-        filteredInvitations = goalInvitationFilters.stream()
+        List<List<GoalInvitation>> filteredInvitations = goalInvitationFilters.stream()
                 .filter(goalInvitationFilter -> goalInvitationFilter.isApplicable(filter))
                 .map(goalInvitationFilter -> goalInvitationFilter.apply(goalInvitations, filter))
                 .toList();
 
-        filteredGoalInvitations = filteredInvitations.stream()
+        List<GoalInvitation> filteredGoalInvitations = filteredInvitations.stream()
                 .flatMap(Collection::stream)
                 .toList();
-
 
         return new ArrayList<>(filteredGoalInvitations.stream()
                 .map(goalInvitationMapper::toDto).toList());

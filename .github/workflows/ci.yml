@@ -1,4 +1,4 @@
-name: Java CI with Gradle
+name: Java CI with Gradle for Cerberus-bc2
 
 on:
   pull_request:

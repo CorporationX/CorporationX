@@ -15,16 +15,16 @@ public class EventController {
     private final EventService eventService;
 
     public EventDto create(EventDto event) {
-        if (!isValidate(event)) {
-            throw new DataValidationException("Event isn't validate.");
+        if (!validateEvent(event)) {
+            throw new DataValidationException("The event is incorrect.");
         }
         return eventService.create(event);
     }
 
-    public boolean isValidate(EventDto event) {
+    public boolean validateEvent(EventDto event) {
         return (event.getTitle() != null && !event.getTitle().isEmpty())
                 && event.getStartDate().isAfter(LocalDateTime.now())
-                && event.getOwnerId() >= 0;
+                && event.getOwnerId() != 0;
     }
 
 }

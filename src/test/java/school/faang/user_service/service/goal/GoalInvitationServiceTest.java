@@ -225,6 +225,7 @@ public class GoalInvitationServiceTest {
 
         User invited = new User();
         invited.setId(2L);
+        invited.setUsername("Alexey Goloverdin");
 
         GoalInvitation invitation1 = new GoalInvitation();
         invitation1.setId(1L);

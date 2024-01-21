@@ -24,6 +24,20 @@ public class SubscriptionServiceTest {
     private SubscriptionService subscriptionService;
 
     @Test
+    public void testUnfollowedSuccess() {
+        subscriptionService.unfollowUser(10L, 20L);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .unfollowUser(Mockito.anyLong(), Mockito.anyLong());
+    }
+
+    @Test
+    public void testFollowedSuccess() {
+        subscriptionService.followUser(10L, 20L);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .followUser(Mockito.anyLong(), Mockito.anyLong());
+    }
+
+    @Test
     public void testGetFollowersCount() {
         long followeeId = 1L;
         int count = 111;

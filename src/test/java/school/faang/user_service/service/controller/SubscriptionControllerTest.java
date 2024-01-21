@@ -19,6 +19,20 @@ public class SubscriptionControllerTest {
     private SubscriptionController subscriptionController;
 
     @Test
+    public void testUnfollowedUser() {
+        subscriptionController.unfollowUser(1, 2);
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .unfollowUser(1, 2);
+    }
+
+    @Test
+    public void testFollowedUser() {
+        subscriptionController.followUser(1, 2);
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .followUser(1, 2);
+    }
+
+    @Test
     public void testFollowersCount() {
         subscriptionController.getFollowersCount(1L);
         Mockito.verify(subscriptionService, Mockito.times(1))

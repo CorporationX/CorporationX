@@ -31,4 +31,9 @@ public class SubscriptionController {
     public int getFollowersCount(@PathVariable("id") long followeeId) {
         return subscriptionService.getFollowersCount(followeeId);
     }
+
+    @GetMapping("/following-count/{id}")
+    public int getFollowingCount(@PathVariable("id") long followerId) {
+        return subscriptionService.getFollowingCount(followerId);
+    }
 }

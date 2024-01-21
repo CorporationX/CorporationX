@@ -28,4 +28,11 @@ public class SubscriptionServiceTest {
         Mockito.verify(subscriptionRepository, Mockito.times(1))
                 .unfollowUser(Mockito.anyLong(), Mockito.anyLong());
     }
+
+    @Test
+    public void testFollowedSuccess() {
+        subscriptionService.followUser(10L, 20L);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .followUser(Mockito.anyLong(), Mockito.anyLong());
+    }
 }

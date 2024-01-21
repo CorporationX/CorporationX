@@ -1,7 +1,6 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,5 +18,11 @@ public class SubscriptionController {
     public void unfollowUser(@PathVariable long followerId,
                              @PathVariable long followeeId) {
         subscriptionService.unfollowUser(followerId, followeeId);
+    }
+
+    @PostMapping("/follow/{followerId}/{followeeId}")
+    public void followUser(@PathVariable long followerId,
+                           @PathVariable long followeeId) {
+        subscriptionService.followUser(followerId, followeeId);
     }
 }

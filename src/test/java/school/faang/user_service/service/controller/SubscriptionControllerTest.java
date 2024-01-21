@@ -28,7 +28,7 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    public void testFollowedUser() {
+    public void testFollowingUser() {
         subscriptionController.getFollowing(1L, filter);
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowing(1L, filter);

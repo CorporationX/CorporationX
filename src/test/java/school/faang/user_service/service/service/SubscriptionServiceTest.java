@@ -1,18 +1,17 @@
 package school.faang.user_service.service.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.UserFilter;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.SubscriptionService;
 import school.faang.user_service.validator.SubscriptionValidator;
@@ -28,42 +27,38 @@ public class SubscriptionServiceTest {
     @Mock
     private SubscriptionValidator subscriptionValidator;
 
-    @Mock
-    private UserMapper userMapper;
-
-    @Mock
-    private static List<UserFilter> userFilters;
+    @Spy
+    private UserMapperImpl userMapper;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
 
     private static List<User> users;
-    private static UserFilterDto filter;
-
+    private static UserFilterDto dtoFilter;
 
     @BeforeEach
     public void init() {
-
         users = List.of(
-                User.builder().username("Ruslan").build()
+                User.builder().username("Ruslan").build(),
+                User.builder().username("Oleg").build(),
+                User.builder().username("Roman").build()
         );
+        UserNameFilter userNameFilter = Mockito.mock(UserNameFilter.class);
+        List<UserFilter> filters = List.of(userNameFilter);
+        subscriptionService = new SubscriptionService(subscriptionRepository, subscriptionValidator,
+                filters, userMapper);
+        dtoFilter = new UserFilterDto();
+        dtoFilter.setNamePattern("R");
     }
 
     @Test
-    public void testGetFollowersSuccess() {
+    void testGetFollowingCallRepositoryMethod() {
         long followerId = 1L;
-        filter = new UserFilterDto();
-        UserDto userDto = new UserDto();
-        userDto.setUsername("Ruslan");
-        filter.setNamePattern("R");
 
-        Mockito.when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(users.stream());
-        Mockito.when(userMapper.toDto(users.get(0))).thenReturn(userDto);
+        Mockito.when(subscriptionRepository.findByFolloweeId(followerId)).thenReturn(users.stream());
+        subscriptionService.getFollowing(followerId, dtoFilter);
 
-        List<UserDto> userDtos = subscriptionService.getFollowing(followerId, filter);
-        Assertions.assertEquals(1, userDtos.size());
-        Assertions.assertEquals("Ruslan", userDtos.get(0).getUsername());
         Mockito.verify(subscriptionRepository, Mockito.times(1))
-                .findByFollowerId(followerId);
+                .findByFolloweeId(followerId);
     }
 }

@@ -223,7 +223,7 @@ public class GoalInvitationServiceTest {
     public void testGetInvitations() {
         InvitationFilterDto filter = new InvitationFilterDto();
         filter.setInviterNamePattern("Alex");
-        filter.setInvitedNamePattern("Alex");
+        filter.setInviterNamePattern("Alex");
         filter.setInvitedId(2L);
 
         User inviter = new User();

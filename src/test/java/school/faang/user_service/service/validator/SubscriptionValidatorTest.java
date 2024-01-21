@@ -54,10 +54,4 @@ public class SubscriptionValidatorTest {
         Assert.assertThrows(DataValidationException.class, () ->
                 subscriptionValidator.validateUser(1L, 2L));
     }
-
-    @Test
-    public void testFollowerCount() {
-        Mockito.when(subscriptionRepo.findFollowersAmountByFolloweeId(1L)).thenReturn(5);
-        Assertions.assertEquals(5, subscriptionRepo.findFollowersAmountByFolloweeId(1L));
-    }
 }

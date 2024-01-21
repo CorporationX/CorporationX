@@ -6,19 +6,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.user.UserService;
+import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -31,84 +34,41 @@ public class GoalInvitationServiceTest {
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
     @Mock
+    private GoalInvitationValidator goalInvitationValidator;
+    @Mock
     private UserService userService;
     @InjectMocks
     private GoalInvitationService goalInvitationService;
 
-
     @Test
-    @DisplayName("Test accept goal invitation")
-    public void testAcceptGoalInvitation_shouldAddInvitationToUserGoals() {
-        long id = 1L;
-
-        User invitedUser = new User();
-        invitedUser.setId(1L);
-
-        GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setId(id);
-        goalInvitation.setInvited(invitedUser);
-
-        Goal goal = new Goal();
-        goal.setId(1L);
-
-        List<Goal> goals = new ArrayList<>();
-        goals.add(goal);
-
-        invitedUser.setGoals(goals);
-
-        when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
-        when(userService.existsUserById(invitedUser.getId())).thenReturn(true);
-        when(goalInvitationRepository.existsById(goalInvitation.getId())).thenReturn(true);
-
-        goalInvitationService.acceptGoalInvitation(id);
-
-        assertTrue(invitedUser.getReceivedGoalInvitations().contains(goalInvitation));
-        assertTrue(invitedUser.getGoals().contains(goalInvitation.getGoal()));
-    }
-
-    @Test
-    @DisplayName("Test accept goal invitation when user not found")
-    public void testAcceptGoalInvitation_shouldThrowExceptionWhenUserNotFound() {
+    @DisplayName("Test getGoalInvitation when goal invitation exists")
+    public void testGetGoalInvitationWhenExists() {
         long invitationId = 1L;
-
-        User invitedUser = new User();
-        invitedUser.setId(1L);
-
         GoalInvitation goalInvitation = new GoalInvitation();
         goalInvitation.setId(invitationId);
-        goalInvitation.setInvited(invitedUser);
 
-        when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(goalInvitation));
-        when(userService.existsUserById(invitedUser.getId())).thenReturn(false);
+        when(goalInvitationRepository.findById(invitationId)).thenReturn(java.util.Optional.of(goalInvitation));
 
-        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+        GoalInvitation result = goalInvitationService.getGoalInvitation(invitationId);
+
+        assertNotNull(result);
+        assertEquals(invitationId, result.getId());
     }
 
     @Test
-    @DisplayName("Test accept goal invitation when goal invitation not found")
-    public void testAcceptGoalInvitation_shouldThrowExceptionWhenGoalInvitationNotFound() {
+    @DisplayName("Test getGoalInvitation when goal invitation does not exist")
+    public void testGetGoalInvitationWhenNotExists() {
         long invitationId = 1L;
-        User invitedUser = new User();
-        invitedUser.setId(1L);
 
-        when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.empty());
+        when(goalInvitationRepository.findById(invitationId)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.getGoalInvitation(invitationId));
     }
 
     @Test
-    @DisplayName("Test accept goal invitation when goal invitation does not exists")
-    public void testAcceptGoalInvitation_shouldThrowExceptionWhenGoalInvitationDoesNotExists() {
-        GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setId(1L);
-
-        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
-    }
-
-    @Test
-    @DisplayName("Test accept when users goals contain this goal")
-    public void testAcceptGoalInvitationWhenUserGoalsContainsGoal() {
-        long id = 1L;
+    @DisplayName("Test acceptGoalInvitation when data is valid")
+    public void testAcceptGoalWhenInvitationDataIsValid() {
+        long invitationId = 1L;
 
         Goal goal = new Goal();
         goal.setId(1L);
@@ -120,47 +80,43 @@ public class GoalInvitationServiceTest {
         invited.setGoals(goals);
 
         GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setId(1L);
+        goalInvitation.setId(invitationId);
         goalInvitation.setInvited(invited);
         goalInvitation.setGoal(goal);
 
-        when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
-        when(userService.existsUserById(invited.getId())).thenReturn(true);
-        when(goalInvitationRepository.existsById(goalInvitation.getId())).thenReturn(true);
+        List<GoalInvitation> invitations = List.of(goalInvitation);
 
-        assertThrows(DataValidationException.class, () -> goalInvitationService.acceptGoalInvitation(id));
+        invited.setReceivedGoalInvitations(invitations);
+
+        when(goalInvitationRepository.findById(invitationId)).thenReturn(java.util.Optional.of(goalInvitation));
+        when(goalInvitationValidator.checkData(invited, goalInvitation)).thenReturn(true);
+
+        goalInvitationService.acceptGoalInvitation(invitationId);
+
+        assertTrue(invited.getReceivedGoalInvitations().contains(goalInvitation));
+        assertTrue(invited.getGoals().contains(goal));
+        assertEquals(RequestStatus.ACCEPTED, goalInvitation.getStatus());
     }
 
     @Test
-    @DisplayName("Test accept when users goals is full")
-    public void testAcceptGoalInvitationWhenUserGoalsIsFull() {
-        long id = 1L;
+    @DisplayName("Test acceptGoalInvitation when data is invalid")
+    public void testAcceptGoalInvitationInvalidData() {
+        long invitationId = 1L;
 
-        Goal goal1 = new Goal();
-        goal1.setId(1L);
-        Goal goal2 = new Goal();
-        goal1.setId(2L);
-        Goal goal3 = new Goal();
-        goal1.setId(3L);
-
-        Goal addedGoal = new Goal();
-        addedGoal.setId(4L);
-
-        List<Goal> goals = List.of(goal1, goal2, goal3);
-
-        User invited = new User();
-        invited.setId(1L);
-        invited.setGoals(goals);
+        User invitedUser = new User();
+        invitedUser.setId(1L);
 
         GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setId(1L);
-        goalInvitation.setInvited(invited);
-        goalInvitation.setGoal(addedGoal);
+        goalInvitation.setId(invitationId);
+        goalInvitation.setInvited(invitedUser);
 
-        when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
-        when(userService.existsUserById(invited.getId())).thenReturn(true);
-        when(goalInvitationRepository.existsById(goalInvitation.getId())).thenReturn(true);
+        when(goalInvitationRepository.findById(invitationId)).thenReturn(java.util.Optional.of(goalInvitation));
+        when(goalInvitationValidator.checkData(invitedUser, goalInvitation)).thenReturn(false);
 
-        assertThrows(DataValidationException.class, () -> goalInvitationService.acceptGoalInvitation(id));
+        goalInvitationService.acceptGoalInvitation(invitationId);
+
+        assertFalse(invitedUser.getReceivedGoalInvitations().contains(goalInvitation));
+        assertFalse(invitedUser.getGoals().contains(goalInvitation.getGoal()));
+        assertNotEquals(RequestStatus.ACCEPTED, goalInvitation.getStatus());
     }
 }

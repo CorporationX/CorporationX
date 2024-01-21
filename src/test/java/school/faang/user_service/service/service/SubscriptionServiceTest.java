@@ -15,7 +15,7 @@ import school.faang.user_service.validator.SubscriptionValidator;
 public class SubscriptionServiceTest {
 
     @Mock
-    private SubscriptionRepository subscriptionRepository;
+    private SubscriptionRepository subscriptionRepo;
 
     @Mock
     private SubscriptionValidator subscriptionValidator;
@@ -24,14 +24,28 @@ public class SubscriptionServiceTest {
     private SubscriptionService subscriptionService;
 
     @Test
-    public void testGetFollowingCount() {
-        long followerId = 1L;
-        int count = 111;
+    public void testUnfollowedSuccess() {
+        subscriptionService.unfollowUser(10L, 20L);
+        Mockito.verify(subscriptionRepo, Mockito.times(1))
+                .unfollowUser(Mockito.anyLong(), Mockito.anyLong());
+    }
 
-        Mockito.when(subscriptionRepository.findFolloweesAmountByFollowerId(followerId)).thenReturn(count);
+    @Test
+    public void testFollowedSuccess() {
+        subscriptionService.followUser(10L, 20L);
+        Mockito.verify(subscriptionRepo, Mockito.times(1))
+                .followUser(Mockito.anyLong(), Mockito.anyLong());
+    }
 
-        int followingCount = subscriptionService.getFollowingCount(followerId);
+    @Test
+    public void testFollowingCount() {
+        Mockito.when(subscriptionRepo.findFolloweesAmountByFollowerId(1L)).thenReturn(5);
+        Assertions.assertEquals(5, subscriptionService.getFollowingCount(1L));
+    }
 
-        Assertions.assertEquals(count, followingCount);
+    @Test
+    public void testFollowersCount() {
+        Mockito.when(subscriptionRepo.findFollowersAmountByFolloweeId(1L)).thenReturn(5);
+        Assertions.assertEquals(5, subscriptionService.getFollowersCount(1L));
     }
 }

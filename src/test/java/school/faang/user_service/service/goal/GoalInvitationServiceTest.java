@@ -13,6 +13,9 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.filter.Filter;
+import school.faang.user_service.filter.impl.goalinvitation.InvitedIdFilter;
+import school.faang.user_service.filter.impl.goalinvitation.InvitedNamePattern;
+import school.faang.user_service.filter.impl.goalinvitation.InviterIdFilter;
 import school.faang.user_service.filter.impl.goalinvitation.InviterNamePattern;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
@@ -50,13 +53,16 @@ public class GoalInvitationServiceTest {
     @BeforeEach
     public void init() {
         InviterNamePattern inviterNamePattern = mock(InviterNamePattern.class);
+        InvitedNamePattern invitedNamePattern = mock(InvitedNamePattern.class);
+        InvitedIdFilter invitedIdFilter = mock(InvitedIdFilter.class);
+        InviterIdFilter inviterIdFilter = mock(InviterIdFilter.class);
 
         goalInvitationRepository = mock(GoalInvitationRepository.class);
         goalInvitationMapper = mock(GoalInvitationMapper.class);
         goalService = mock(GoalService.class);
         userService = mock(UserService.class);
 
-        filters = List.of(inviterNamePattern);
+        filters = List.of(inviterNamePattern, invitedNamePattern, invitedIdFilter, inviterIdFilter);
 
         goalInvitationService = new GoalInvitationService(goalInvitationRepository, goalInvitationMapper, userService, goalService, filters);
     }

@@ -35,7 +35,7 @@ class UserServiceTest {
         user.setId(userId);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        User result = userService.getUserById(userId).get();
+        User result = userService.getUserById(userId);
 
         assertEquals(userId, result.getId());
         verify(userRepository, times(1)).findById(userId);

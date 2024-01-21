@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.user.UserService;
+import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 /**
  * @author Alexander Bulgakov
@@ -21,34 +21,22 @@ public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalInvitationMapper invitationMapper;
+    private final GoalInvitationValidator goalInvitationValidator;
     private final UserService userService;
 
     @SneakyThrows
     public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
         GoalInvitation goalInvitation = invitationMapper.toEntity(invitation);
 
-        User inviter = userService.getUserById(invitation.getInviterId())
-                .orElseThrow(() -> new EntityNotFoundException("Inviter user not found"));
-        User invited = userService.getUserById(invitation.getInvitedUserId())
-                .orElseThrow(() -> new EntityNotFoundException("Invited user not found"));
+        User inviter = userService.getUserById(invitation.getInviterId());
+        User invited = userService.getUserById(invitation.getInvitedUserId());
 
-        if (checkUser(inviter, invited)) {
+        if (goalInvitationValidator.checkUser(inviter, invited)) {
             goalInvitationRepository.save(goalInvitation);
         }
 
         return invitationMapper.toDto(goalInvitation);
     }
 
-    @SneakyThrows
-    private boolean checkUser(User inviter, User invited) {
-        if (!userService.existsUserById(inviter.getId())) {
-            throw new EntityNotFoundException("User does not exists");
-        } else if (!userService.existsUserById(invited.getId())) {
-            throw new EntityNotFoundException("User does not exists");
-        } else if (inviter.getId() == invited.getId()) {
-            throw new EntityNotFoundException("This users is the same");
-        } else {
-            return true;
-        }
-    }
+
 }

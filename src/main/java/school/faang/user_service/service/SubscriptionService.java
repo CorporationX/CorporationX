@@ -7,13 +7,6 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.UserFilter;
-import school.faang.user_service.filter.user.UserAboutFilter;
-import school.faang.user_service.filter.user.UserCityFilter;
-import school.faang.user_service.filter.user.UserContactFilter;
-import school.faang.user_service.filter.user.UserEmailFilter;
-import school.faang.user_service.filter.user.UserNameFilter;
-import school.faang.user_service.filter.user.UserPhoneFilter;
-import school.faang.user_service.filter.user.UserSkillFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.validator.SubscriptionValidator;
@@ -30,16 +23,18 @@ public class SubscriptionService {
     private final List<UserFilter> filters;
     private final UserMapper userMapper;
 
+    @Transactional(readOnly = true)
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
-        subscriptionValidator.validateUserExists(followeeId);
-        return filterUsers(subscriptionRepo.findByFolloweeId(followeeId), filter);
+        subscriptionValidator.validate(followeeId);
+        Stream<User> filteredUsers = subscriptionRepo.findByFolloweeId(followeeId);
+        return filterUsers(filteredUsers, filter);
     }
 
     private List<UserDto> filterUsers(Stream<User> users, UserFilterDto dtoFilter) {
-        filters.stream()
+        Stream<User> filteredUsers = filters.stream()
                 .filter(filter -> filter.isApplicable(dtoFilter))
-                .forEach(filter -> filter.apply(users, dtoFilter));
-        return userMapper.toDtoList(users.toList());
-    }
+                .flatMap(filter -> filter.apply(users, dtoFilter));
 
+        return userMapper.toDtoList(filteredUsers.toList());
+    }
 }

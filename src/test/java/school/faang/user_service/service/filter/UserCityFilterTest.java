@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filter.user.UserNameFilter;
+import school.faang.user_service.filter.user.UserCityFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -13,20 +13,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class UserNameFilterTest {
+public class UserCityFilterTest {
 
     private UserFilterDto dto;
-    private UserNameFilter filter;
+    private UserCityFilter filter;
 
     @BeforeEach
     public void init() {
         dto = new UserFilterDto();
-        filter = new UserNameFilter();
+        filter = new UserCityFilter();
     }
 
     @Test
     void testIsApplicable() {
-        dto.setNamePattern("R");
+        dto.setCityPattern("Saint");
         assertTrue(filter.isApplicable(dto));
     }
 
@@ -37,12 +37,12 @@ class UserNameFilterTest {
 
     @Test
     void testApplyFilter() {
-        dto.setNamePattern("R");
+        dto.setCityPattern("Saint");
 
         List<User> createdUsers = List.of(
-                User.builder().username("Ruslan").build(),
-                User.builder().username("Oleg").build(),
-                User.builder().username("Roman").build()
+                User.builder().city("Saint-Petersburg").build(),
+                User.builder().city("Saint-Etienne").build(),
+                User.builder().city("London").build()
         );
 
         Stream<User> users = createdUsers.stream();

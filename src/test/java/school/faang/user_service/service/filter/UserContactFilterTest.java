@@ -4,7 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filter.user.UserNameFilter;
+import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.contact.ContactType;
+import school.faang.user_service.filter.user.UserContactFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -13,20 +15,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class UserNameFilterTest {
+public class UserContactFilterTest {
 
     private UserFilterDto dto;
-    private UserNameFilter filter;
+    private UserContactFilter filter;
 
     @BeforeEach
     public void init() {
         dto = new UserFilterDto();
-        filter = new UserNameFilter();
+        filter = new UserContactFilter();
     }
 
     @Test
     void testIsApplicable() {
-        dto.setNamePattern("R");
+        dto.setContactPattern("@a");
         assertTrue(filter.isApplicable(dto));
     }
 
@@ -37,12 +39,15 @@ class UserNameFilterTest {
 
     @Test
     void testApplyFilter() {
-        dto.setNamePattern("R");
+        dto.setContactPattern("@a");
 
         List<User> createdUsers = List.of(
-                User.builder().username("Ruslan").build(),
-                User.builder().username("Oleg").build(),
-                User.builder().username("Roman").build()
+                User.builder().contacts(List.of(
+                        new Contact(1L, new User(), "@artem23", ContactType.TELEGRAM))).build(),
+                User.builder().contacts(List.of(
+                        new Contact(11L, new User(), "@aaakss2", ContactType.TELEGRAM))).build(),
+                User.builder().contacts(List.of(
+                        new Contact(12L, new User(), "@bob1997", ContactType.TELEGRAM))).build()
         );
 
         Stream<User> users = createdUsers.stream();

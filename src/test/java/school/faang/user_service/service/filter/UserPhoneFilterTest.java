@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filter.user.UserNameFilter;
+import school.faang.user_service.filter.user.UserPhoneFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -13,20 +13,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class UserNameFilterTest {
+public class UserPhoneFilterTest {
 
     private UserFilterDto dto;
-    private UserNameFilter filter;
+    private UserPhoneFilter filter;
 
     @BeforeEach
     public void init() {
         dto = new UserFilterDto();
-        filter = new UserNameFilter();
+        filter = new UserPhoneFilter();
     }
 
     @Test
     void testIsApplicable() {
-        dto.setNamePattern("R");
+        dto.setPhonePattern("+7");
         assertTrue(filter.isApplicable(dto));
     }
 
@@ -37,12 +37,12 @@ class UserNameFilterTest {
 
     @Test
     void testApplyFilter() {
-        dto.setNamePattern("R");
+        dto.setPhonePattern("+7");
 
         List<User> createdUsers = List.of(
-                User.builder().username("Ruslan").build(),
-                User.builder().username("Oleg").build(),
-                User.builder().username("Roman").build()
+                User.builder().phone("+79992002020").build(),
+                User.builder().phone("+342398423").build(),
+                User.builder().phone("+79119111111").build()
         );
 
         Stream<User> users = createdUsers.stream();

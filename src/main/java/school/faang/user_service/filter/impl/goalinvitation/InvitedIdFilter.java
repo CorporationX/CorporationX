@@ -6,7 +6,6 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.filter.Filter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexander Bulgakov
@@ -19,10 +18,8 @@ public class InvitedIdFilter implements Filter<InvitationFilterDto, GoalInvitati
     }
 
     @Override
-    public List<GoalInvitation> apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filterDto) {
-        return goalInvitations.stream()
-                .filter(goalInvitation ->
-                        filterDto.getInvitedId().equals(goalInvitation.getInvited().getId()))
-                .collect(Collectors.toList());
+    public void apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filter) {
+        goalInvitations.removeIf((goalInvitation) ->
+            goalInvitation.getInvited().getId() != filter.getInvitedId());
     }
 }

@@ -6,7 +6,6 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.filter.Filter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexander Bulgakov
@@ -19,10 +18,8 @@ public class InviterNamePattern implements Filter<InvitationFilterDto, GoalInvit
     }
 
     @Override
-    public List<GoalInvitation> apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filter) {
-        return goalInvitations.stream().filter(goalInvitation ->
-                goalInvitation.getInviter().getUsername()
-                        .contains(filter.getInviterNamePattern()))
-                .collect(Collectors.toList());
+    public void apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filter) {
+        goalInvitations.removeIf((goalInvitation) ->
+                goalInvitation.getInviter().getUsername().contains(filter.getInviterNamePattern()));
     }
 }

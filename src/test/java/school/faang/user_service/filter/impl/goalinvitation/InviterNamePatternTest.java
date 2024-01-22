@@ -1,4 +1,5 @@
 package school.faang.user_service.filter.impl.goalinvitation;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,7 +11,6 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -49,21 +49,19 @@ public class InviterNamePatternTest {
     }
 
     @Test
-    public void testApply_WithMatchingInviterNamePattern_ReturnsFilteredGoalInvitations() {
+    public void testApply_WithMatchingInviterNamePattern() {
         InvitationFilterDto filterDto = new InvitationFilterDto();
-        filterDto.setInviterNamePattern("John");
+        filterDto.setInviterNamePattern("Jane");
 
-        User inviter = new User();
-        inviter.setId(1L);
-        inviter.setUsername("John Doe");
+        User inviter1 = new User();
+        inviter1.setUsername("John Doe");
 
         User inviter2 = new User();
-        inviter2.setId(2L);
         inviter2.setUsername("Jane Smith");
 
         GoalInvitation invitation1 = new GoalInvitation();
         invitation1.setId(1L);
-        invitation1.setInviter(inviter);
+        invitation1.setInviter(inviter1);
 
         GoalInvitation invitation2 = new GoalInvitation();
         invitation2.setId(2L);
@@ -72,10 +70,10 @@ public class InviterNamePatternTest {
         goalInvitations.add(invitation1);
         goalInvitations.add(invitation2);
 
-        List<GoalInvitation> result = inviterNamePattern.apply(goalInvitations, filterDto);
+        inviterNamePattern.apply(goalInvitations, filterDto);
 
-        assertEquals(1, result.size());
-        assertEquals(invitation1.getInviter().getUsername(), result.get(0).getInviter().getUsername());
+        assertTrue(goalInvitations.size() == 1);
+        assertTrue(goalInvitations.get(0).getInviter().getUsername().equals("Jane Smith"));
     }
 }
 

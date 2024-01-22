@@ -272,7 +272,7 @@ public class GoalInvitationServiceTest {
 
         List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
 
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
     }
 
     @Test

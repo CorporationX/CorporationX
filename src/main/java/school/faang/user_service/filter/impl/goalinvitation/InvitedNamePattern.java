@@ -19,6 +19,7 @@ public class InvitedNamePattern implements Filter<InvitationFilterDto, GoalInvit
 
     @Override
     public void apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filter) {
-        goalInvitations.removeIf((goalInvitation) -> !goalInvitation.getInvited().getUsername().contains(filter.getInvitedNamePattern()));
+        goalInvitations.removeIf((goalInvitation) ->
+                !goalInvitation.getInvited().getUsername().contains(filter.getInvitedNamePattern()));
     }
 }

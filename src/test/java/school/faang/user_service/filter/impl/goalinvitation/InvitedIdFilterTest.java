@@ -77,13 +77,23 @@ public class InvitedIdFilterTest {
     }
 
     @Test
-    public void testApply_FilterByInvitedId_ReturnsFilteredInvitations() {
+    public void testApply_FilterInvitedIdMatches_RemovesMatchingGoalInvitations() {
         InvitationFilterDto filterDto = new InvitationFilterDto();
         filterDto.setInvitedId(2L);
 
-        List<GoalInvitation> filteredInvitations = invitedIdFilter.apply(goalInvitations, filterDto);
+        invitedIdFilter.apply(goalInvitations, filterDto);
 
-        assertEquals(1, filteredInvitations.size());
-        assertEquals(2L, filteredInvitations.get(0).getInvited().getId());
+        assertEquals(1, goalInvitations.size());
+        assertFalse(goalInvitations.stream().anyMatch(g -> g.getId() == 2L));
+    }
+
+    @Test
+    public void testApply_FilterInvitedIdDoesNotMatch_NoChangesToGoalInvitations() {
+        InvitationFilterDto filterDto = new InvitationFilterDto();
+        filterDto.setInvitedId(5L);
+
+        invitedIdFilter.apply(goalInvitations, filterDto);
+
+        assertEquals(0, goalInvitations.size());
     }
 }

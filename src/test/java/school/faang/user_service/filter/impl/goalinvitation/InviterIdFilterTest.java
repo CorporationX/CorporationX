@@ -49,12 +49,12 @@ public class InviterIdFilterTest {
         GoalInvitation invitation1 = new GoalInvitation();
         invitation1.setId(1L);
         invitation1.setInvited(invited);
-        invitation1.setInviter(inviter);
+        invitation1.setInviter(inviter2);
 
         GoalInvitation invitation2 = new GoalInvitation();
         invitation2.setId(2L);
         invitation2.setInvited(invited2);
-        invitation2.setInviter(inviter2);
+        invitation2.setInviter(inviter);
 
         goalInvitations.add(invitation1);
         goalInvitations.add(invitation2);
@@ -76,13 +76,23 @@ public class InviterIdFilterTest {
     }
 
     @Test
-    public void testApply_FilterByInviterId_ReturnsFilteredInvitations() {
+    public void testApply_FilterInviterIdMatches_RemovesMatchingGoalInvitations() {
         InvitationFilterDto filterDto = new InvitationFilterDto();
         filterDto.setInviterId(3L);
 
-        List<GoalInvitation> filteredInvitations = inviterIdFilter.apply(goalInvitations, filterDto);
+        inviterIdFilter.apply(goalInvitations, filterDto);
 
-        assertEquals(1, filteredInvitations.size());
-        assertEquals(3L, filteredInvitations.get(0).getInviter().getId());
+        assertEquals(1, goalInvitations.size());
+        assertFalse(goalInvitations.stream().anyMatch(g -> g.getId() == 3L));
+    }
+
+    @Test
+    public void testApply_FilterInviterIdDoesNotMatch_NoChangesToGoalInvitations() {
+        InvitationFilterDto filterDto = new InvitationFilterDto();
+        filterDto.setInviterId(5L);
+
+        inviterIdFilter.apply(goalInvitations, filterDto);
+
+        assertEquals(0, goalInvitations.size());
     }
 }

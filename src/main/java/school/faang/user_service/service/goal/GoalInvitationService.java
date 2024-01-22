@@ -17,10 +17,7 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexander Bulgakov
@@ -98,16 +95,11 @@ public class GoalInvitationService {
             return new ArrayList<>(goalInvitations.stream().map(invitationMapper::toDto).toList());
         }
 
-        List<List<GoalInvitation>> filteredInvitations = goalInvitationFilters.stream()
+        goalInvitationFilters.stream()
                 .filter(goalInvitationFilter -> goalInvitationFilter.isApplicable(filter))
-                .map(goalInvitationFilter -> goalInvitationFilter.apply(goalInvitations, filter))
-                .toList();
+                .forEach(goalInvitationFilter -> goalInvitationFilter.apply(goalInvitations, filter));
 
-        Set<GoalInvitation> filteredGoalInvitations = filteredInvitations.stream()
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        return new ArrayList<>(filteredGoalInvitations.stream()
+        return new ArrayList<>(goalInvitations.stream()
                 .map(invitationMapper::toDto).toList());
     }
 }

@@ -2,6 +2,7 @@ package school.faang.user_service.validator.goal;
 
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
@@ -35,5 +36,10 @@ public class GoalInvitationValidator {
         } else {
             return true;
         }
+    }
+
+    public boolean checkFilter(InvitationFilterDto filter) {
+        return filter.getInviterNamePattern() == null && filter.getInvitedNamePattern() == null
+                && filter.getInviterId() == null && filter.getInvitedId() == null;
     }
 }

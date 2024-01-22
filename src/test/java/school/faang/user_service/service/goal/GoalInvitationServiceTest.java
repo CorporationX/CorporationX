@@ -6,12 +6,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
+import school.faang.user_service.filter.Filter;
+import school.faang.user_service.filter.impl.goalinvitation.InvitedIdFilter;
+import school.faang.user_service.filter.impl.goalinvitation.InvitedNamePattern;
+import school.faang.user_service.filter.impl.goalinvitation.InviterIdFilter;
+import school.faang.user_service.filter.impl.goalinvitation.InviterNamePattern;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.user.UserService;
@@ -41,18 +47,26 @@ public class GoalInvitationServiceTest {
     private GoalInvitationValidator goalInvitationValidator;
     private UserService userService;
     private GoalService goalService;
+    private List<Filter<InvitationFilterDto, GoalInvitation>> filters;
     private GoalInvitationService goalInvitationService;
 
     @BeforeEach
     public void init() {
+        InviterNamePattern inviterNamePattern = new InviterNamePattern();
+        InvitedNamePattern invitedNamePattern = new InvitedNamePattern();
+        InvitedIdFilter invitedIdFilter = new InvitedIdFilter();
+        InviterIdFilter inviterIdFilter = new InviterIdFilter();
+
         goalInvitationRepository = mock(GoalInvitationRepository.class);
         goalInvitationMapper = mock(GoalInvitationMapper.class);
         goalInvitationValidator = new GoalInvitationValidator();
         userService = mock(UserService.class);
         goalService = mock(GoalService.class);
 
+        filters = List.of(inviterNamePattern, invitedNamePattern, invitedIdFilter, inviterIdFilter);
+
         goalInvitationService = new GoalInvitationService(goalInvitationRepository,
-                goalInvitationMapper, goalInvitationValidator, userService, goalService);
+                goalInvitationMapper, goalInvitationValidator, userService, goalService, filters);
     }
 
     @Test
@@ -152,7 +166,7 @@ public class GoalInvitationServiceTest {
 
         when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(goalInvitation));
 
-        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+        assertThrows(DataValidationException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
     }
 
     @Test

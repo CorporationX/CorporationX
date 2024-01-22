@@ -31,3 +31,4 @@ public class SubscriptionControllerTest {
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .followUser(1, 2);
     }
+}

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,5 +35,17 @@ public class SubscriptionServiceTest {
         subscriptionService.followUser(10L, 20L);
         Mockito.verify(subscriptionRepository, Mockito.times(1))
                 .followUser(Mockito.anyLong(), Mockito.anyLong());
+    }
+
+    @Test
+    public void testFollowingCount() {
+        Mockito.when(subscriptionRepository.findFolloweesAmountByFollowerId(1L)).thenReturn(5);
+        Assertions.assertEquals(5, subscriptionService.getFollowingCount(1L));
+    }
+
+    @Test
+    public void testFollowersCount() {
+        Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(1L)).thenReturn(5);
+        Assertions.assertEquals(5, subscriptionService.getFollowersCount(1L));
     }
 }

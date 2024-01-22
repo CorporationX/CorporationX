@@ -22,6 +22,12 @@ public class SubscriptionValidator {
         }
     }
 
+    public void validateUser(long userId) {
+        if (!userRepo.existsById(userId)) {
+            throw new DataValidationException("This user is not registered");
+        }
+    }
+
     public void validateExistsSubscription(long followerId, long followeeId) {
         if (subscriptionRepo.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException("Subscription already exists!");

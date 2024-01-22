@@ -6,25 +6,19 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.event.EventService;
-
-import java.time.LocalDateTime;
+import school.faang.user_service.validator.event.EventValidator;
 
 @Component
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
+    private final EventValidator eventValidator;
 
-    public EventDto create(EventDto event) {
-        if (!isValidate(event)) {
-            throw new DataValidationException("Event isn't validate.");
+    public EventDto create(EventDto eventDto) {
+        if (!eventValidator.validateEventInController(eventDto)) {
+            throw new DataValidationException("Incorrect event.");
         }
-        return eventService.create(event);
-    }
-
-    public boolean isValidate(EventDto event) {
-        return (event.getTitle() != null && !event.getTitle().isEmpty())
-                && event.getStartDate().isAfter(LocalDateTime.now())
-                && event.getOwnerId() >= 0;
+        return eventService.create(eventDto);
     }
 
 }

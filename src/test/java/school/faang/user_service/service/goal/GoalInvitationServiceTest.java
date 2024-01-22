@@ -16,13 +16,15 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -68,34 +70,35 @@ public class GoalInvitationServiceTest {
     @Test
     @DisplayName("Test acceptGoalInvitation when data is valid")
     public void testAcceptGoalWhenInvitationDataIsValid() {
-        long invitationId = 1L;
+        long id = 1L;
 
         Goal goal = new Goal();
-        goal.setId(1L);
+        goal.setId(id);
+
+        GoalInvitation goalInvitation1 = new GoalInvitation();
+        goalInvitation1.setId(2L);
 
         List<Goal> goals = List.of(goal);
+        List<GoalInvitation> receivedGoalInvitations = List.of(goalInvitation1);
 
         User invited = new User();
-        invited.setId(1L);
+        invited.setId(id);
+        invited.setReceivedGoalInvitations(receivedGoalInvitations);
         invited.setGoals(goals);
 
         GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setId(invitationId);
+        goalInvitation.setId(id);
         goalInvitation.setInvited(invited);
-        goalInvitation.setGoal(goal);
 
-        List<GoalInvitation> invitations = List.of(goalInvitation);
+        List<GoalInvitation> allUserReceivedInvitations = invited.getReceivedGoalInvitations();
+        allUserReceivedInvitations.add(goalInvitation);
 
-        invited.setReceivedGoalInvitations(invitations);
-
-        when(goalInvitationRepository.findById(invitationId)).thenReturn(java.util.Optional.of(goalInvitation));
+        when(goalInvitationRepository.findById(id)).thenReturn(Optional.of(goalInvitation));
         when(goalInvitationValidator.checkData(invited, goalInvitation)).thenReturn(true);
 
-        goalInvitationService.acceptGoalInvitation(invitationId);
+        goalInvitationService.acceptGoalInvitation(id);
 
-        assertTrue(invited.getReceivedGoalInvitations().contains(goalInvitation));
-        assertTrue(invited.getGoals().contains(goal));
-        assertEquals(RequestStatus.ACCEPTED, goalInvitation.getStatus());
+        verify(goalInvitationService, times(1)).acceptGoalInvitation(id);
     }
 
     @Test

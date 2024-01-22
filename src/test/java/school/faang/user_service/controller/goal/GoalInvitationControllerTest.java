@@ -1,21 +1,17 @@
 package school.faang.user_service.controller.goal;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.dto.goal.InvitationFilterDto;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.service.goal.GoalInvitationService;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

@@ -3,23 +3,17 @@ package school.faang.user_service.service.goal;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
-import school.faang.user_service.filter.Filter;
-import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.user.UserService;
+import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexander Bulgakov
@@ -30,37 +24,62 @@ public class GoalInvitationService {
     private static final int MAX_ACTIVE_GOALS = 3;
 
     private final GoalInvitationRepository goalInvitationRepository;
-    private final GoalInvitationMapper goalInvitationMapper;
+    private final GoalInvitationMapper invitationMapper;
+    private final GoalInvitationValidator goalInvitationValidator;
     private final UserService userService;
     private final GoalService goalService;
     private final List<Filter<InvitationFilterDto, GoalInvitation>> goalInvitationFilters;
 
     @SneakyThrows
-    public void acceptGoalInvitation(long id) {
-        GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
+    public GoalInvitation getGoalInvitationById(long id) {
+        return goalInvitationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("GoalInvitation is not found"));
+    }
 
-        List<GoalInvitation> receivedGoalInvitations = new ArrayList<>();
-        receivedGoalInvitations.add(goalInvitation);
+    @SneakyThrows
+    public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
+        GoalInvitation goalInvitation = invitationMapper.toEntity(invitation);
 
-        List<Goal> goals = new ArrayList<>();
-        goals.add(goalInvitation.getGoal());
+        User inviter = userService.getUserById(invitation.getInviterId());
+        User invited = userService.getUserById(invitation.getInvitedUserId());
+
+        if (goalInvitationValidator.checkUser(inviter, invited)) {
+            goalInvitationRepository.save(goalInvitation);
+        }
+
+        return invitationMapper.toDto(goalInvitation);
+    }
+
+    public GoalInvitationDto acceptGoalInvitation(long id) {
+        GoalInvitation goalInvitation = getGoalInvitationById(id);
 
         User invitedUser = goalInvitation.getInvited();
 
-        if (checkData(invitedUser, goalInvitation)) {
-            invitedUser.setReceivedGoalInvitations(receivedGoalInvitations);
-            invitedUser.setGoals(goals);
+        List<GoalInvitation> currentUserReceivedInvitations = invitedUser.getReceivedGoalInvitations();
+        currentUserReceivedInvitations.add(goalInvitation);
+
+
+        if (goalInvitationValidator.checkData(invitedUser, goalInvitation)) {
+            List<Goal> currentUserGoals = invitedUser.getGoals();
+            currentUserGoals.add(goalInvitation.getGoal());
+
+            invitedUser.setReceivedGoalInvitations(currentUserReceivedInvitations);
+            invitedUser.setGoals(currentUserGoals);
+
+            goalInvitation.setStatus(RequestStatus.ACCEPTED);
+
+            userService.saveUser(invitedUser);
+            goalInvitationRepository.save(goalInvitation);
         }
+        return invitationMapper.toDto(goalInvitation);
     }
 
     @SneakyThrows
     public void rejectGoalInvitation(long id) {
-        GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Goal invitation is not found"));
+        GoalInvitation goalInvitation = getGoalInvitationById(id);
         Goal goal = goalInvitation.getGoal();
 
-        if (checkGoalIsExist(goal)) {
+        if (goalService.existsGoalById(goal.getId())) {
             goalInvitationRepository.delete(goalInvitation);
         }
     }

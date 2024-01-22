@@ -18,6 +18,8 @@ import school.faang.user_service.service.user.UserService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexander Bulgakov
@@ -75,12 +77,11 @@ public class GoalInvitationService {
                 .map(goalInvitationFilter -> goalInvitationFilter.apply(goalInvitations, filter))
                 .toList();
 
-        List<GoalInvitation> filteredGoalInvitations = filteredInvitations.stream()
-                .flatMap(Collection::stream)
-                .toList();
+        Set<GoalInvitation> filteredGoalInvitations = filteredInvitations.stream()
+                .flatMap(Collection::stream).collect(Collectors.toSet());
 
         return new ArrayList<>(filteredGoalInvitations.stream()
-                .map(goalInvitationMapper::toDto).toList());
+        .map(goalInvitationMapper::toDto).toList());
     }
 
     @SneakyThrows

@@ -28,7 +28,6 @@ import java.util.Optional;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,10 +51,10 @@ public class GoalInvitationServiceTest {
 
     @BeforeEach
     public void init() {
-        InviterNamePattern inviterNamePattern = mock(InviterNamePattern.class);
-        InvitedNamePattern invitedNamePattern = mock(InvitedNamePattern.class);
-        InvitedIdFilter invitedIdFilter = mock(InvitedIdFilter.class);
-        InviterIdFilter inviterIdFilter = mock(InviterIdFilter.class);
+        InviterNamePattern inviterNamePattern = new InviterNamePattern();
+        InvitedNamePattern invitedNamePattern = new InvitedNamePattern();
+        InvitedIdFilter invitedIdFilter = new InvitedIdFilter();
+        InviterIdFilter inviterIdFilter = new InviterIdFilter();
 
         goalInvitationRepository = mock(GoalInvitationRepository.class);
         goalInvitationMapper = mock(GoalInvitationMapper.class);
@@ -223,43 +222,46 @@ public class GoalInvitationServiceTest {
     public void testGetInvitations() {
         InvitationFilterDto filter = new InvitationFilterDto();
         filter.setInviterNamePattern("Alex");
-        filter.setInviterNamePattern("Alex");
+        filter.setInvitedNamePattern("Alex");
         filter.setInvitedId(2L);
 
-        User inviter = new User();
-        inviter.setId(1L);
-        inviter.setUsername("Alexander Bulgakov");
+        User inviter1 = new User();
+        inviter1.setId(1L);
+        inviter1.setUsername("Alexander Bulgakov");
 
-        User invited = new User();
-        invited.setId(2L);
-        invited.setUsername("Alexey Goloverdin");
+        User invited1 = new User();
+        invited1.setId(2L);
+        invited1.setUsername("Alexey Goloverdin");
+
+        User invited2 = new User();
+        invited2.setId(4L);
+        invited2.setUsername("Anna");
+
+        User inviter2 = new User();
+        inviter2.setId(3L);
+        inviter2.setUsername("Pavel");
 
         GoalInvitation invitation1 = new GoalInvitation();
         invitation1.setId(1L);
-        invitation1.setInviter(inviter);
+        invitation1.setInviter(inviter1);
+        invitation1.setInvited(invited1);
 
         GoalInvitation invitation2 = new GoalInvitation();
         invitation2.setId(2L);
-        invitation2.setInvited(invited);
+        invitation2.setInviter(inviter2);
+        invitation2.setInvited(invited2);
+
+        GoalInvitation invitation3 = new GoalInvitation();
+        invitation3.setId(3L);
+        invitation3.setInviter(inviter1);
+        invitation3.setInvited(invited2);
 
         List<GoalInvitation> goalInvitations = new ArrayList<>();
         goalInvitations.add(invitation1);
         goalInvitations.add(invitation2);
-
-        GoalInvitationDto goalInvitationDto1 = new GoalInvitationDto();
-        goalInvitationDto1.setId(1L);
-        goalInvitationDto1.setInviterId(inviter.getId());
-
-        GoalInvitationDto goalInvitationDto2 = new GoalInvitationDto();
-        goalInvitationDto2.setId(2L);
-        goalInvitationDto2.setInvitedUserId(invited.getId());
-
+        goalInvitations.add(invitation3);
 
         when(goalInvitationRepository.findAll()).thenReturn(goalInvitations);
-        when(filters.get(0).isApplicable(any())).thenReturn(true);
-        when(filters.get(0).apply(any(), any())).thenReturn(goalInvitations);
-        when(goalInvitationMapper.toDto(invitation1)).thenReturn(goalInvitationDto1);
-        when(goalInvitationMapper.toDto(invitation2)).thenReturn(goalInvitationDto2);
 
         List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
 

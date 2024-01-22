@@ -25,24 +25,32 @@ public class SubscriptionValidatorTest {
     private SubscriptionValidator subscriptionValidator;
 
     @Test
+    public void testNonFollowedThrowsException() {
+        Mockito.when(subscriptionRepo.existsByFollowerIdAndFolloweeId(1L, 2L))
+                .thenReturn(false);
+        Assert.assertThrows(DataValidationException.class, () ->
+                subscriptionValidator.validateNonExistsSubscription(1L, 2L));
+    }
+
+    @Test
     public void testAlreadyFollowedThrowsException() {
         Mockito.when(subscriptionRepo.existsByFollowerIdAndFolloweeId(1L, 2L))
                 .thenReturn(true);
         Assert.assertThrows(DataValidationException.class, () ->
-                subscriptionValidator.validate(1L, 2L));
+                subscriptionValidator.validateExistsSubscription(1L, 2L));
     }
 
     @Test
     public void testFollowUserThrowsException() {
         Assert.assertThrows(DataValidationException.class, () ->
-                subscriptionValidator.validate(1L, 1L));
+                subscriptionValidator.validateUser(1L, 1L));
     }
 
     @Test
-    public void testFollowerAndFolloweeExists() {
+    public void testUserNonExists() {
         Mockito.lenient().when(userRepo.existsById(1L)).thenReturn(true);
         Mockito.lenient().when(userRepo.existsById(2L)).thenReturn(false);
         Assert.assertThrows(DataValidationException.class, () ->
-                subscriptionValidator.validate(1L, 2L));
+                subscriptionValidator.validateUser(1L, 2L));
     }
 }

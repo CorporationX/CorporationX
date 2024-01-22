@@ -11,23 +11,26 @@ import school.faang.user_service.repository.UserRepository;
 public class SubscriptionValidator {
 
     private final SubscriptionRepository subscriptionRepo;
-    private final UserRepository userRepository;
+    private final UserRepository userRepo;
 
-    public void validate(long followerId, long followeeId) {
-        if (!userRepository.existsById(followerId) || !userRepository.existsById(followeeId)) {
+    public void validateUser(long followerId, long followeeId) {
+        if (!userRepo.existsById(followeeId) || !userRepo.existsById(followerId)) {
             throw new DataValidationException("This user is not registered");
         }
-        if (subscriptionRepo.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException("Subscribe already exists!");
-        }
         if (followerId == followeeId) {
-            throw new DataValidationException("You can't subscribe to yourself!");
+            throw new DataValidationException("IDs cannot be equal!");
         }
     }
 
-//    public void validateUserExists(long userId) {
-//        if (userRepository.existsById(followerId) || userRepository.existsById(followeeId)) {
-//            throw new DataValidationException("This user is not registered");
-//        }
-//    }
+    public void validateExistsSubscription(long followerId, long followeeId) {
+        if (subscriptionRepo.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new DataValidationException("Subscription already exists!");
+        }
+    }
+
+    public void validateNonExistsSubscription(long followerId, long followeeId) {
+        if (!subscriptionRepo.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new DataValidationException("Subscription non exists!");
+        }
+    }
 }

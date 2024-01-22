@@ -14,6 +14,12 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
 
+    @PostMapping("/unfollow/{followerId}/{followeeId}")
+    public void unfollowUser(@PathVariable long followerId,
+                             @PathVariable long followeeId) {
+        subscriptionService.unfollowUser(followerId, followeeId);
+    }
+
     @PostMapping("/follow/{followerId}/{followeeId}")
     public void followUser(@PathVariable long followerId,
                            @PathVariable long followeeId) {

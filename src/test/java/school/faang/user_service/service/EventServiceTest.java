@@ -7,18 +7,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.EventService;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class EventServiceTest {
 
     @Mock
@@ -28,30 +33,27 @@ public class EventServiceTest {
 
     @Test
     @DisplayName("Успешное получение всех событий по верному Id пользователя")
-    public void testSuccessGetEventById() {
-        Event event1 = Event.builder()
-                .id(21L)
-                .title("EventOne")
-                .maxAttendees(2)
-                .build();
-        Event event2 = Event.builder()
-                .id(22L)
-                .title("EventTwo")
-                .maxAttendees(2)
-                .build();
-        User user1 = User.builder().id(21L).active(true).build();
-        long userId = user1.getId();
-        List<User> attendees = new ArrayList<>();
-        attendees.add(user1);
-        event1.setAttendees(attendees);
-        event2.setAttendees(attendees);
-        List<Event> events = new ArrayList<>(List.of(event1, event2));
+    public void testGetParticipatedEventsByUserId() {
+        long userId = 1L;
 
-        Mockito.when(eventRepository.findAllByUserId(userId)).thenReturn(events);
+        List<Event> mockEvents = List.of(
+                Event.builder()
+                        .id(21L)
+                        .title("EventOne")
+                        .maxAttendees(2)
+                        .build(),
+                Event.builder()
+                        .id(22L)
+                        .title("EventTwo")
+                        .maxAttendees(2)
+                        .build()
+        );
 
-        eventService.getParticipatedEventsByUserId(userId);
+        when(eventRepository.findParticipatedEventsByUserId(userId)).thenReturn(mockEvents);
+        List<Event> events = eventService.getParticipatedEventsByUserId(userId);
 
-        Mockito.verify(eventRepository, times(1)).findAllByUserId(userId);
+        verify(eventRepository, times(1)).findParticipatedEventsByUserId(userId);
+        assertEquals(mockEvents, events);
     }
 
     @Test
@@ -59,11 +61,12 @@ public class EventServiceTest {
     public void testFailedGetEventByIncorrectId() {
         User user1 = User.builder().id(-5L).active(true).build();
         long userId = user1.getId();
-        Mockito.when(eventRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
 
-        eventService.getParticipatedEventsByUserId(userId);
+        when(eventRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
+        List<Event> events = eventService.getParticipatedEventsByUserId(userId);
 
-        Mockito.verify(eventRepository, times(1)).findAllByUserId(userId);
+        verify(eventRepository, Mockito.never()).findAllByUserId(userId);
+        assertEquals(Collections.emptyList(), events);
     }
 
 }

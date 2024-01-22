@@ -25,7 +25,7 @@ public class GoalInvitationController {
     }
 
     @PutMapping("/accept/{id}")
-    public void acceptGoalInvitation(@PathVariable long id) {
-        goalInvitationService.acceptGoalInvitation(id);
+    public GoalInvitationDto acceptGoalInvitation(@PathVariable long id) {
+        return goalInvitationService.acceptGoalInvitation(id);
     }
 }

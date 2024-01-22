@@ -25,8 +25,8 @@ public class GoalInvitationValidator {
 
     @SneakyThrows
     public boolean checkData(User user, GoalInvitation goalInvitation) {
-        if (goalInvitation.getStatus() == RequestStatus.ACCEPTED) {
-            throw new EntityNotFoundException("GoalInvitation is not found");
+        if (goalInvitation.getStatus() != RequestStatus.PENDING) {
+            throw new DataValidationException("GoalInvitation is not active");
         } else if (user.getGoals().contains(goalInvitation.getGoal())) {
             throw new DataValidationException("User already exist this goal");
         } else if (!(user.getGoals().size() < MAX_ACTIVE_GOALS)) {

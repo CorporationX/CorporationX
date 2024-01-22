@@ -29,7 +29,7 @@ public class GoalInvitationService {
     private final UserService userService;
 
     @SneakyThrows
-    public GoalInvitation getGoalInvitation(long id) {
+    public GoalInvitation getGoalInvitationById(long id) {
         return goalInvitationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("GoalInvitation is not found"));
     }
@@ -48,21 +48,28 @@ public class GoalInvitationService {
         return invitationMapper.toDto(goalInvitation);
     }
 
-    public void acceptGoalInvitation(long id) {
-        GoalInvitation goalInvitation = getGoalInvitation(id);
+    public GoalInvitationDto acceptGoalInvitation(long id) {
+        GoalInvitation goalInvitation = getGoalInvitationById(id);
 
         User invitedUser = goalInvitation.getInvited();
 
+        List<GoalInvitation> currentUserReceivedInvitations = invitedUser.getReceivedGoalInvitations();
+        currentUserReceivedInvitations.add(goalInvitation);
+
+
         if (goalInvitationValidator.checkData(invitedUser, goalInvitation)) {
-            List<GoalInvitation> allUserReceivedInvitations = invitedUser.getReceivedGoalInvitations();
-            allUserReceivedInvitations.add(goalInvitation);
+            List<Goal> currentUserGoals = invitedUser.getGoals();
+            currentUserGoals.add(goalInvitation.getGoal());
 
-            List<Goal> allUserGoals = invitedUser.getGoals();
-            allUserGoals.add(goalInvitation.getGoal());
+            invitedUser.setReceivedGoalInvitations(currentUserReceivedInvitations);
+            invitedUser.setGoals(currentUserGoals);
 
-            invitedUser.setReceivedGoalInvitations(allUserReceivedInvitations);
-            invitedUser.setGoals(allUserGoals);
             goalInvitation.setStatus(RequestStatus.ACCEPTED);
+
+            userService.saveUser(invitedUser);
+            goalInvitationRepository.save(goalInvitation);
         }
+
+        return invitationMapper.toDto(goalInvitation);
     }
 }

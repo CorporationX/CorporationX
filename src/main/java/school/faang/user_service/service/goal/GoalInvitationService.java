@@ -38,10 +38,9 @@ public class GoalInvitationService {
     public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
         GoalInvitation goalInvitation = invitationMapper.toEntity(invitation);
 
-        User inviter = userService.getUserById(invitation.getInviterId());
-        User invited = userService.getUserById(invitation.getInvitedUserId());
-
-        if (goalInvitationValidator.checkUser(inviter, invited)) {
+        if (userService.existsUserById(invitation.getInviterId()) &&
+                userService.existsUserById(invitation.getInvitedUserId())) {
+            goalInvitationValidator.checkUser(invitation.getInviterId(), invitation.getInvitedUserId());
             goalInvitationRepository.save(goalInvitation);
         }
 

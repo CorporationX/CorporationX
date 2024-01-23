@@ -1,5 +1,6 @@
 package school.faang.user_service.validator.goal;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,6 +11,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
+import school.faang.user_service.exception.goal.EntityNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,26 @@ public class GoalInvitationValidatorTest {
     private User invited;
     @InjectMocks
     private GoalInvitationValidator goalInvitationValidator;
+
+    @Test
+    public void testCheckUser_InviterAndInvitedAreSame() {
+        long inviterId = 1L;
+        long invitedId = 1L;
+
+        Assertions.assertThrows(EntityNotFoundException.class, () ->
+                goalInvitationValidator.checkUser(inviterId, invitedId)
+        );
+    }
+
+    @Test
+    public void testCheckUser_InviterIdNotEqualsInvitedId_NoExceptionThrown() {
+        long inviterId = 1;
+        long invitedId = 2;
+
+        Assertions.assertDoesNotThrow(() -> {
+            goalInvitationValidator.checkUser(inviterId, invitedId);
+        });
+    }
 
     @Test
     public void testCheckData_WhenGoalInvitationIsPendingAndUserDoesNotHaveMaxActiveGoals_ShouldReturnTrue() {

@@ -15,11 +15,9 @@ import school.faang.user_service.exception.goal.EntityNotFoundException;
 public class GoalInvitationValidator {
     private static final int MAX_ACTIVE_GOALS = 3;
     @SneakyThrows
-    public boolean checkUser(User inviter, User invited) {
-        if (inviter.getId() == invited.getId()) {
+    public void checkUser(long inviterId, long invitedId) {
+        if (inviterId == invitedId) {
             throw new EntityNotFoundException("This users is the same");
-        } else {
-            return true;
         }
     }
 

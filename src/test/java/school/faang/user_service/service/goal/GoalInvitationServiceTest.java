@@ -1,20 +1,19 @@
 package school.faang.user_service.service.goal;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,20 +24,20 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceTest {
-    @Mock
     private GoalInvitationRepository goalInvitationRepository;
-
-    @Mock
-    private GoalInvitationMapper invitationMapper;
-
-    @Mock
+    private GoalInvitationMapper goalInvitationMapper;
     private GoalInvitationValidator goalInvitationValidator;
-
-    @Mock
-    private UserService userService;
-
-    @InjectMocks
     private GoalInvitationService goalInvitationService;
+
+    @BeforeEach
+    public void init() {
+        goalInvitationRepository = mock(GoalInvitationRepository.class);
+        goalInvitationMapper = mock(GoalInvitationMapper.class);
+        goalInvitationValidator = mock(GoalInvitationValidator.class);
+
+        goalInvitationService = new GoalInvitationService(
+                goalInvitationRepository, goalInvitationMapper, goalInvitationValidator);
+    }
 
     @Test
     @DisplayName("Test create invitation")
@@ -59,15 +58,13 @@ public class GoalInvitationServiceTest {
         goalInvitation.setInvited(invited);
         goalInvitation.setInviter(inviter);
 
-        when(invitationMapper.toEntity(invitationDto)).thenReturn(goalInvitation);
-        when(invitationMapper.toDto(goalInvitation)).thenReturn(invitationDto);
-        when(userService.existsUserById(invitationDto.getInviterId())).thenReturn(true);
-        when(userService.existsUserById(invitationDto.getInvitedUserId())).thenReturn(true);
+        when(goalInvitationMapper.toEntity(invitationDto)).thenReturn(goalInvitation);
+        when(goalInvitationMapper.toDto(goalInvitation)).thenReturn(invitationDto);
 
         var result = goalInvitationService.createInvitation(invitationDto);
 
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
 
-        assertEquals(invitationDto, invitationMapper.toDto(invitationMapper.toEntity(result)));
+        assertEquals(invitationDto, goalInvitationMapper.toDto(goalInvitationMapper.toEntity(result)));
     }
 }

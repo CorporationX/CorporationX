@@ -7,7 +7,6 @@ import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 /**
@@ -21,17 +20,13 @@ public class GoalInvitationService {
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalInvitationMapper invitationMapper;
     private final GoalInvitationValidator goalInvitationValidator;
-    private final UserService userService;
 
     @SneakyThrows
     public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
         GoalInvitation goalInvitation = invitationMapper.toEntity(invitation);
 
-        if (userService.existsUserById(invitation.getInviterId()) &&
-        userService.existsUserById(invitation.getInvitedUserId())) {
-            goalInvitationValidator.checkUser(invitation.getInviterId(), invitation.getInvitedUserId());
-            goalInvitationRepository.save(goalInvitation);
-        }
+        goalInvitationValidator.checkUser(invitation.getInviterId(), invitation.getInvitedUserId());
+        goalInvitationRepository.save(goalInvitation);
 
         return invitationMapper.toDto(goalInvitation);
     }

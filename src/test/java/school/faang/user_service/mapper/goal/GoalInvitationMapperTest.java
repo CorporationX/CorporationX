@@ -21,11 +21,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationMapperTest {
 
-    private GoalInvitationMapper mapper;
+    private GoalInvitationMapper goalInvitationMapper;
 
     @BeforeEach
     public void setUp() {
-        mapper = Mappers.getMapper(GoalInvitationMapper.class);
+        goalInvitationMapper = Mappers.getMapper(GoalInvitationMapper.class);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class GoalInvitationMapperTest {
         when(inviter.getId()).thenReturn(1L);
         when(invited.getId()).thenReturn(2L);
 
-        GoalInvitationDto dto = mapper.toDto(invitation);
+        GoalInvitationDto dto = goalInvitationMapper.toDto(invitation);
 
         assertEquals(1L, dto.getInviterId());
         assertEquals(2L, dto.getInvitedUserId());
@@ -62,7 +62,7 @@ public class GoalInvitationMapperTest {
 
         when(dto.getId()).thenReturn(1L);
 
-        GoalInvitation invitation = mapper.toEntity(dto);
+        GoalInvitation invitation = goalInvitationMapper.toEntity(dto);
         invitation.setInviter(inviter);
         invitation.setInvited(invited);
 

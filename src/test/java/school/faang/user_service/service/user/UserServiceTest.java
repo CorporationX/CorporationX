@@ -6,14 +6,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -30,21 +26,16 @@ class UserServiceTest {
     }
 
     @Test
-    public void testSuccessFindOwnerById() {
-        User user = User.builder()
-                .id(1L)
-                .build();
+    public void whenOwnerExist_shouldReturnTrue() {
+        Mockito.when(userRepository.existsById(1L)).thenReturn(true);
 
-        Mockito.when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        userService.findOwnerById(user.getId());
-        Mockito.verify(userRepository, times(1)).findById(user.getId());
-
-        assertEquals(user, userService.findOwnerById(user.getId()));
+        assertTrue(userService.checkIfOwnerExistsById(1L));
     }
 
     @Test
-    public void testFailedFindOwnerById() {
-        assertThrows(DataValidationException.class, () -> userService.findOwnerById(0L));
+    public void whenOwnerDoesNotExist_shouldReturnFalse() {
+        Mockito.when(userRepository.existsById(1L)).thenReturn(false);
+        assertFalse(userService.checkIfOwnerExistsById(1L));
     }
 
 }

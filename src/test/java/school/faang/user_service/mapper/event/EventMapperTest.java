@@ -23,15 +23,16 @@ class EventMapperTest {
     public void init() {
         Event event = Event.builder()
                 .id(1L)
+                .maxAttendees(2)
                 .build();
         EventDto eventDto = EventDto.builder()
                 .id(1L)
-                .maxAttendees(0)
+                .maxAttendees(2)
                 .build();
     }
 
     @Test
-    void toDtoAndToEntity() {
+    void mappingToDto_AndToEntity() {
         assertEquals(eventDto, eventMapper.toDto(event));
         assertEquals(event, eventMapper.toEntity(eventDto));
     }

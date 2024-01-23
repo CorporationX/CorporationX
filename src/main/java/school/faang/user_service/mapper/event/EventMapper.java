@@ -11,7 +11,7 @@ import school.faang.user_service.entity.event.Event;
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface EventMapper {
 
-    @Mapping(source = "owner",target = "ownerId", ignore = true)
+    @Mapping(source = "owner", target = "ownerId", ignore = true)
     EventDto toDto(Event event);
 
     @Mapping(source = "ownerId", target = "owner", ignore = true)

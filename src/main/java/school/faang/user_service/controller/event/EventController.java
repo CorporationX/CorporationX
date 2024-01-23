@@ -4,7 +4,6 @@ package school.faang.user_service.controller.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.event.EventValidator;
 
@@ -14,11 +13,9 @@ public class EventController {
     private final EventService eventService;
     private final EventValidator eventValidator;
 
-    public EventDto create(EventDto eventDto) {
-        if (!eventValidator.validateEventInController(eventDto)) {
-            throw new DataValidationException("Incorrect event.");
+    public void create(EventDto eventDto) {
+        if (eventValidator.validateEventInController(eventDto)) {
+            eventService.create(eventDto);
         }
-        return eventService.create(eventDto);
     }
-
 }

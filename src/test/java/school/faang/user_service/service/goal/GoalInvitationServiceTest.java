@@ -59,12 +59,10 @@ public class GoalInvitationServiceTest {
         goalInvitation.setInvited(invited);
         goalInvitation.setInviter(inviter);
 
-
         when(invitationMapper.toEntity(invitationDto)).thenReturn(goalInvitation);
         when(invitationMapper.toDto(goalInvitation)).thenReturn(invitationDto);
-        when(userService.getUserById(invitationDto.getInviterId())).thenReturn(inviter);
-        when(userService.getUserById(invitationDto.getInvitedUserId())).thenReturn(invited);
-        when(goalInvitationValidator.checkUser(inviter, invited)).thenReturn(true);
+        when(userService.existsUserById(invitationDto.getInviterId())).thenReturn(true);
+        when(userService.existsUserById(invitationDto.getInvitedUserId())).thenReturn(true);
 
         var result = goalInvitationService.createInvitation(invitationDto);
 

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
 
 /**
@@ -14,33 +13,29 @@ import school.faang.user_service.exception.goal.EntityNotFoundException;
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationValidatorTest {
     private GoalInvitationValidator validator;
-    private User inviter;
-    private User invited;
 
     @BeforeEach
     public void setup() {
         validator = new GoalInvitationValidator();
-        inviter = new User();
-        invited = new User();
     }
 
     @Test
     public void testCheckUser_InviterAndInvitedAreSame() {
-        inviter.setId(1L);
-        invited.setId(1L);
+        long inviterId = 1L;
+        long invitedId = 1L;
 
-        Assertions.assertThrows(EntityNotFoundException.class, () -> {
-            validator.checkUser(inviter, invited);
-        });
+        Assertions.assertThrows(EntityNotFoundException.class, () ->
+            validator.checkUser(inviterId, invitedId)
+        );
     }
 
     @Test
-    public void testCheckUser_InviterAndInvitedAreDifferent_ReturnsTrue() {
-        inviter.setId(1L);
-        invited.setId(2L);
+    public void testCheckUser_InviterIdNotEqualsInvitedId_NoExceptionThrown() {
+        long inviterId = 1;
+        long invitedId = 2;
 
-        boolean result = validator.checkUser(inviter, invited);
-
-        Assertions.assertTrue(result);
+        Assertions.assertDoesNotThrow(() -> {
+            validator.checkUser(inviterId, invitedId);
+        });
     }
 }

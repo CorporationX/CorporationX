@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
@@ -28,10 +27,9 @@ public class GoalInvitationService {
     public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
         GoalInvitation goalInvitation = invitationMapper.toEntity(invitation);
 
-        User inviter = userService.getUserById(invitation.getInviterId());
-        User invited = userService.getUserById(invitation.getInvitedUserId());
-
-        if (goalInvitationValidator.checkUser(inviter, invited)) {
+        if (userService.existsUserById(invitation.getInviterId()) &&
+        userService.existsUserById(invitation.getInvitedUserId())) {
+            goalInvitationValidator.checkUser(invitation.getInviterId(), invitation.getInvitedUserId());
             goalInvitationRepository.save(goalInvitation);
         }
 

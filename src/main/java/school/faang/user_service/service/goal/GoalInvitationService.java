@@ -1,7 +1,6 @@
 package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -28,46 +27,30 @@ public class GoalInvitationService {
     private final GoalInvitationValidator goalInvitationValidator;
     private final UserService userService;
 
-    @SneakyThrows
-    public GoalInvitation getGoalInvitationById(long id) {
+    public GoalInvitation getGoalInvitationById(long id) throws EntityNotFoundException {
         return goalInvitationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("GoalInvitation is not found"));
-    }
-
-    @SneakyThrows
-    public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
-        GoalInvitation goalInvitation = invitationMapper.toEntity(invitation);
-
-        if (userService.existsUserById(invitation.getInviterId()) &&
-                userService.existsUserById(invitation.getInvitedUserId())) {
-            goalInvitationValidator.checkUser(invitation.getInviterId(), invitation.getInvitedUserId());
-            goalInvitationRepository.save(goalInvitation);
-        }
-
-        return invitationMapper.toDto(goalInvitation);
+                .orElseThrow(() ->
+                        new EntityNotFoundException("GoalInvitation by id: " + id + " is not found"));
     }
 
     public GoalInvitationDto acceptGoalInvitation(long id) {
-        GoalInvitation goalInvitation = getGoalInvitationById(id);
+        GoalInvitation goalInvitation = null;
+        try {
+            goalInvitation = getGoalInvitationById(id);
+        } catch (EntityNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         User invitedUser = goalInvitation.getInvited();
 
-        List<GoalInvitation> currentUserReceivedInvitations = invitedUser.getReceivedGoalInvitations();
-        currentUserReceivedInvitations.add(goalInvitation);
+        goalInvitationValidator.validateGoal(invitedUser, goalInvitation);
 
+        List<Goal> currentUserGoals = invitedUser.getGoals();
+        currentUserGoals.add(goalInvitation.getGoal());
 
-        if (goalInvitationValidator.checkData(invitedUser, goalInvitation)) {
-            List<Goal> currentUserGoals = invitedUser.getGoals();
-            currentUserGoals.add(goalInvitation.getGoal());
+        goalInvitation.setStatus(RequestStatus.ACCEPTED);
 
-            invitedUser.setReceivedGoalInvitations(currentUserReceivedInvitations);
-            invitedUser.setGoals(currentUserGoals);
-
-            goalInvitation.setStatus(RequestStatus.ACCEPTED);
-
-            userService.saveUser(invitedUser);
-            goalInvitationRepository.save(goalInvitation);
-        }
+        goalInvitationRepository.save(goalInvitation);
 
         return invitationMapper.toDto(goalInvitation);
     }

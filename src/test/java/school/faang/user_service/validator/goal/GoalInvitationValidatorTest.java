@@ -10,6 +10,7 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,6 +22,39 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class GoalInvitationValidatorTest {
     @InjectMocks
     private GoalInvitationValidator goalInvitationValidator;
+
+    @Test
+    public void testValidateGoal_WhenInvitationStatusIsNotPending_ShouldThrowDataValidationException() {
+        GoalInvitation goalInvitation = new GoalInvitation();
+        User user = goalInvitation.getInvited();
+        goalInvitation.setStatus(RequestStatus.ACCEPTED);
+
+        assertThrows(DataValidationException.class, () -> {
+            goalInvitationValidator.validateGoal(user, goalInvitation);
+        });
+    }
+
+    @Test
+    public void testValidateGoal_WhenUserAlreadyHasGoal_ShouldThrowDataValidationException() {
+        Goal goal = new Goal();
+        goal.setId(1L);
+
+        List<Goal> userGoals = new ArrayList<>();
+        userGoals.add(goal);
+
+        User user = new User();
+        user.setId(1L);
+        user.setGoals(userGoals);
+
+        GoalInvitation goalInvitation = new GoalInvitation();
+        goalInvitation.setInvited(user);
+        goalInvitation.setStatus(RequestStatus.PENDING);
+        goalInvitation.setGoal(goal);
+
+        assertThrows(DataValidationException.class, () -> {
+            goalInvitationValidator.validateGoal(user, goalInvitation);
+        });
+    }
 
     @Test
     public void testCheckData_WhenUserAlreadyHasMaxActiveGoals_ShouldThrowDataValidationException() {

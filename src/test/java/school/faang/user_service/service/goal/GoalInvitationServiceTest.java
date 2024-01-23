@@ -11,10 +11,8 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
-import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 import java.util.ArrayList;
@@ -37,7 +35,6 @@ public class GoalInvitationServiceTest {
     private GoalInvitationRepository goalInvitationRepository;
     private GoalInvitationMapper goalInvitationMapper;
     private GoalInvitationValidator goalInvitationValidator;
-    private UserService userService;
     private GoalInvitationService goalInvitationService;
 
     @BeforeEach
@@ -45,9 +42,9 @@ public class GoalInvitationServiceTest {
         goalInvitationRepository = mock(GoalInvitationRepository.class);
         goalInvitationMapper = mock(GoalInvitationMapper.class);
         goalInvitationValidator = new GoalInvitationValidator();
-        userService = mock(UserService.class);
+
         goalInvitationService = new GoalInvitationService(goalInvitationRepository,
-                goalInvitationMapper, goalInvitationValidator, userService);
+                goalInvitationMapper, goalInvitationValidator);
     }
 
     @Test
@@ -88,7 +85,6 @@ public class GoalInvitationServiceTest {
         assertEquals(RequestStatus.ACCEPTED, goalInvitation.getStatus());
         assertEquals(currentUserReceivedInvitations, invitedUser.getReceivedGoalInvitations());
         assertEquals(currentUserGoals, invitedUser.getGoals());
-        verify(userService, times(1)).saveUser(invitedUser);
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
         assertEquals(invitationDto, result);
     }
@@ -122,7 +118,7 @@ public class GoalInvitationServiceTest {
 
         when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(goalInvitation));
 
-        assertThrows(EntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
+        assertThrows(DataValidationException.class, () -> goalInvitationService.acceptGoalInvitation(invitationId));
     }
 
     @Test

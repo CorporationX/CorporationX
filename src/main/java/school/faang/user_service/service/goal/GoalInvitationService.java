@@ -10,7 +10,6 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 import java.util.List;
@@ -25,21 +24,15 @@ public class GoalInvitationService {
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalInvitationMapper invitationMapper;
     private final GoalInvitationValidator goalInvitationValidator;
-    private final UserService userService;
 
-    public GoalInvitation getGoalInvitationById(long id) throws EntityNotFoundException {
+    public GoalInvitation getGoalInvitationById(long id) {
         return goalInvitationRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException("GoalInvitation by id: " + id + " is not found"));
     }
 
     public GoalInvitationDto acceptGoalInvitation(long id) {
-        GoalInvitation goalInvitation = null;
-        try {
-            goalInvitation = getGoalInvitationById(id);
-        } catch (EntityNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        GoalInvitation goalInvitation = getGoalInvitationById(id);
 
         User invitedUser = goalInvitation.getInvited();
 
@@ -47,6 +40,8 @@ public class GoalInvitationService {
 
         List<Goal> currentUserGoals = invitedUser.getGoals();
         currentUserGoals.add(goalInvitation.getGoal());
+
+        invitedUser.setGoals(currentUserGoals);
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
 

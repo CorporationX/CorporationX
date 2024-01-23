@@ -39,7 +39,6 @@ public class GoalInvitationValidator {
     }
 
     public boolean checkFilter(InvitationFilterDto filter) {
-        return filter.getInviterNamePattern() == null && filter.getInvitedNamePattern() == null
-                && filter.getInviterId() == null && filter.getInvitedId() == null;
+        return filter != null;
     }
 }

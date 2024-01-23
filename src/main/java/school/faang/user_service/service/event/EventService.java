@@ -16,4 +16,8 @@ public class EventService {
                 .orElseThrow(() -> new DataValidationException("Not found event by Id - " + eventId));
     }
 
+    public void deleteEvent(long eventId) {
+        eventRepository.deleteById(eventId);
+    }
+
 }

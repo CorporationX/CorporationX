@@ -15,4 +15,8 @@ public class EventController {
         return eventService.getEvent(eventId);
     }
 
+    public void deleteEvent(long eventId) {
+        eventService.deleteEvent(eventId);
+    }
+
 }

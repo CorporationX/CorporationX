@@ -49,4 +49,25 @@ public class EventServiceTest {
         assertThrows(DataValidationException.class, () -> eventService.getEvent(wrongId));
     }
 
+    @Test
+    @DisplayName("Успешное удаление события по верному Id")
+    public void testSuccessDeleteEventById() {
+        Event eventDelete = Event.builder()
+                .id(5L)
+                .maxAttendees(5)
+                .build();
+        long eventId = eventDelete.getId();
+
+        eventService.deleteEvent(eventId);
+        Mockito.verify(eventRepository, times(1)).deleteById(eventId);
+    }
+
+    @Test
+    @DisplayName("Неуспешное удаление события по неверному Id")
+    public void testFailedDeleteEventByIncorrectId() {
+        long wrongId = 15L;
+
+        Mockito.verify(eventRepository, Mockito.never()).deleteById(wrongId);
+    }
+
 }

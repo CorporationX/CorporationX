@@ -24,6 +24,13 @@ public class SubscriptionService {
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
+    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
+        subscriptionValidator.validateUser(followeeId);
+        Stream<User> filteredUsers = subscriptionRepo.findByFolloweeId(followeeId);
+        return filterUsers(filteredUsers, filter);
+    }
+
+    @Transactional(readOnly = true)
     public List<UserDto> getFollowing(long followerId, UserFilterDto filter) {
         subscriptionValidator.validateUser(followerId);
         Stream<User> filteredUsers = subscriptionRepo.findByFollowerId(followerId);
@@ -34,6 +41,31 @@ public class SubscriptionService {
         Stream<User> filteredUsers = filters.stream()
                 .filter(filter -> filter.isApplicable(dtoFilter))
                 .flatMap(filter -> filter.apply(users, dtoFilter));
+
         return userMapper.toDtoList(filteredUsers.toList());
+    }
+
+    @Transactional
+    public void unfollowUser(long followerId, long followeeId) {
+        subscriptionValidator.validateUser(followerId, followeeId);
+        subscriptionValidator.validateNonExistsSubscription(followerId, followeeId);
+        subscriptionRepo.unfollowUser(followerId, followeeId);
+    }
+
+    @Transactional
+    public void followUser(long followerId, long followeeId) {
+        subscriptionValidator.validateUser(followerId, followeeId);
+        subscriptionValidator.validateExistsSubscription(followerId, followeeId);
+        subscriptionRepo.followUser(followerId, followeeId);
+    }
+
+    public int getFollowersCount(long followeeId) {
+        subscriptionValidator.validateUser(followeeId);
+        return subscriptionRepo.findFollowersAmountByFolloweeId(followeeId);
+    }
+
+    public int getFollowingCount(long followerId) {
+        subscriptionValidator.validateUser(followerId);
+        return subscriptionRepo.findFolloweesAmountByFollowerId(followerId);
     }
 }

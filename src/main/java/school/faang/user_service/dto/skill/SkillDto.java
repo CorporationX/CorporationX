@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SkillDtoOld {
+public class SkillDto {
     private Long id;
     private String title;
     private List<Long> userIds;

@@ -5,17 +5,16 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
 public class EventValidator {
-    private final UserService userService;
-    private final EventService eventService;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
 
     public boolean validateEventInController(EventDto event) {
         boolean isExist = (event.getTitle() != null && !event.getTitle().isBlank())
@@ -26,8 +25,8 @@ public class EventValidator {
         return true;
     }
 
-    public boolean checkEventIsExist(long id) {
-        boolean isExist = eventService.checkEventExistById(id);
+    public boolean checkEventIsExistById(long id) {
+        boolean isExist = eventRepository.existsById(id);
         if (!isExist) {
             throw new DataValidationException("Event not exist.");
         }
@@ -35,7 +34,7 @@ public class EventValidator {
     }
 
     public boolean checkIfOwnerExistsById(long id) {
-        if (!userService.checkIfOwnerExistsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new DataValidationException("Owner does not exist.");
         }
         return true;

@@ -16,16 +16,13 @@ public class EventService {
     private final EventValidator eventValidator;
 
     public void updateEvent(EventDto eventDto) {
-        checkEventExistById(eventDto.getId());
-        Event eventEntity = eventMapper.toEntity(eventDto);
-        if (eventValidator.checkIfOwnerExistsById(eventEntity.getOwner().getId()) &&
-                        eventValidator.checkIfOwnerHasSkillsRequired(eventEntity)) {
-            eventRepository.save(eventEntity);
+        if (eventValidator.checkEventIsExistById(eventDto.getId())) {
+            Event eventEntity = eventMapper.toEntity(eventDto);
+            if (eventValidator.checkIfOwnerExistsById(eventEntity.getOwner().getId()) &&
+                    eventValidator.checkIfOwnerHasSkillsRequired(eventEntity)) {
+                eventRepository.save(eventEntity);
+            }
         }
-    }
-
-    public boolean checkEventExistById(long id) {
-        return eventRepository.existsById(id);
     }
 
 }

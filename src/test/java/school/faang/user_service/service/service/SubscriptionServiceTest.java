@@ -1,5 +1,6 @@
 package school.faang.user_service.service.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +24,7 @@ import java.util.List;
 public class SubscriptionServiceTest {
 
     @Mock
-    private SubscriptionRepository subscriptionRepository;
+    private SubscriptionRepository subscriptionRepo;
 
     @Mock
     private SubscriptionValidator subscriptionValidator;
@@ -46,7 +47,7 @@ public class SubscriptionServiceTest {
         );
         UserNameFilter userNameFilter = Mockito.mock(UserNameFilter.class);
         List<UserFilter> filters = List.of(userNameFilter);
-        subscriptionService = new SubscriptionService(subscriptionRepository, subscriptionValidator,
+        subscriptionService = new SubscriptionService(subscriptionRepo, subscriptionValidator,
                 filters, userMapper);
         dtoFilter = new UserFilterDto();
         dtoFilter.setNamePattern("R");
@@ -56,10 +57,37 @@ public class SubscriptionServiceTest {
     void testGetFollowersCallRepositoryMethod() {
         long followeeId = 1L;
 
-        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(users.stream());
+        Mockito.when(subscriptionRepo.findByFolloweeId(followeeId)).thenReturn(users.stream());
         subscriptionService.getFollowers(followeeId, dtoFilter);
 
-        Mockito.verify(subscriptionRepository, Mockito.times(1))
+        Mockito.verify(subscriptionRepo, Mockito.times(1))
                 .findByFolloweeId(followeeId);
+    }
+
+    @Test
+    public void testUnfollowedSuccess() {
+        subscriptionService.unfollowUser(10L, 20L);
+        Mockito.verify(subscriptionRepo, Mockito.times(1))
+                .unfollowUser(Mockito.anyLong(), Mockito.anyLong());
+    }
+
+    @Test
+    public void testFollowedSuccess() {
+        subscriptionService.followUser(10L, 20L);
+        Mockito.verify(subscriptionRepo, Mockito.times(1))
+                .followUser(Mockito.anyLong(), Mockito.anyLong());
+    }
+
+    @Test
+    public void testFollowingCount() {
+        Mockito.when(subscriptionRepo.findFolloweesAmountByFollowerId(1L)).thenReturn(5);
+        Assertions.assertEquals(5, subscriptionService.getFollowingCount(1L));
+    }
+
+    @Test
+    public void testFollowersCount() {
+        Mockito.when(subscriptionRepo.findFollowersAmountByFolloweeId(1L)).thenReturn(5);
+        Assertions.assertEquals(5, subscriptionService.getFollowersCount(1L));
+
     }
 }

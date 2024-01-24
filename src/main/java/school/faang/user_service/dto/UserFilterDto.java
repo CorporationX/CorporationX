@@ -16,6 +16,4 @@ public class UserFilterDto {
     private String skillPattern;
     private int experienceMin;
     private int experienceMax;
-    private int page;
-    private int pageSize;
 }

@@ -11,19 +11,21 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class errorResponse {
+public class ErrorResponse {
     private int statusCode;
     private String message;
+    private String url;
 
-    public errorResponse() {
+    public ErrorResponse() {
     }
 
-    public errorResponse(int statusCode) {
+    public ErrorResponse(int statusCode) {
         this.statusCode = statusCode;
     }
 
-    public errorResponse(int statusCode, String message) {
+    public ErrorResponse(String url, int statusCode, String message) {
         this(statusCode);
+        this.url = url;
         this.message = message;
     }
 }

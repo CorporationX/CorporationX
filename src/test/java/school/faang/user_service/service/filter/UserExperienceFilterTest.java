@@ -4,9 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.contact.Contact;
-import school.faang.user_service.entity.contact.ContactType;
-import school.faang.user_service.filter.user.UserContactFilter;
+import school.faang.user_service.filter.user.UserExperienceFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -15,20 +13,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UserContactFilterTest {
+public class UserExperienceFilterTest {
 
     private UserFilterDto dto;
-    private UserContactFilter filter;
+    private UserExperienceFilter filter;
 
     @BeforeEach
     public void init() {
         dto = new UserFilterDto();
-        filter = new UserContactFilter();
+        filter = new UserExperienceFilter();
     }
 
     @Test
     void testIsApplicable() {
-        dto.setContactPattern("@a");
+        dto.setExperienceMax(10);
+        dto.setExperienceMin(5);
         assertTrue(filter.isApplicable(dto));
     }
 
@@ -39,21 +38,19 @@ public class UserContactFilterTest {
 
     @Test
     void testApplyFilter() {
-        dto.setContactPattern("VK");
+        dto.setExperienceMax(10);
+        dto.setExperienceMin(5);
 
         List<User> createdUsers = List.of(
-                User.builder().contacts(List.of(
-                        new Contact(1L, new User(), "@artem23", ContactType.VK))).build(),
-                User.builder().contacts(List.of(
-                        new Contact(11L, new User(), "@aaakss2", ContactType.TELEGRAM))).build(),
-                User.builder().contacts(List.of(
-                        new Contact(12L, new User(), "@bob1997", ContactType.VK))).build()
+                User.builder().experience(7).build(),
+                User.builder().experience(17).build(),
+                User.builder().experience(2).build()
         );
 
         Stream<User> users = createdUsers.stream();
         List<User> filteredUsers = filter.apply(users, dto).toList();
 
-        assertEquals(2, filteredUsers.size());
+        assertEquals(1, filteredUsers.size());
         assertTrue(filteredUsers.contains(filteredUsers.get(0)));
     }
 }

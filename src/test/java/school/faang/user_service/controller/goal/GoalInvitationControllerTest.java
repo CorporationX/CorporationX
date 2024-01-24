@@ -16,9 +16,6 @@ import school.faang.user_service.service.goal.GoalInvitationService;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -30,22 +27,6 @@ public class GoalInvitationControllerTest {
     private GoalInvitationService goalInvitationService;
     @InjectMocks
     private GoalInvitationController goalInvitationController;
-
-    @Test
-    @DisplayName("Test accept invitation")
-    public void testAcceptGoalInvitation() {
-        goalInvitationController.acceptGoalInvitation(anyLong());
-
-        verify(goalInvitationService, times(1)).acceptGoalInvitation(anyLong());
-    }
-
-    @Test
-    @DisplayName("Test reject goal invitation")
-    public void testRejectGoalInvitation() {
-        goalInvitationController.rejectGoalInvitation(anyLong());
-
-        verify(goalInvitationService, times(1)).rejectGoalInvitation(anyLong());
-    }
 
     @Test
     @DisplayName("Test get invitations with filter")

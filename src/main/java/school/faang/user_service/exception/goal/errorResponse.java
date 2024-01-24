@@ -11,18 +11,18 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class ControllerError {
+public class errorResponse {
     private int statusCode;
     private String message;
 
-    public ControllerError() {
+    public errorResponse() {
     }
 
-    public ControllerError(int statusCode) {
+    public errorResponse(int statusCode) {
         this.statusCode = statusCode;
     }
 
-    public ControllerError(int statusCode, String message) {
+    public errorResponse(int statusCode, String message) {
         this(statusCode);
         this.message = message;
     }

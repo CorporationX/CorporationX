@@ -19,6 +19,7 @@ public class InviterIdFilter implements Filter<InvitationFilterDto, GoalInvitati
 
     @Override
     public void apply(List<GoalInvitation> goalInvitations, InvitationFilterDto filter) {
-        goalInvitations.removeIf((goalInvitation) -> goalInvitation.getInviter().getId() != filter.getInviterId());
+        goalInvitations.removeIf(goalInvitation ->
+                goalInvitation.getInviter().getId() != filter.getInviterId());
     }
 }

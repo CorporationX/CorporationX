@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface Filter<F, E> {
     boolean isApplicable(F f);
+
     void apply(List<E> eList, F f);
 }

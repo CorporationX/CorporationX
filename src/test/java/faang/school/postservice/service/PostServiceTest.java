@@ -76,8 +76,7 @@ class PostServiceTest {
 
         doThrow(FeignException.class).when(userServiceClient).getUser(1L);
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> postService.createDraftPost(postDto));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> postService.createDraftPost(postDto));
         assertEquals("User with the specified authorId does not exist", exception.getMessage());
     }
 
@@ -90,8 +89,7 @@ class PostServiceTest {
 
         doThrow(FeignException.class).when(projectServiceClient).getProject(1L);
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> postService.createDraftPost(postDto));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> postService.createDraftPost(postDto));
         assertEquals("Project with the specified projectId does not exist", exception.getMessage());
     }
 }

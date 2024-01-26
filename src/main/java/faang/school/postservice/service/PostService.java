@@ -46,18 +46,6 @@ public class PostService {
         return postMapper.toDto(post);
     }
 
-    @Transactional
-    public PostDto updatePost(PostDto postDto) {
-        validateIdPostDto(postDto);
-        validateAuthorExist(postDto);
-        Post post = validatePostExist(postDto.getId());
-
-        post.setContent(postDto.getContent());
-        post.setUpdatedAt(LocalDateTime.now());
-
-        return postMapper.toDto(post);
-    }
-
     private void validateIdPostDto(PostDto postDto) {
         if ((postDto.getAuthorId() == null && postDto.getProjectId() == null) ||
                 (postDto.getAuthorId() != null && postDto.getProjectId() != null)) {

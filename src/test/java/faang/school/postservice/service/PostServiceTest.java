@@ -147,26 +147,4 @@ class PostServiceTest {
                 () -> postService.publishPost(id));
         assertEquals("Post is already published or deleted", exception.getMessage());
     }
-
-    @Test
-    void testUpdatePostValidData() {
-        long id = 1L;
-        PostDto postDto = PostDto.builder()
-                .id(id)
-                .content("New Content")
-                .authorId(1L)
-                .build();
-        Post post = Post.builder()
-                .id(id)
-                .content("Content")
-                .authorId(1L)
-                .build();
-
-        when(postRepository.findById(id)).thenReturn(Optional.of(post));
-
-        PostDto actualDto = postService.updatePost(postDto);
-
-        assertEquals("New Content", actualDto.getContent());
-        assertNotNull(actualDto.getUpdatedAt());
-    }
 }

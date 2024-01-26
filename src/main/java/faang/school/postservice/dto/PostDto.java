@@ -21,7 +21,6 @@ public class PostDto {
     private Long authorId;
     private Long projectId;
     private LocalDateTime publishedAt;
-    private LocalDateTime updatedAt;
     private boolean published;
     private boolean deleted;
 }

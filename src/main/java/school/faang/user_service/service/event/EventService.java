@@ -17,7 +17,6 @@ public class EventService {
     private final EventMapper eventMapper;
 
     public List<EventDto> getOwnedEvents(long userId) {
-
         return eventMapper.toListDto(eventRepository.findAllByUserId(userId));
     }
 

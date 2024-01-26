@@ -29,8 +29,8 @@ public class EventServiceTest {
 
     @Mock
     private EventRepository eventRepository;
-    @Spy
-    private EventMapperImpl eventMapper = new EventMapperImpl();
+    @Mock
+    private EventMapperImpl eventMapper;
     @InjectMocks
     private EventService eventService;
 

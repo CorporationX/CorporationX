@@ -15,6 +15,7 @@ public class EventController {
 
     public List<Event> getParticipatedEventsByUserId(long userId) {
         return eventService.getParticipatedEventsByUserId(userId);
+    }
     public Event getEvent(long eventId) {
         return eventService.getEvent(eventId);
     }

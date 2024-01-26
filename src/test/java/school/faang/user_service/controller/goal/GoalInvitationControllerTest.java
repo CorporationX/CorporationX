@@ -9,8 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.service.goal.GoalInvitationService;
 
-import school.faang.user_service.service.goal.GoalInvitationService;
-
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,8 +17,6 @@ import static org.mockito.Mockito.verify;
  * @author Alexander Bulgakov
  */
 
-@ExtendWith(MockitoExtension.class)
-class GoalInvitationControllerTest {
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationControllerTest {
     @Mock
@@ -37,7 +33,8 @@ public class GoalInvitationControllerTest {
 
         verify(goalInvitationService, times(1)).createInvitation(dto);
     }
-}
+
+    @Test
     public void testAcceptGoalInvitation() {
         goalInvitationController.acceptGoalInvitation(anyLong());
 

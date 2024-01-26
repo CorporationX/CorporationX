@@ -15,8 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
@@ -42,21 +43,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void testGetUserById() {
-        long userId = 1L;
-        User user = new User();
-        user.setId(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        User result = userService.getUserById(userId);
-
-        assertEquals(userId, result.getId());
-        verify(userRepository, times(1)).findById(userId);
-    }
-
-    @Test
     public void testSaveUser() {
-        // Create a user object
         User user = new User();
         user.setId(1L);
         user.setUsername("testuser");

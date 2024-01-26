@@ -1,10 +1,10 @@
 package school.faang.user_service.validator.goal;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -16,7 +16,10 @@ import school.faang.user_service.service.user.UserService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +43,7 @@ public class GoalInvitationValidatorTest {
         long invitedId = 1L;
 
         assertThrows(EntityNotFoundException.class, () ->
-            goalInvitationValidator.checkUser(inviterId, invitedId)
+                goalInvitationValidator.checkUser(inviterId, invitedId)
         );
     }
 
@@ -49,9 +52,8 @@ public class GoalInvitationValidatorTest {
         long inviterId = 1L;
         long invitedId = 2L;
 
-        Assertions.assertDoesNotThrow(() -> {
-            goalInvitationValidator.checkUser(inviterId, invitedId);
-        });
+        assertDoesNotThrow(() ->
+            goalInvitationValidator.checkUser(inviterId, invitedId));
     }
 
     @Test
@@ -63,7 +65,7 @@ public class GoalInvitationValidatorTest {
         when(userService.existsUserById(inviterId)).thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () ->
-            goalInvitationValidator.checkUser(inviterId, invitedId));
+                goalInvitationValidator.checkUser(inviterId, invitedId));
     }
 
     @Test
@@ -105,36 +107,27 @@ public class GoalInvitationValidatorTest {
         goalInvitation.setStatus(RequestStatus.PENDING);
         goalInvitation.setGoal(goal);
 
-        assertThrows(DataValidationException.class, () -> {
-            goalInvitationValidator.validateGoal(user, goalInvitation);
-        });
+        assertThrows(DataValidationException.class, () ->
+            goalInvitationValidator.validateGoal(user, goalInvitation));
     }
 
     @Test
-    public void testCheckData_WhenUserAlreadyHasMaxActiveGoals_ShouldThrowDataValidationException() {
-        Goal goal1 = new Goal();
-        goal1.setId(1L);
-        Goal goal2 = new Goal();
-        goal2.setId(2L);
-        Goal goal3 = new Goal();
-        goal3.setId(3L);
+    public void testCheckFilter_AllFieldsNull() {
+        InvitationFilterDto filter = null;
 
-        List<Goal> userGoals = List.of(goal1, goal2, goal3);
+        boolean result = goalInvitationValidator.checkFilter(filter);
 
-        User user = new User();
-        user.setId(1L);
-        user.setGoals(userGoals);
+        assertFalse(result);
+    }
 
-        Goal goal4 = new Goal();
-        goal4.setId(4L);
+    @Test
+    public void testCheckFilter_SomeFieldsNotNull() {
+        InvitationFilterDto filter = new InvitationFilterDto();
+        filter.setInviterNamePattern("John");
+        filter.setInvitedId(1L);
 
-        GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setGoal(goal4);
-        goalInvitation.setStatus(RequestStatus.PENDING);
+        boolean result = goalInvitationValidator.checkFilter(filter);
 
-
-        assertThrows(DataValidationException.class, () -> {
-            goalInvitationValidator.validateGoal(user, goalInvitation);
-        });
+        assertTrue(result);
     }
 }

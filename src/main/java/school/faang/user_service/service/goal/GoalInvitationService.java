@@ -38,9 +38,9 @@ public class GoalInvitationService {
     }
 
     public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
+        goalInvitationValidator.checkUser(invitation.getInviterId(), invitation.getInvitedUserId());
         GoalInvitation goalInvitation = goalInvitationMapper.toEntity(invitation);
 
-        goalInvitationValidator.checkUser(invitation.getInviterId(), invitation.getInvitedUserId());
         goalInvitationRepository.save(goalInvitation);
 
         return goalInvitationMapper.toDto(goalInvitation);

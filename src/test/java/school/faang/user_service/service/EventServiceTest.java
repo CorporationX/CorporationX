@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.event.EventRepository;
@@ -76,6 +78,7 @@ public class EventServiceTest {
         assertThrows(DataValidationException.class, () -> eventService.getEvent(wrongId));
     }
 
+    @Test
     @DisplayName("Успешное удаление события по верному Id")
     public void testSuccessDeleteEventById() {
         Event eventDelete = Event.builder()
@@ -86,6 +89,7 @@ public class EventServiceTest {
 
         eventService.deleteEvent(eventId);
         Mockito.verify(eventRepository, times(1)).deleteById(eventId);
+    }
 
     @Test
     @DisplayName("Неуспешное удаление события по неверному Id")

@@ -15,6 +15,7 @@ public class EventService {
 
     public List<Event> getParticipatedEventsByUserId(long userId) {
         return eventRepository.findParticipatedEventsByUserId(userId);
+    }
 
     public Event getEvent(long eventId) {
         return eventRepository.findById(eventId)

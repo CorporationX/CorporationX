@@ -11,7 +11,6 @@ import school.faang.user_service.repository.goal.GoalRepository;
 @Service
 @RequiredArgsConstructor
 public class GoalService {
-
     private final GoalRepository goalRepository;
 
     public void existsGoalById(long id) {

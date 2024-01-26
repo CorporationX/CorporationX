@@ -28,7 +28,7 @@ public class GoalInvitationValidator {
         }
     }
 
-    public void validateGoal (User user, GoalInvitation goalInvitation){
+    public void validateGoal(User user, GoalInvitation goalInvitation){
         if (goalInvitation.getStatus() != RequestStatus.PENDING) {
             throw new DataValidationException("GoalInvitation is not active");
         } else if (user.getGoals().contains(goalInvitation.getGoal())) {

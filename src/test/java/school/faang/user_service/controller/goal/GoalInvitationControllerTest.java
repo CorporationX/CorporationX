@@ -1,7 +1,7 @@
 package school.faang.user_service.controller.goal;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +14,8 @@ import school.faang.user_service.service.goal.GoalInvitationService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -46,6 +48,7 @@ public class GoalInvitationControllerTest {
     @Test
     public void testAcceptGoalInvitation() {
         goalInvitationController.acceptGoalInvitation(anyLong());
+
         verify(goalInvitationService, times(1)).acceptGoalInvitation(anyLong());
     }
 
@@ -55,7 +58,6 @@ public class GoalInvitationControllerTest {
 
         GoalInvitationDto expected = new GoalInvitationDto();
         expected.setId(invitationId);
-
 
         when(goalInvitationService.rejectGoalInvitation(anyLong())).thenReturn(expected);
 

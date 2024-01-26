@@ -13,18 +13,18 @@ public class SubscriptionValidator {
     private final SubscriptionRepository subscriptionRepo;
     private final UserRepository userRepo;
 
+    public void validateUser(long userId) {
+        if (!userRepo.existsById(userId)) {
+            throw new DataValidationException("This user is not registered");
+        }
+    }
+
     public void validateUser(long followerId, long followeeId) {
         if (!userRepo.existsById(followeeId) || !userRepo.existsById(followerId)) {
             throw new DataValidationException("This user is not registered");
         }
         if (followerId == followeeId) {
             throw new DataValidationException("IDs cannot be equal!");
-        }
-    }
-
-    public void validateUser(long userId) {
-        if (!userRepo.existsById(userId)) {
-            throw new DataValidationException("This user is not registered");
         }
     }
 

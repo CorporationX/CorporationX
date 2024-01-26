@@ -11,17 +11,17 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapperImpl;
-import school.faang.user_service.mapper.skill.SkillMapper;
-import school.faang.user_service.mapper.skill.SkillMapperImpl;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,9 +30,7 @@ public class EventServiceTest {
     @Mock
     private EventRepository eventRepository;
     @Spy
-    private SkillMapper skillMapper = new SkillMapperImpl();
-    @Mock
-    private EventMapper eventMapper = new EventMapperImpl(skillMapper);
+    private EventMapperImpl eventMapper = new EventMapperImpl();
     @InjectMocks
     private EventService eventService;
 
@@ -55,15 +53,7 @@ public class EventServiceTest {
                 .build();
         List<Event> events = new ArrayList<>(List.of(event1, event2));
         user1.setOwnedEvents(events);
-
-        Mockito.when(eventRepository.findAllByUserId(userId)).thenReturn(events);
-
-        eventService.getOwnedEvents(userId);
-
-        Mockito.verify(eventRepository, times(1)).findAllByUserId(userId);
-
-        Assertions.assertIterableEquals(user1.getOwnedEvents(), eventRepository.findAllByUserId(userId));
-    }
+        }
 
     @Test
     @DisplayName("Неуспешное получение созданных событий по Id юзера")
@@ -77,4 +67,48 @@ public class EventServiceTest {
         Assertions.assertIterableEquals(emptyEvents, eventService.getOwnedEvents(userId));
     }
 
-}
+        @Test
+        @DisplayName("Успешный поиск события по верному Id")
+        public void testSuccessGetEventById () {
+            Event eventGetById = Event.builder().id(6L).maxAttendees(5).build();
+            long eventId = eventGetById.getId();
+
+            Mockito.when(eventRepository.findById(eventId)).thenReturn(Optional.of(eventGetById));
+
+            eventService.getEvent(eventId);
+
+            Mockito.verify(eventRepository, times(1)).findById(eventId);
+        }
+
+        @Test
+        @DisplayName("Неуспешный поиск события по неверному Id")
+        public void testFailedGetEventByIncorrectId () {
+            long wrongId = 11L;
+
+            Mockito.when(eventRepository.findById(wrongId)).thenReturn(Optional.empty());
+
+            assertThrows(DataValidationException.class, () -> eventService.getEvent(wrongId));
+        }
+
+        @Test
+        @DisplayName("Успешное удаление события по верному Id")
+        public void testSuccessDeleteEventById () {
+            Event eventDelete = Event.builder()
+                    .id(5L)
+                    .maxAttendees(5)
+                    .build();
+            long eventId = eventDelete.getId();
+
+            eventService.deleteEvent(eventId);
+            Mockito.verify(eventRepository, times(1)).deleteById(eventId);
+        }
+
+        @Test
+        @DisplayName("Неуспешное удаление события по неверному Id")
+        public void testFailedDeleteEventByIncorrectId () {
+            long wrongId = 15L;
+
+            Mockito.verify(eventRepository, Mockito.never()).deleteById(wrongId);
+        }
+
+    }

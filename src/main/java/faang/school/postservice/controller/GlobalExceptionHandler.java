@@ -15,21 +15,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleDataValidationException(DataValidationException e) {
-        log.error("Data validation error", e);
+        log.error("Data validation exception: {}", e.getMessage());
         return e.getMessage();
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleEntityNotFoundException(EntityNotFoundException e) {
-        log.error("Entity not found error", e);
+        log.error("Entity not found exception: {}", e.getMessage());
         return e.getMessage();
     }
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleRuntimeException(RuntimeException e) {
-        log.error("Runtime error", e);
+        log.error("Runtime exception: {}", e.getMessage());
         return e.getMessage();
     }
 }

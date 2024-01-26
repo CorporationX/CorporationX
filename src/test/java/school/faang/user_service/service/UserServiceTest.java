@@ -40,4 +40,34 @@ class UserServiceTest {
         assertEquals(userId, result.getId());
         verify(userRepository, times(1)).findById(userId);
     }
+
+    @Test
+    public void testGetUserById() {
+        long userId = 1L;
+        User user = new User();
+        user.setId(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        User result = userService.getUserById(userId);
+
+        assertEquals(userId, result.getId());
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    public void testSaveUser() {
+        // Create a user object
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setEmail("testuser@example.com");
+
+        when(userRepository.existsById(user.getId())).thenReturn(true);
+
+        userService.saveUser(user);
+
+        verify(userRepository, times(1)).save(user);
+
+        assertTrue(userService.existsUserById(user.getId()));
+    }
 }

@@ -64,7 +64,7 @@ public class GoalInvitationServiceTest {
         goalInvitationMapper = mock(GoalInvitationMapper.class);
         userService = mock(UserService.class);
         goalService = mock(GoalService.class);
-        goalInvitationValidator = new GoalInvitationValidator(userService);
+        goalInvitationValidator = new GoalInvitationValidator();
 
         filters = List.of(inviterNamePattern, invitedNamePattern, invitedIdFilter, inviterIdFilter);
 
@@ -105,6 +105,10 @@ public class GoalInvitationServiceTest {
         invitationDto.setId(1L);
         invitationDto.setInviterId(1L);
         invitationDto.setInvitedUserId(3L);
+        invitationDto.setGoalId(1L);
+
+        Goal goal = new Goal();
+        goal.setId(1L);
 
         User inviter = new User();
         inviter.setId(1L);
@@ -116,6 +120,7 @@ public class GoalInvitationServiceTest {
         goalInvitation.setId(1L);
         goalInvitation.setInvited(invited);
         goalInvitation.setInviter(inviter);
+        goalInvitation.setGoal(goal);
 
         when(goalInvitationMapper.toEntity(invitationDto)).thenReturn(goalInvitation);
         when(goalInvitationMapper.toDto(goalInvitation)).thenReturn(invitationDto);

@@ -11,7 +11,6 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
-import school.faang.user_service.service.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,21 +19,17 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Alexander Bulgakov
  */
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationValidatorTest {
-    private UserService userService;
     private GoalInvitationValidator goalInvitationValidator;
 
     @BeforeEach
     public void setup() {
-        userService = mock(UserService.class);
-        goalInvitationValidator = new GoalInvitationValidator(userService);
+        goalInvitationValidator = new GoalInvitationValidator();
     }
 
     @Test
@@ -54,29 +49,6 @@ public class GoalInvitationValidatorTest {
 
         assertDoesNotThrow(() ->
             goalInvitationValidator.checkUser(inviterId, invitedId));
-    }
-
-    @Test
-    public void testCheckUser_InviterIdNotExist_EntityNotFoundExceptionThrown() {
-        long inviterId = 1L;
-        long invitedId = 2L;
-
-        when(userService.existsUserById(invitedId)).thenReturn(true);
-        when(userService.existsUserById(inviterId)).thenReturn(false);
-
-        assertThrows(EntityNotFoundException.class, () ->
-                goalInvitationValidator.checkUser(inviterId, invitedId));
-    }
-
-    @Test
-    public void testCheckUser_InvitedIdNotExist_EntityNotFoundExceptionThrown() {
-        long inviterId = 1L;
-        long invitedId = 2L;
-
-        when(userService.existsUserById(inviterId)).thenReturn(true);
-
-        assertThrows(EntityNotFoundException.class, () ->
-                goalInvitationValidator.checkUser(inviterId, invitedId));
     }
 
     @Test

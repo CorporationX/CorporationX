@@ -2,6 +2,7 @@ package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.goal.EntityNotFoundException;
 import school.faang.user_service.repository.goal.GoalRepository;
 
@@ -12,6 +13,11 @@ import school.faang.user_service.repository.goal.GoalRepository;
 @RequiredArgsConstructor
 public class GoalService {
     private final GoalRepository goalRepository;
+
+    public Goal getGoalBbyId(long id) {
+        return goalRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Goal with id - " + id + " not found"));
+    }
 
     public void existsGoalById(long id) {
         if (!goalRepository.existsById(id)) {

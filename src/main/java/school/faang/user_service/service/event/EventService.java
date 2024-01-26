@@ -20,6 +20,10 @@ public class EventService {
         return eventMapper.toListDto(eventRepository.findAllByUserId(userId));
     }
 
+    public List<Event> getParticipatedEventsByUserId(long userId) {
+        return eventRepository.findParticipatedEventsByUserId(userId);
+    }
+
     public Event getEvent(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new DataValidationException("Not found event by Id - " + eventId));

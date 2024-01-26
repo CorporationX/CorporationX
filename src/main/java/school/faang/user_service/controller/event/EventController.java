@@ -18,6 +18,10 @@ public class EventController {
         return eventService.getOwnedEvents(userId);
     }
 
+    public List<Event> getParticipatedEventsByUserId(long userId) {
+        return eventService.getParticipatedEventsByUserId(userId);
+    }
+
     public Event getEvent(long eventId) {
         return eventService.getEvent(eventId);
     }

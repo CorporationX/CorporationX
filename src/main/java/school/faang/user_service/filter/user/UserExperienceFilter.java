@@ -7,6 +7,7 @@ import school.faang.user_service.filter.UserFilter;
 import java.util.stream.Stream;
 
 public class UserExperienceFilter implements UserFilter {
+
     @Override
     public boolean isApplicable(UserFilterDto filters) {
         return filters.getExperienceMin() != 0 || filters.getExperienceMax() != 0;

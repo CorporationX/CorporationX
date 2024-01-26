@@ -30,6 +30,13 @@ public class SubscriptionService {
         return filterUsers(filteredUsers, filter);
     }
 
+    @Transactional(readOnly = true)
+    public List<UserDto> getFollowing(long followerId, UserFilterDto filter) {
+        subscriptionValidator.validateUser(followerId);
+        Stream<User> filteredUsers = subscriptionRepo.findByFollowerId(followerId);
+        return filterUsers(filteredUsers, filter);
+    }
+
     private List<UserDto> filterUsers(Stream<User> users, UserFilterDto dtoFilter) {
         Stream<User> filteredUsers = filters.stream()
                 .filter(filter -> filter.isApplicable(dtoFilter))

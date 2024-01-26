@@ -65,6 +65,17 @@ public class SubscriptionServiceTest {
     }
 
     @Test
+    void testGetFollowingCallRepositoryMethod() {
+        long followerId = 1L;
+
+        Mockito.when(subscriptionRepo.findByFolloweeId(followerId)).thenReturn(users.stream());
+        subscriptionService.getFollowing(followerId, dtoFilter);
+
+        Mockito.verify(subscriptionRepo, Mockito.times(1))
+                .findByFolloweeId(followerId);
+    }
+
+    @Test
     public void testUnfollowedSuccess() {
         subscriptionService.unfollowUser(10L, 20L);
         Mockito.verify(subscriptionRepo, Mockito.times(1))

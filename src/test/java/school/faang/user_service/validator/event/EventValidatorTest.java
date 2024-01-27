@@ -18,32 +18,47 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EventValidatorTest {
     @Mock
     private UserService userService;
     @Mock
-    private Event event;
+    private Event eventFirst;
     @Mock
     private User user;
     @InjectMocks
     private EventValidator eventValidator;
 
     @Test
-    public void shouldThrowsWhenEvent_NotValidTitleAndDate() {
+    public void shouldThrowsWhenEvent_NotValidTitle() {
         EventDto eventEmptyTitle = EventDto.builder()
                 .title("")
                 .startDate(LocalDateTime.now())
                 .ownerId(1L)
                 .build();
-        EventDto eventNotValidDate = EventDto.builder()
-                .title("Event1")
+        assertThrows(DataValidationException.class, () -> eventValidator.validateEventInController(eventEmptyTitle));
+    }
+
+    @Test
+    public void shouldThrowsWhenEventTitleIsBlank() {
+        EventDto eventEmptyTitle = EventDto.builder()
+                .title("      ")
                 .startDate(LocalDateTime.now())
                 .ownerId(1L)
                 .build();
-
         assertThrows(DataValidationException.class, () -> eventValidator.validateEventInController(eventEmptyTitle));
+    }
+
+    @Test
+    public void shouldThrowsWhenEventNotValidDate() {
+        EventDto eventNotValidDate = EventDto.builder()
+                .title("Event1")
+                .startDate(LocalDateTime.now().minusDays(1L))
+                .ownerId(1L)
+                .build();
         assertThrows(DataValidationException.class, () -> eventValidator.validateEventInController(eventNotValidDate));
     }
 
@@ -53,19 +68,31 @@ class EventValidatorTest {
                 .title("Event3")
                 .startDate(LocalDateTime.now().plusDays(1L))
                 .build();
-        assertTrue(eventValidator.validateEventInController(eventValid));
+        eventValidator.validateEventInController(eventValid);
     }
 
     @Test
     void successCheckIfOwnerHasSkillsRequired() {
         Skill skill1 = Skill.builder().id(1L).build();
         Skill skill2 = Skill.builder().id(2L).build();
+        User userFirst = User.builder()
+                .id(1L)
+                .active(true)
+                .skills(List.of(skill1, skill2))
+                .build();
+        Event eventFirst = Event.builder()
+                .id(1L)
+                .relatedSkills(List.of(skill1, skill2))
+                .maxAttendees(2)
+                .owner(userFirst)
+                .build();
+        boolean ownerHasRequiredSkills = eventFirst
+                .getOwner()
+                .getSkills()
+                .containsAll(eventFirst.getRelatedSkills());
 
-        Mockito.when(event.getOwner()).thenReturn(user);
-        Mockito.when(user.getSkills()).thenReturn(List.of(skill1, skill2));
-        Mockito.when(event.getRelatedSkills()).thenReturn(List.of(skill1, skill2));
+        assertTrue(ownerHasRequiredSkills);
 
-        assertTrue(eventValidator.checkIfOwnerHasSkillsRequired(event));
     }
 
     @Test
@@ -74,12 +101,12 @@ class EventValidatorTest {
         Skill skill2 = Skill.builder().id(2L).build();
         Skill skill3 = Skill.builder().id(3L).build();
 
-        Mockito.when(event.getOwner()).thenReturn(user);
+        Mockito.when(eventFirst.getOwner()).thenReturn(user);
         Mockito.when(user.getSkills()).thenReturn(List.of(skill1, skill2));
-        Mockito.when(event.getRelatedSkills()).thenReturn(List.of(skill3));
+        Mockito.when(eventFirst.getRelatedSkills()).thenReturn(List.of(skill3));
 
         assertThrows(DataValidationException.class,
-                () -> eventValidator.checkIfOwnerHasSkillsRequired(event));
+                () -> eventValidator.checkIfOwnerHasSkillsRequired(eventFirst));
     }
 
     @Test
@@ -88,9 +115,9 @@ class EventValidatorTest {
                 .id(1L)
                 .active(true)
                 .build();
-
-        Mockito.when(userService.checkIfOwnerExistsById(user.getId())).thenReturn(true);
-        assertTrue(eventValidator.checkIfOwnerExistsById(user.getId()));
+        when(userService.checkIfOwnerExistsById(user.getId())).thenReturn(true);
+        eventValidator.checkIfOwnerExistsById(user.getId());
+        Mockito.verify(userService, times(1)).checkIfOwnerExistsById(user.getId());
     }
 
     @Test

@@ -1,20 +1,24 @@
 package school.faang.user_service.service.event;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.validator.event.EventValidator;
 
-import static org.mockito.Mockito.never;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EventServiceTest {
@@ -27,59 +31,93 @@ class EventServiceTest {
     @InjectMocks
     private EventService eventService;
 
-    private EventDto eventDto;
-    private Event event;
-    private User owner;
-
-    @BeforeEach
-    public void init() {
-        owner = User.builder()
+    @Test
+    public void successCreateAndSaveEventWhenTwoPassedValidation() {
+        Skill skillFirst = Skill.builder()
+                .id(1L)
+                .build();
+        Skill skillSecond = Skill.builder()
+                .id(1L)
+                .build();
+        User owner = User.builder()
                 .id(1L)
                 .active(true)
+                .skills(List.of(skillFirst, skillSecond))
                 .build();
-        eventDto = EventDto.builder()
-                .title("Event1")
+        EventDto eventDto = EventDto.builder()
                 .id(1L)
-                .ownerId(1L)
-                .maxAttendees(2)
+                .title("EventFirst")
+                .ownerId(owner.getId())
+                .relatedSkillIds(List.of(skillFirst.getId(), skillSecond.getId()))
                 .build();
-        event = Event.builder()
+        Event eventEntity = Event.builder()
                 .id(1L)
+                .title("EventFirst")
                 .owner(owner)
+                .relatedSkills(List.of(skillFirst, skillSecond))
                 .maxAttendees(2)
                 .build();
-    }
 
-    @Test
-    public void shouldCreateAndSaveEventWhenTwoPassedValidation() {
-        Mockito.when(eventMapper.toEntity(eventDto)).thenReturn(event);
-        Mockito.when(eventValidator.checkIfOwnerExistsById(event.getOwner().getId())).thenReturn(true);
-        Mockito.when(eventValidator.checkIfOwnerHasSkillsRequired(event)).thenReturn(true);
+        when(eventMapper.toEntity(eventDto)).thenReturn(eventEntity);
+        when(eventRepository.save(eventEntity)).thenReturn(eventEntity);
+        when(eventMapper.toDto(eventEntity)).thenReturn(eventDto);
+        doNothing().when(eventValidator).checkIfOwnerExistsById(owner.getId());
+        doNothing().when(eventValidator).checkIfOwnerHasSkillsRequired(eventEntity);
+        EventDto actual = eventService.create(eventDto);
 
-        eventService.create(eventDto);
-
-        Mockito.verify(eventRepository).save(event);
+        verify(eventValidator).checkIfOwnerExistsById(owner.getId());
+        verify(eventValidator).checkIfOwnerHasSkillsRequired(eventEntity);
+        verify(eventRepository).save(eventEntity);
+        assertEquals(eventDto, actual);
     }
 
     @Test
     public void shouldNotSaveEventWhenOwnerNotExistsById() {
-        Mockito.when(eventMapper.toEntity(eventDto)).thenReturn(event);
-        Mockito.when(eventValidator.checkIfOwnerExistsById(event.getOwner().getId())).thenReturn(false);
+        EventDto eventDto = EventDto.builder()
+                .id(1L)
+                .ownerId(1L)
+                .title("EventFirst")
+                .build();
+        User owner = User.builder()
+                .id(22L)
+                .active(true)
+                .build();
+        Event eventEntity = Event.builder()
+                .id(1L)
+                .owner(owner)
+                .maxAttendees(2)
+                .build();
+        when(eventMapper.toEntity(any(EventDto.class))).thenReturn(eventEntity);
+        doThrow(new DataValidationException("Owner does not exist"))
+                .when(eventValidator).checkIfOwnerExistsById(anyLong());
 
-        eventService.create(eventDto);
-
-        Mockito.verify(eventRepository, never()).save(event);
+        assertThrows(DataValidationException.class,
+                () -> eventService.create(eventDto));
     }
 
     @Test
     public void shouldNotSaveEventWhenOwnerDoesNotHaveRequiredSkills() {
-        Mockito.when(eventMapper.toEntity(eventDto)).thenReturn(event);
-        Mockito.when(eventValidator.checkIfOwnerExistsById(event.getOwner().getId())).thenReturn(true);
-        Mockito.when(eventValidator.checkIfOwnerHasSkillsRequired(event)).thenReturn(false);
+        EventDto eventDto = EventDto.builder()
+                .id(1L)
+                .ownerId(1L)
+                .title("EventFirst")
+                .build();
+        User owner = User.builder()
+                .id(22L)
+                .active(true)
+                .build();
+        Event eventEntity = Event.builder()
+                .id(1L)
+                .owner(owner)
+                .maxAttendees(2)
+                .build();
+        when(eventMapper.toEntity(eventDto)).thenReturn(eventEntity);
+        doNothing().when(eventValidator).checkIfOwnerExistsById(owner.getId());
+        doThrow(new DataValidationException("Owner does not have required skills"))
+                .when(eventValidator).checkIfOwnerHasSkillsRequired(eventEntity);
 
-        eventService.create(eventDto);
-
-        Mockito.verify(eventRepository, never()).save(event);
+        assertThrows(DataValidationException.class,
+                () -> eventService.create(eventDto));
     }
 
 }

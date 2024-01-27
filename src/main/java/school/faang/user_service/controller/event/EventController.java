@@ -13,9 +13,9 @@ public class EventController {
     private final EventService eventService;
     private final EventValidator eventValidator;
 
-    public void create(EventDto eventDto) {
-        if (eventValidator.validateEventInController(eventDto)) {
-            eventService.create(eventDto);
-        }
+    public EventDto create(EventDto eventDto) {
+        eventValidator.validateEventInController(eventDto);
+        return eventService.create(eventDto);
     }
+
 }

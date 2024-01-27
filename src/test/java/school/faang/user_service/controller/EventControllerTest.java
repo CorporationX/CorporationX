@@ -13,6 +13,7 @@ import school.faang.user_service.validator.event.EventValidator;
 
 import java.time.LocalDateTime;
 
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,19 +32,9 @@ public class EventControllerTest {
                 .startDate(LocalDateTime.now())
                 .id(1L)
                 .build();
-        Mockito.when(eventValidator.validateEventInController(eventDto)).thenReturn(true);
+        doNothing().when(eventValidator).validateEventInController(eventDto);
         eventController.create(eventDto);
         Mockito.verify(eventService, times(1)).create(eventDto);
-    }
-
-    @Test
-    public void createEvent_shouldFailed() {
-        EventDto eventDto = EventDto.builder()
-                .id(1L)
-                .build();
-        Mockito.when(eventValidator.validateEventInController(eventDto)).thenReturn(false);
-        eventController.create(eventDto);
-        Mockito.verify(eventService, Mockito.never()).create(eventDto);
     }
 
 }

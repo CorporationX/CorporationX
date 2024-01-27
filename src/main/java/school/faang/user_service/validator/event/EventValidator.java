@@ -14,27 +14,26 @@ import java.time.LocalDateTime;
 public class EventValidator {
     private final UserService userService;
 
-    public boolean validateEventInController(EventDto event) {
-        boolean isExist = (event.getTitle() != null && !event.getTitle().isBlank())
-                && event.getStartDate().isAfter(LocalDateTime.now());
-        if (!isExist) {
+    public void validateEventInController(EventDto event) {
+        if (event.getTitle() == null || event.getTitle().isBlank()
+                || event.getStartDate().isBefore(LocalDateTime.now())) {
             throw new DataValidationException("Event not valid");
         }
-        return true;
     }
 
-    public boolean checkIfOwnerExistsById(long id) {
+    public void checkIfOwnerExistsById(long id) {
         if (!userService.checkIfOwnerExistsById(id)) {
-            throw new DataValidationException("Owner does not exist.");
+            throw new DataValidationException("Owner does not exist");
         }
-        return true;
     }
 
-    public boolean checkIfOwnerHasSkillsRequired(Event event) {
-        boolean ownerHasRequiredSkills = event.getOwner().getSkills().containsAll(event.getRelatedSkills());
+    public void checkIfOwnerHasSkillsRequired(Event event) {
+        boolean ownerHasRequiredSkills = event
+                .getOwner()
+                .getSkills()
+                .containsAll(event.getRelatedSkills());
         if (!ownerHasRequiredSkills) {
-            throw new DataValidationException("Owner does not have required skills.");
+            throw new DataValidationException("Owner does not have required skills");
         }
-        return true;
     }
 }

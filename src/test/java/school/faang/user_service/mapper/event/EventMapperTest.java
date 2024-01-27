@@ -32,8 +32,12 @@ class EventMapperTest {
     }
 
     @Test
-    void mappingToDto_AndToEntity() {
+    void successMappingToDto() {
         assertEquals(eventDto, eventMapper.toDto(event));
+    }
+
+    @Test
+    void successMappingToEntity() {
         assertEquals(event, eventMapper.toEntity(eventDto));
     }
 

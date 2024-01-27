@@ -15,11 +15,11 @@ public class EventService {
     private final EventMapper eventMapper;
     private final EventValidator eventValidator;
 
-    public void create(EventDto eventDto) {
+    public EventDto create(EventDto eventDto) {
         Event eventEntity = eventMapper.toEntity(eventDto);
-        if (eventValidator.checkIfOwnerExistsById(eventEntity.getOwner().getId()) && eventValidator.checkIfOwnerHasSkillsRequired(eventEntity)) {
-            eventRepository.save(eventEntity);
-        }
+        eventValidator.checkIfOwnerExistsById(eventEntity.getOwner().getId());
+        eventValidator.checkIfOwnerHasSkillsRequired(eventEntity);
+        return eventMapper.toDto(eventRepository.save(eventEntity));
     }
 
 }

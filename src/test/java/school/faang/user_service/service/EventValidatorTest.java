@@ -27,14 +27,14 @@ class EventValidatorTest {
     @Test
     public void successCheckEventIsExistWhenExists() {
         Mockito.when(eventRepository.existsById(event.getId())).thenReturn(true);
-        assertTrue(eventValidator.checkEventIsExistById(event.getId()));
+        assertTrue(eventValidator.checkIfEventExists(event.getId()));
     }
 
     @Test
     public void shouldFailedCheckEventIsExistWhenNotExists() {
         Mockito.when(eventRepository.existsById(event.getId())).thenReturn(false);
         assertThrows(DataValidationException.class,
-                () -> eventValidator.checkEventIsExistById(event.getId()));
+                () -> eventValidator.checkIfEventExists(event.getId()));
     }
 
 }

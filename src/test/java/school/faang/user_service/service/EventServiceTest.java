@@ -50,7 +50,7 @@ public class EventServiceTest {
 
     @Test
     public void successUpdateEventWhenAllIsValid() {
-        Mockito.when(eventValidator.checkEventIsExistById(eventDto.getId())).thenReturn(true);
+        Mockito.when(eventValidator.checkIfEventExists(eventDto.getId())).thenReturn(true);
         Mockito.when(eventMapper.toEntity(eventDto)).thenReturn(event);
         Mockito.when(eventValidator.checkIfOwnerExistsById(event.getOwner().getId())).thenReturn(true);
         Mockito.when(eventValidator.checkIfOwnerHasSkillsRequired(event)).thenReturn(true);
@@ -62,7 +62,7 @@ public class EventServiceTest {
     @Test
     public void shouldFailedUpdateEventWhenEventByIdNotFound() {
         long id = 1L;
-        Mockito.when(eventValidator.checkEventIsExistById(id)).thenReturn(false);
+        Mockito.when(eventValidator.checkIfEventExists(id)).thenReturn(false);
 
         eventService.updateEvent(eventDto);
         Mockito.verify(eventRepository, never()).save(event);
@@ -70,7 +70,7 @@ public class EventServiceTest {
 
     @Test
     public void shouldFailedUpdateEventWhenOwnerByIdNotFound() {
-        Mockito.when(eventValidator.checkEventIsExistById(eventDto.getId())).thenReturn(true);
+        Mockito.when(eventValidator.checkIfEventExists(eventDto.getId())).thenReturn(true);
         Mockito.when(eventMapper.toEntity(eventDto)).thenReturn(event);
         Mockito.when(eventValidator.checkIfOwnerExistsById(event.getOwner().getId())).thenReturn(false);
 
@@ -80,7 +80,7 @@ public class EventServiceTest {
 
     @Test
     public void shouldFailedUpdateEventWhenOwnerNotExistRequiredSkills() {
-        Mockito.when(eventValidator.checkEventIsExistById(eventDto.getId())).thenReturn(true);
+        Mockito.when(eventValidator.checkIfEventExists(eventDto.getId())).thenReturn(true);
         Mockito.when(eventMapper.toEntity(eventDto)).thenReturn(event);
         Mockito.when(eventValidator.checkIfOwnerExistsById(event.getOwner().getId())).thenReturn(true);
         Mockito.when(eventValidator.checkIfOwnerHasSkillsRequired(event)).thenReturn(false);

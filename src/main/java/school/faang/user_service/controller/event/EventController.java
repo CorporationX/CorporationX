@@ -12,9 +12,9 @@ public class EventController {
     private final EventService eventService;
     private final EventValidator eventValidator;
 
-    public void updateEvent(EventDto eventDto) {
-        if (eventValidator.validateEventInController(eventDto))
-            eventService.updateEvent(eventDto);
+    public EventDto updateEvent(EventDto eventDto) {
+        eventValidator.validateEventInController(eventDto);
+        return eventService.updateEvent(eventDto);
     }
 
 }

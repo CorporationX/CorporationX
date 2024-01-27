@@ -7,6 +7,9 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.Event;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface EventMapper {
@@ -17,4 +20,9 @@ public interface EventMapper {
     @Mapping(source = "ownerId", target = "owner", ignore = true)
     Event toEntity(EventDto eventDto);
 
+    default List<EventDto> toListDto(List<Event> events) {
+        return events.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
 }

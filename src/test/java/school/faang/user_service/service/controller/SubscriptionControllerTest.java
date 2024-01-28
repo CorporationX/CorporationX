@@ -65,6 +65,6 @@ public class SubscriptionControllerTest {
     @Test
     public void testFollowingCount() {
         subscriptionController.getFollowingCount(1L);
-        Mockito.verify(subscriptionService, Mockito.times(1));
+        Mockito.verify(subscriptionService, Mockito.times(1)).getFollowingCount(1L);
     }
 }

@@ -8,20 +8,22 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.Event;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface EventMapper {
 
-    @Mapping(source = "owner.id", target = "ownerId", ignore = true)
+    @Mapping(source = "owner", target = "ownerId", ignore = true)
     EventDto toDto(Event event);
 
     @Mapping(source = "ownerId", target = "owner", ignore = true)
     Event toEntity(EventDto eventDto);
 
-    default List<EventDto> toEventDto(List<Event> events) {
+    default List<EventDto> toListDto(List<Event> events) {
         return events.stream()
-                .map(this::toDto).toList();
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
 }

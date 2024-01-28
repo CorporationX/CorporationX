@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.filter.event.EventFilter;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
@@ -42,7 +42,7 @@ public class EventService {
                 events = eventFilter.apply(events, filterDto);
             }
         }
-        return eventMapper.toEventDto(events.collect(Collectors.toList()));
+        return eventMapper.toListDto(events.collect(Collectors.toList()));
     }
 
     public List<Event> getParticipatedEventsByUserId(long userId) {

@@ -8,6 +8,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 
 @Component
 @RequiredArgsConstructor
@@ -28,9 +29,9 @@ public class EventValidator {
     }
 
     public void checkIfOwnerHasSkillsRequired(Event event) {
-        boolean ownerHasRequiredSkills = event
+        boolean ownerHasRequiredSkills = new HashSet<>(event
                 .getOwner()
-                .getSkills()
+                .getSkills())
                 .containsAll(event.getRelatedSkills());
         if (!ownerHasRequiredSkills) {
             throw new DataValidationException("Owner does not have required skills");

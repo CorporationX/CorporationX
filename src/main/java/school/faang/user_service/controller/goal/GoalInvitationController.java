@@ -40,7 +40,7 @@ public class GoalInvitationController {
     }
 
     @PostMapping("/get-invitations")
-    public List<GoalInvitationDto> getInvitations(@RequestBody(required = false) InvitationFilterDto filter) {
+    public List<GoalInvitationDto> getInvitations(@RequestBody InvitationFilterDto filter) {
         return goalInvitationService.getInvitations(filter);
     }
 }

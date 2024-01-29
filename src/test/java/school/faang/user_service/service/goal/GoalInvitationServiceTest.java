@@ -30,7 +30,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -256,16 +255,6 @@ public class GoalInvitationServiceTest {
 
         goalInvitation.setGoal(goal);
 
-        User invited = new User();
-        invited.setId(2L);
-
-        goalInvitation.setInvited(invited);
-
-        List<GoalInvitation> receivedGoalInvitations = new ArrayList<>();
-        receivedGoalInvitations.add(goalInvitation);
-
-        invited.setReceivedGoalInvitations(receivedGoalInvitations);
-
         GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
         goalInvitationDto.setId(invitationId);
 
@@ -277,10 +266,8 @@ public class GoalInvitationServiceTest {
 
         assertNotNull(result);
         assertEquals(RequestStatus.REJECTED, goalInvitation.getStatus());
-        assertTrue(invited.getReceivedGoalInvitations().isEmpty());
         verify(goalInvitationRepository, times(1)).findById(invitationId);
         verify(goalService, times(1)).existsGoalById(goal.getId());
-        verify(userService, times(1)).saveUser(invited);
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
     }
 
@@ -293,7 +280,6 @@ public class GoalInvitationServiceTest {
         assertThrows(EntityNotFoundException.class, () -> goalInvitationService.rejectGoalInvitation(invitationId));
         verify(goalInvitationRepository, times(1)).findById(invitationId);
         verify(goalService, never()).existsGoalById(anyLong());
-        verify(userService, never()).saveUser(any(User.class));
         verify(goalInvitationRepository, never()).save(any(GoalInvitation.class));
     }
 

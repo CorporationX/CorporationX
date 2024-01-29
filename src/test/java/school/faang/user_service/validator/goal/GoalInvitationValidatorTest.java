@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -16,9 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Alexander Bulgakov
@@ -81,25 +78,5 @@ public class GoalInvitationValidatorTest {
 
         assertThrows(DataValidationException.class, () ->
             goalInvitationValidator.validateGoal(user, goalInvitation));
-    }
-
-    @Test
-    public void testCheckFilter_AllFieldsNull() {
-        InvitationFilterDto filter = null;
-
-        boolean result = goalInvitationValidator.checkFilter(filter);
-
-        assertFalse(result);
-    }
-
-    @Test
-    public void testCheckFilter_SomeFieldsNotNull() {
-        InvitationFilterDto filter = new InvitationFilterDto();
-        filter.setInviterNamePattern("John");
-        filter.setInvitedId(1L);
-
-        boolean result = goalInvitationValidator.checkFilter(filter);
-
-        assertTrue(result);
     }
 }

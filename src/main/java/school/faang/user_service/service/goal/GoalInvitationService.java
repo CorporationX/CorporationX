@@ -49,9 +49,9 @@ public class GoalInvitationService {
         goalInvitation.setInvited(invited);
         goalInvitation.setGoal(goal);
 
-        goalInvitationRepository.save(goalInvitation);
+        GoalInvitation addedInvitation = goalInvitationRepository.save(goalInvitation);
 
-        return goalInvitationMapper.toDto(goalInvitation);
+        return goalInvitationMapper.toDto(addedInvitation);
     }
 
     public GoalInvitationDto acceptGoalInvitation(long id) {
@@ -68,34 +68,23 @@ public class GoalInvitationService {
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
 
-        goalInvitationRepository.save(goalInvitation);
+        GoalInvitation acceptedInvitation = goalInvitationRepository.save(goalInvitation);
 
-        return goalInvitationMapper.toDto(goalInvitation);
+        return goalInvitationMapper.toDto(acceptedInvitation);
     }
 
     public GoalInvitationDto rejectGoalInvitation(long id) {
         GoalInvitation goalInvitation = getGoalInvitationById(id);
         goalService.existsGoalById(goalInvitation.getGoal().getId());
 
-        User invited = goalInvitation.getInvited();
-
-        List<GoalInvitation> currentReceivedGoalInvitations = invited.getReceivedGoalInvitations();
-        currentReceivedGoalInvitations.remove(goalInvitation);
-
-        invited.setReceivedGoalInvitations(currentReceivedGoalInvitations);
         goalInvitation.setStatus(RequestStatus.REJECTED);
-        userService.saveUser(invited);
-        goalInvitationRepository.save(goalInvitation);
+        GoalInvitation rejectedInvitation = goalInvitationRepository.save(goalInvitation);
 
-        return goalInvitationMapper.toDto(goalInvitation);
+        return goalInvitationMapper.toDto(rejectedInvitation);
     }
 
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filter) {
         List<GoalInvitation> goalInvitations = goalInvitationRepository.findAll();
-
-        if (!goalInvitationValidator.checkFilter(filter)) {
-            return new ArrayList<>(goalInvitations.stream().map(goalInvitationMapper::toDto).toList());
-        }
 
         goalInvitationFilters.stream()
                 .filter(goalInvitationFilter -> goalInvitationFilter.isApplicable(filter))

@@ -120,15 +120,24 @@ public class GoalInvitationServiceTest {
         goalInvitation.setInvited(invited);
         goalInvitation.setInviter(inviter);
         goalInvitation.setGoal(goal);
+        goalInvitation.setStatus(RequestStatus.PENDING);
+
+        GoalInvitationDto createdDto = new GoalInvitationDto();
+        createdDto.setId(1L);
+        createdDto.setInviterId(inviter.getId());
+        createdDto.setInvitedUserId(invited.getId());
+        createdDto.setGoalId(goal.getId());
+        createdDto.setStatus(RequestStatus.PENDING);
 
         when(goalInvitationMapper.toEntity(invitationDto)).thenReturn(goalInvitation);
-        when(goalInvitationMapper.toDto(goalInvitation)).thenReturn(invitationDto);
+        when(goalInvitationRepository.save(goalInvitation)).thenReturn(goalInvitation);
+        when(goalInvitationMapper.toDto(goalInvitation)).thenReturn(createdDto);
 
         var result = goalInvitationService.createInvitation(invitationDto);
 
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
 
-        assertEquals(invitationDto, goalInvitationMapper.toDto(goalInvitationMapper.toEntity(result)));
+        assertEquals(createdDto, result);
     }
 
     @Test
@@ -138,39 +147,44 @@ public class GoalInvitationServiceTest {
 
         GoalInvitationDto invitationDto = new GoalInvitationDto();
         invitationDto.setId(invitationId);
-
-        GoalInvitation currentInvitation = new GoalInvitation();
-        currentInvitation.setId(2L);
+        invitationDto.setInvitedUserId(1L);
+        invitationDto.setStatus(RequestStatus.PENDING);
 
         Goal currentGoal = new Goal();
         currentGoal.setId(2L);
-
-        List<GoalInvitation> currentUserReceivedInvitations = new ArrayList<>();
-        currentUserReceivedInvitations.add(currentInvitation);
 
         List<Goal> currentUserGoals = new ArrayList<>();
         currentUserGoals.add(currentGoal);
 
         User invitedUser = new User();
         invitedUser.setId(1L);
-        invitedUser.setReceivedGoalInvitations(currentUserReceivedInvitations);
         invitedUser.setGoals(currentUserGoals);
 
-        GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setId(invitationId);
-        goalInvitation.setInvited(invitedUser);
-        goalInvitation.setStatus(RequestStatus.PENDING);
+        GoalInvitation currentInvitation = new GoalInvitation();
+        currentInvitation.setId(invitationId);
+        currentInvitation.setInvited(invitedUser);
+        currentInvitation.setStatus(RequestStatus.PENDING);
 
-        when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(goalInvitation));
-        when(goalInvitationMapper.toDto(goalInvitation)).thenReturn(invitationDto);
+        GoalInvitation acceptedGoalInvitation = new GoalInvitation();
+        acceptedGoalInvitation.setId(invitationId);
+        acceptedGoalInvitation.setInvited(invitedUser);
+        acceptedGoalInvitation.setStatus(RequestStatus.ACCEPTED);
+
+        GoalInvitationDto acceptedDto = new GoalInvitationDto();
+        acceptedDto.setId(invitationId);
+        acceptedDto.setInvitedUserId(invitedUser.getId());
+        acceptedDto.setStatus(RequestStatus.ACCEPTED);
+
+        when(goalInvitationRepository.findById(invitationId)).thenReturn(Optional.of(currentInvitation));
+        when(goalInvitationRepository.save(currentInvitation)).thenReturn(acceptedGoalInvitation);
+        when(goalInvitationMapper.toDto(currentInvitation)).thenReturn(acceptedDto);
 
         GoalInvitationDto result = goalInvitationService.acceptGoalInvitation(invitationId);
 
-        assertEquals(RequestStatus.ACCEPTED, goalInvitation.getStatus());
-        assertEquals(currentUserReceivedInvitations, invitedUser.getReceivedGoalInvitations());
+        assertEquals(RequestStatus.ACCEPTED, currentInvitation.getStatus());
         assertEquals(currentUserGoals, invitedUser.getGoals());
-        verify(goalInvitationRepository, times(1)).save(goalInvitation);
-        assertEquals(invitationDto, result);
+        verify(goalInvitationRepository, times(1)).save(currentInvitation);
+        assertEquals(acceptedDto, result);
     }
 
     @Test

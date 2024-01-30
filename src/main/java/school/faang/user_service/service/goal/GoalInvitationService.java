@@ -61,10 +61,7 @@ public class GoalInvitationService {
 
         goalInvitationValidator.validateGoal(invitedUser, goalInvitation);
 
-        List<Goal> currentUserGoals = invitedUser.getGoals();
-        currentUserGoals.add(goalInvitation.getGoal());
-
-        invitedUser.setGoals(currentUserGoals);
+        invitedUser.getGoals().add(goalInvitation.getGoal());
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
 

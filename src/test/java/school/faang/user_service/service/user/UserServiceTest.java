@@ -13,6 +13,10 @@ import school.faang.user_service.repository.UserRepository;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import school.faang.user_service.repository.UserRepository;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -53,4 +57,16 @@ class UserServiceTest {
         User actualUser = userService.findUserById(expectedUser.getId());
         assertEquals(expectedUser, actualUser);
     }
+    public void whenOwnerExist_shouldReturnTrue() {
+        Mockito.when(userRepository.existsById(1L)).thenReturn(true);
+
+        assertTrue(userService.checkIfOwnerExistsById(1L));
+    }
+
+    @Test
+    public void whenOwnerDoesNotExist_shouldReturnFalse() {
+        Mockito.when(userRepository.existsById(1L)).thenReturn(false);
+        assertFalse(userService.checkIfOwnerExistsById(1L));
+    }
+
 }

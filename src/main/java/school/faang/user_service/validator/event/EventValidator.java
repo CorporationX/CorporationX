@@ -11,10 +11,16 @@ import school.faang.user_service.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.service.user.UserService;
+
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
 public class EventValidator {
+    private final UserService userService;
     private final UserRepository userRepository;
 
     public void validateEventInController(EventDto eventDto) {
@@ -50,6 +56,22 @@ public class EventValidator {
                 .toList();
         if (!new HashSet<>(ownerSkillIds).containsAll(eventDto.getRelatedSkillIds())) {
             throw new DataValidationException("Owner does not have required skills.");
+        }
+    }
+
+    public void checkIfOwnerExistsById(long id) {
+        if (!userService.checkIfOwnerExistsById(id)) {
+            throw new DataValidationException("Owner does not exist");
+        }
+    }
+
+    public void checkIfOwnerHasSkillsRequired(Event event) {
+        boolean ownerHasRequiredSkills = new HashSet<>(event
+                .getOwner()
+                .getSkills())
+                .containsAll(event.getRelatedSkills());
+        if (!ownerHasRequiredSkills) {
+            throw new DataValidationException("Owner does not have required skills");
         }
     }
 }

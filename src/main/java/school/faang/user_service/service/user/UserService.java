@@ -23,3 +23,8 @@ public class UserService {
     }
 
 }
+    public boolean checkIfOwnerExistsById(Long id) {
+        return userRepository.existsById(id);
+    }
+
+}

@@ -3,25 +3,52 @@ package school.faang.user_service.validator.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class EventValidator {
+    private final UserRepository userRepository;
 
-    public void validateEventInController(EventDto event) {
-        if (event.getTitle() == null || event.getTitle().isBlank()
-                || event.getStartDate().isBefore(LocalDateTime.now())) {
-            throw new DataValidationException("Event not valid");
+    public void validateEventInController(EventDto eventDto) {
+        validateTitle(eventDto);
+        validateDate(eventDto);
+        validateSkills(eventDto);
+    }
+
+    public void validateDate(EventDto eventDto) {
+        if (eventDto.getStartDate() != null && eventDto.getStartDate().isBefore(LocalDateTime.now())) {
+            throw new DataValidationException("Date not valid");
         }
     }
 
-    public void checkIfOwnerHasSkillsRequired(Event event) {
-        if (!new HashSet<>(event.getOwner().getSkills()).containsAll(event.getRelatedSkills())) {
+    public void validateTitle(EventDto eventDto) {
+        if (eventDto.getTitle() != null && eventDto.getTitle().isBlank()) {
+            throw new DataValidationException("Title not valid");
+        }
+    }
+
+
+    public void validateSkills(EventDto eventDto) {
+        if (eventDto.getRelatedSkillIds() != null && eventDto.getRelatedSkillIds().isEmpty()) {
+            throw new DataValidationException("Related skills not valid");
+        }
+    }
+
+    public void checkIfOwnerHasSkillsRequired(EventDto eventDto) {
+        User owner = userRepository.findById(eventDto.getOwnerId())
+                .orElseThrow(() -> new DataValidationException("Owner not found"));
+        List<Long> ownerSkillIds = owner.getSkills().stream()
+                .map(Skill::getId)
+                .toList();
+        if (!new HashSet<>(ownerSkillIds).containsAll(eventDto.getRelatedSkillIds())) {
             throw new DataValidationException("Owner does not have required skills.");
         }
     }

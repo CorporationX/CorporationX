@@ -9,9 +9,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -23,10 +20,6 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.event.EventValidator;
 
 import java.time.LocalDateTime;
-import school.faang.user_service.mapper.event.EventMapper;
-import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.validator.event.EventValidator;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

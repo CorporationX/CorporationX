@@ -22,7 +22,6 @@ public class UserService {
                 () -> new DataValidationException(String.format("User with ID %d not found", id)));
     }
 
-}
     public boolean checkIfOwnerExistsById(Long id) {
         return userRepository.existsById(id);
     }

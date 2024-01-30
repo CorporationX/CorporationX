@@ -3,12 +3,12 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validator.event.EventValidator;
 import school.faang.user_service.validator.event.EventValidator;
 
 import java.time.LocalDateTime;
@@ -57,17 +57,16 @@ public class EventService {
     public Event getEvent(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new DataValidationException("Not found event by Id - " + eventId));
-}
-
-public void checkIfEventNotStarted(LocalDateTime startDate) {
-    if (startDate.isBefore(LocalDateTime.now())) {
-        throw new DataValidationException("Event were started");
     }
-}
+
+    public void checkIfEventNotStarted(LocalDateTime startDate) {
+        if (startDate.isBefore(LocalDateTime.now())) {
+            throw new DataValidationException("Event were started");
+        }
+    }
+
     public void deleteEvent(long eventId) {
         eventRepository.deleteById(eventId);
     }
-
-}
 
 }

@@ -1,6 +1,5 @@
 package school.faang.user_service.controller.event;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
@@ -23,6 +22,11 @@ public class EventController {
 
     public List<EventDto> getOwnedEvents(long userId) {
         return eventService.getOwnedEvents(userId);
+    }
+
+    public EventDto updateEvent(EventDto eventDto) {
+        eventValidator.validateEventInController(eventDto);
+        return eventService.updateEvent(eventDto);
     }
 
     public List<Event> getParticipatedEventsByUserId(long userId) {

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,58 +13,32 @@ import school.faang.user_service.repository.UserRepository;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
-
-    @InjectMocks
-    private UserService userService;
+public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
+    @InjectMocks
+    private UserService userService;
+    private static final long EXISTENT_USER_ID = 1L;
+    private static final long NON_EXISTENT_USER_ID = 100_000L;
 
     @Test
-    void getUsers() {
-        assertTrue(true);
-    }
-
-    @Test
-    public void shouldThrowCheckIfOwnerExists() {
-        long ownerId = 1L;
-        Mockito.when(userRepository.existsById(ownerId)).thenReturn(false);
-        assertThrows(DataValidationException.class,
-                () -> userService.checkIfOwnerExists(ownerId));
-    }
-
-    @Test
-    void shouldThrowFindUserById() {
-        long ownerId = 2L;
-        Mockito.when(userRepository.findById(ownerId)).thenReturn(Optional.empty());
-        assertThrows(DataValidationException.class,
-                () -> userService.findUserById(ownerId));
+    public void testGetExistingUserById_UserFound_ReturnsUser() {
+        User user = new User();
+        Mockito.when(userRepository.findById(EXISTENT_USER_ID)).thenReturn(Optional.of(user));
+        User existingUserById = userService.getExistingUserById(EXISTENT_USER_ID);
+        assertEquals(existingUserById, user);
     }
 
     @Test
-    void successFundUserById() {
-        User expectedUser = User.builder()
-                .id(1L)
-                .active(true)
-                .build();
-        Mockito.when(userRepository.findById(expectedUser.getId())).thenReturn(Optional.of(expectedUser));
-        User actualUser = userService.findUserById(expectedUser.getId());
-        assertEquals(expectedUser, actualUser);
+    public void testGetExistingUserById_UserNotFound_ThrowsEntityNotFoundException() {
+        Mockito.when(userRepository.findById(NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> userService.getExistingUserById(NON_EXISTENT_USER_ID)
+        );
     }
-
-    public void whenOwnerExist_shouldReturnTrue() {
-        Mockito.when(userRepository.existsById(1L)).thenReturn(true);
-
-        assertTrue(userService.checkIfOwnerExistsById(1L));
-    }
-
-    @Test
-    public void whenOwnerDoesNotExist_shouldReturnFalse() {
-        Mockito.when(userRepository.existsById(1L)).thenReturn(false);
-        assertFalse(userService.checkIfOwnerExistsById(1L));
-    }
-
 }

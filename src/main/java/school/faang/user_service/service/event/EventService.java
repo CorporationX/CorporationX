@@ -11,7 +11,6 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.event.EventValidator;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -23,10 +22,8 @@ public class EventService {
     private final UserService userService;
 
     public EventDto updateEvent(EventDto eventDto) {
-        Event event = checkIfEventExists(eventDto.getId());
-        checkIfEventNotStarted(event.getStartDate());
-        userService.checkIfOwnerExists(eventDto.getOwnerId());
-        eventValidator.checkIfOwnerHasSkillsRequired(eventDto);
+        Event event = getEvent(eventDto.getId());
+        eventValidator.validateEventToUpdate(eventDto);
         User owner = userService.findUserById(eventDto.getOwnerId());
         event.setOwner(owner);
         event.setStartDate(eventDto.getStartDate());
@@ -38,20 +35,16 @@ public class EventService {
         return eventMapper.toListDto(eventRepository.findAllByUserId(userId));
     }
 
-    public Event checkIfEventExists(long id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new DataValidationException(String.format("Event with ID %d not found", id)));
-    }
-
     public EventDto create(EventDto eventDto) {
+        eventValidator.checkIfOwnerExistsById(eventDto.getOwnerId());
+        eventValidator.checkIfOwnerHasSkillsRequired(eventDto);
         Event eventEntity = eventMapper.toEntity(eventDto);
-        eventValidator.checkIfOwnerExistsById(eventEntity.getOwner().getId());
-        eventValidator.checkIfOwnerHasSkillsRequired(eventEntity);
         return eventMapper.toDto(eventRepository.save(eventEntity));
     }
 
-    public List<Event> getParticipatedEventsByUserId(long userId) {
-        return eventRepository.findParticipatedEventsByUserId(userId);
+    public List<EventDto> getParticipatedEventsByUserId(long userId) {
+        List<Event> participatedEventsByUserId = eventRepository.findParticipatedEventsByUserId(userId);
+        return eventMapper.toListDto(participatedEventsByUserId);
     }
 
     public Event getEvent(long eventId) {
@@ -59,10 +52,9 @@ public class EventService {
                 .orElseThrow(() -> new DataValidationException("Not found event by Id - " + eventId));
     }
 
-    public void checkIfEventNotStarted(LocalDateTime startDate) {
-        if (startDate.isBefore(LocalDateTime.now())) {
-            throw new DataValidationException("Event were started");
-        }
+    public EventDto getEventDto(long eventId) {
+        Event event = getEvent(eventId);
+        return eventMapper.toDto(event);
     }
 
     public void deleteEvent(long eventId) {

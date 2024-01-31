@@ -7,15 +7,11 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.user.UserService;
-
-import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +23,12 @@ public class EventValidator {
         validateTitle(eventDto);
         validateDate(eventDto);
         validateSkills(eventDto);
+    }
+
+    public void validateEventToUpdate(EventDto eventDto) {
+        checkIfEventNotStarted(eventDto.getStartDate());
+        userService.checkIfOwnerExists(eventDto.getOwnerId());
+        checkIfOwnerHasSkillsRequired(eventDto);
     }
 
     public void validateDate(EventDto eventDto) {
@@ -54,7 +56,8 @@ public class EventValidator {
         List<Long> ownerSkillIds = owner.getSkills().stream()
                 .map(Skill::getId)
                 .toList();
-        if (!new HashSet<>(ownerSkillIds).containsAll(eventDto.getRelatedSkillIds())) {
+        if (!new HashSet<>(ownerSkillIds)
+                .containsAll(eventDto.getRelatedSkillIds())) {
             throw new DataValidationException("Owner does not have required skills.");
         }
     }
@@ -65,13 +68,10 @@ public class EventValidator {
         }
     }
 
-    public void checkIfOwnerHasSkillsRequired(Event event) {
-        boolean ownerHasRequiredSkills = new HashSet<>(event
-                .getOwner()
-                .getSkills())
-                .containsAll(event.getRelatedSkills());
-        if (!ownerHasRequiredSkills) {
-            throw new DataValidationException("Owner does not have required skills");
+    public void checkIfEventNotStarted(LocalDateTime startDate) {
+        if (startDate.isBefore(LocalDateTime.now())) {
+            throw new DataValidationException("Event were started");
         }
     }
+
 }

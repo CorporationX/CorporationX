@@ -1,6 +1,5 @@
 package school.faang.user_service.validator.goal;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -12,7 +11,6 @@ import school.faang.user_service.exception.goal.EntityNotFoundException;
  * @author Alexander Bulgakov
  */
 @Component
-@RequiredArgsConstructor
 public class GoalInvitationValidator {
     private static final int MAX_ACTIVE_GOALS = 3;
 

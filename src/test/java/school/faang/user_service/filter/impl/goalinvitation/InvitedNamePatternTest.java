@@ -33,6 +33,7 @@ public class InvitedNamePatternTest {
     public void testIsApplicable_WithInvitedNamePattern_ReturnsTrue() {
         InvitationFilterDto filterDto = new InvitationFilterDto();
         filterDto.setInvitedNamePattern("John");
+
         boolean result = invitedNamePattern.isApplicable(filterDto);
 
         assertTrue(result);

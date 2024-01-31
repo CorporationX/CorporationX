@@ -1,10 +1,9 @@
 package school.faang.user_service.mapper.goal;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.User;
@@ -21,12 +20,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationMapperTest {
 
-    private GoalInvitationMapper goalInvitationMapper;
+    @Spy
+    private GoalInvitationMapper goalInvitationMapper = new GoalInvitationMapperImpl();
 
-    @BeforeEach
-    public void setUp() {
-        goalInvitationMapper = Mappers.getMapper(GoalInvitationMapper.class);
-    }
 
     @Test
     @DisplayName("Test to dto")

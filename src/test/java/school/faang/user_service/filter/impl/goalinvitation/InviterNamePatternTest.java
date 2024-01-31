@@ -13,7 +13,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Alexander Bulgakov
@@ -33,7 +32,8 @@ public class InviterNamePatternTest {
     @Test
     public void testIsApplicable_WithInviterNamePattern_ReturnsTrue() {
         InvitationFilterDto filterDto = new InvitationFilterDto();
-        when(filterDto.getInviterNamePattern()).thenReturn("John");
+        filterDto.setInviterNamePattern("John");
+
         boolean result = inviterNamePattern.isApplicable(filterDto);
 
         assertTrue(result);
@@ -42,7 +42,7 @@ public class InviterNamePatternTest {
     @Test
     public void testIsApplicable_WithoutInviterNamePattern_ReturnsFalse() {
         InvitationFilterDto filterDto = new InvitationFilterDto();
-        when(filterDto.getInviterNamePattern()).thenReturn(null);
+
         boolean result = inviterNamePattern.isApplicable(filterDto);
 
         assertFalse(result);

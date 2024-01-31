@@ -1,8 +1,8 @@
 package school.faang.user_service.validator.goal;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -22,12 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationValidatorTest {
+    @InjectMocks
     private GoalInvitationValidator goalInvitationValidator;
-
-    @BeforeEach
-    public void setup() {
-        goalInvitationValidator = new GoalInvitationValidator();
-    }
 
     @Test
     public void testCheckUser_InviterAndInvitedAreSame() {

@@ -45,6 +45,9 @@ public class Post {
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
     private Ad ad;
 
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<Resource> resources;
+
     @Column(name = "published", nullable = false)
     private boolean published;
 

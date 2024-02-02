@@ -68,11 +68,11 @@ public class SubscriptionServiceTest {
     void testGetFollowingCallRepositoryMethod() {
         long followerId = 1L;
 
-        Mockito.when(subscriptionRepo.findByFolloweeId(followerId)).thenReturn(users.stream());
+        Mockito.when(subscriptionRepo.findByFollowerId(followerId)).thenReturn(users.stream());
         subscriptionService.getFollowing(followerId, dtoFilter);
 
         Mockito.verify(subscriptionRepo, Mockito.times(1))
-                .findByFolloweeId(followerId);
+                .findByFollowerId(followerId);
     }
 
     @Test

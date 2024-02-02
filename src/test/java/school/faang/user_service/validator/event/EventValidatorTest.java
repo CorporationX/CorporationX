@@ -32,6 +32,30 @@ class EventValidatorTest {
     @InjectMocks
     private EventValidator eventValidator;
 
+
+    @Test
+    void successValidateEventToUpdate() {
+        User owner = User.builder()
+                .id(1L)
+                .active(true)
+                .skills(List.of(Skill.builder()
+                                .id(1L)
+                                .build(),
+                        Skill.builder()
+                                .id(2L)
+                                .build()))
+                .build();
+        EventDto eventDto = EventDto.builder()
+                .id(1L)
+                .startDate(LocalDateTime.now().plusDays(1L))
+                .ownerId(1L)
+                .relatedSkillIds(List.of(1L, 2L))
+                .build();
+
+        Mockito.when(userRepository.findById(eventDto.getOwnerId())).thenReturn(Optional.of(owner));
+        eventValidator.validateEventToUpdate(eventDto);
+    }
+
     @Test
     public void shouldThrowsWhenEvent_NotValidTitle() {
         EventDto eventEmptyTitle = EventDto.builder()

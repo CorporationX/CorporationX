@@ -1,7 +1,7 @@
 package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.service.event.EventService;
@@ -10,7 +10,7 @@ import school.faang.user_service.validator.eventFilter.EventFilterValidator;
 
 import java.util.List;
 
-@Service
+@Controller
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;

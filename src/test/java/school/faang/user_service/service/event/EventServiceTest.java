@@ -8,9 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
@@ -21,9 +20,9 @@ import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.filter.event.EventOwnerIdPattern;
 import school.faang.user_service.filter.event.EventStartDatePattern;
 import school.faang.user_service.filter.event.EventTitlePattern;
-import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.validator.event.EventValidator;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,16 +35,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-class EventServiceTest {
-    @Mock
-    private EventMapper eventMapper;
-    @Mock
-    EventRepository eventRepository;
-    @Mock
-    private EventValidator eventValidator;
+public class EventServiceTest {
+
     @InjectMocks
     private EventService eventService;
+    @Mock
+    private EventRepository eventRepository;
+    @Spy
+    private EventMapperImpl eventMapper;
+    @Mock
+    private UserService userService;
 
     private List<EventFilter> eventFilters = new ArrayList<>();
     private LocalDateTime startDate;
@@ -98,92 +97,74 @@ class EventServiceTest {
     }
 
     @Test
-    public void successCreateAndSaveEventWhenTwoPassedValidation() {
+    public void successUpdateEventWhenAllConditionsValid() {
         Skill skillFirst = Skill.builder()
                 .id(1L)
                 .build();
         Skill skillSecond = Skill.builder()
-                .id(1L)
+                .id(2L)
                 .build();
+        List<Skill> skills = List.of(skillFirst, skillSecond);
         User owner = User.builder()
                 .id(1L)
                 .active(true)
                 .skills(List.of(skillFirst, skillSecond))
                 .build();
-        EventDto eventDto = EventDto.builder()
+        List<Long> ownerSkillIds = owner.getSkills().stream()
+                .map(Skill::getId)
+                .toList();
+        EventDto eventDtoExpected = EventDto.builder()
                 .id(1L)
+                .ownerId(1L)
                 .title("EventFirst")
-                .ownerId(owner.getId())
-                .relatedSkillIds(List.of(skillFirst.getId(), skillSecond.getId()))
-                .build();
-        Event eventEntity = Event.builder()
-                .id(1L)
-                .title("EventFirst")
-                .owner(owner)
-                .relatedSkills(List.of(skillFirst, skillSecond))
+                .relatedSkillIds(ownerSkillIds)
                 .maxAttendees(2)
+                .startDate(LocalDateTime.now().plusDays(1))
                 .build();
-
-        when(eventMapper.toEntity(eventDto)).thenReturn(eventEntity);
+        Event eventEntity = eventMapper.toEntity(eventDtoExpected);
+        when(eventRepository.findById(eventDtoExpected.getId())).thenReturn(Optional.ofNullable(eventEntity));
+        when(userService.findUserById(eventDtoExpected.getOwnerId())).thenReturn(owner);
+        eventEntity.setRelatedSkills(skills);
         when(eventRepository.save(eventEntity)).thenReturn(eventEntity);
-        when(eventMapper.toDto(eventEntity)).thenReturn(eventDto);
-        doNothing().when(eventValidator).checkIfOwnerExistsById(owner.getId());
-        doNothing().when(eventValidator).checkIfOwnerHasSkillsRequired(eventEntity);
-        EventDto actual = eventService.create(eventDto);
 
-        verify(eventValidator).checkIfOwnerExistsById(owner.getId());
-        verify(eventValidator).checkIfOwnerHasSkillsRequired(eventEntity);
-        verify(eventRepository).save(eventEntity);
-        assertEquals(eventDto, actual);
+        EventDto eventDtoActual = eventService.updateEvent(eventDtoExpected);
+        verify(eventRepository, times(1)).save(eventEntity);
+        verify(eventMapper, times(1)).toDto(eventRepository.save(eventEntity));
+        assertEquals(eventDtoExpected, eventDtoActual);
     }
 
     @Test
-    public void shouldNotSaveEventWhenOwnerNotExistsById() {
+    public void shouldThrowUpdateEventWhenOwnerNotExist() {
         EventDto eventDto = EventDto.builder()
                 .id(1L)
-                .ownerId(1L)
                 .title("EventFirst")
                 .build();
-        User owner = User.builder()
-                .id(22L)
-                .active(true)
-                .build();
-        Event eventEntity = Event.builder()
-                .id(1L)
-                .owner(owner)
-                .maxAttendees(2)
-                .build();
-        when(eventMapper.toEntity(any(EventDto.class))).thenReturn(eventEntity);
-        doThrow(new DataValidationException("Owner does not exist"))
-                .when(eventValidator).checkIfOwnerExistsById(anyLong());
 
         assertThrows(DataValidationException.class,
-                () -> eventService.create(eventDto));
+                () -> eventService.updateEvent(eventDto));
     }
 
     @Test
-    public void shouldNotSaveEventWhenOwnerDoesNotHaveRequiredSkills() {
+    public void shouldThrowUpdateEventWhenEventNotExist() {
         EventDto eventDto = EventDto.builder()
                 .id(1L)
-                .ownerId(1L)
-                .title("EventFirst")
                 .build();
-        User owner = User.builder()
-                .id(22L)
-                .active(true)
-                .build();
-        Event eventEntity = Event.builder()
+        assertThrows(DataValidationException.class,
+                () -> eventService.updateEvent(eventDto));
+    }
+
+    @Test
+    public void successCreateEventWhenAllFieldsIsValid() {
+        EventDto eventDto = EventDto.builder()
                 .id(1L)
-                .owner(owner)
+                .title("EventFirst")
+                .ownerId(1L)
                 .maxAttendees(2)
                 .build();
-        when(eventMapper.toEntity(eventDto)).thenReturn(eventEntity);
-        doNothing().when(eventValidator).checkIfOwnerExistsById(owner.getId());
-        doThrow(new DataValidationException("Owner does not have required skills"))
-                .when(eventValidator).checkIfOwnerHasSkillsRequired(eventEntity);
+        Event eventEntity = eventMapper.toEntity(eventDto);
 
-        assertThrows(DataValidationException.class,
-                () -> eventService.create(eventDto));
+        eventService.create(eventDto);
+        Mockito.verify(eventRepository, times(1)).save(eventEntity);
     }
 
     @Test
@@ -192,7 +173,7 @@ class EventServiceTest {
         User user1 = User.builder().id(1L).active(true).build();
         long userId = user1.getId();
         List<Event> emptyEvents = new ArrayList<>();
-        Mockito.when(eventRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
+        when(eventRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
 
         Assertions.assertIterableEquals(emptyEvents, eventService.getOwnedEvents(userId));
     }
@@ -206,27 +187,33 @@ class EventServiceTest {
                 Event.builder()
                         .id(21L)
                         .title("EventOne")
+                        .relatedSkills(List.of(Skill.builder()
+                                .id(1L)
+                                .build()))
                         .maxAttendees(2)
                         .build(),
                 Event.builder()
                         .id(22L)
                         .title("EventTwo")
+                        .relatedSkills(List.of(Skill.builder()
+                                .id(2L)
+                                .build()))
                         .maxAttendees(2)
                         .build()
         );
         when(eventRepository.findParticipatedEventsByUserId(userId)).thenReturn(mockEvents);
-        List<Event> events = eventService.getParticipatedEventsByUserId(userId);
+        List<EventDto> eventsExpected = eventMapper.toListDto(mockEvents);
+        List<EventDto> eventsActual = eventService.getParticipatedEventsByUserId(userId);
 
         verify(eventRepository, times(1)).findParticipatedEventsByUserId(userId);
-        assertEquals(mockEvents, events);
-
+        assertEquals(eventsExpected, eventsActual);
     }
 
     @Test
     @DisplayName("Неуспешный поиск события по неверному Id")
     public void testFailedGetEventByIncorrectId() {
         long wrongId = 11L;
-        Mockito.when(eventRepository.findById(wrongId)).thenReturn(Optional.empty());
+        when(eventRepository.findById(wrongId)).thenReturn(Optional.empty());
 
         assertThrows(DataValidationException.class, () -> eventService.getEvent(wrongId));
     }
@@ -241,7 +228,29 @@ class EventServiceTest {
         long eventId = eventDelete.getId();
 
         eventService.deleteEvent(eventId);
-        Mockito.verify(eventRepository, times(1)).deleteById(eventId);
+        verify(eventRepository, times(1)).deleteById(eventId);
+    }
+
+    @Test
+    public void successGetEventDto() {
+        EventDto eventDtoExpected = EventDto.builder()
+                .id(1L)
+                .maxAttendees(2)
+                .relatedSkillIds(List.of(1L))
+                .build();
+        Event eventEntity = Event.builder()
+                .id(1L)
+                .maxAttendees(2)
+                .relatedSkills(List.of(Skill.builder()
+                        .id(1L)
+                        .build()))
+                .build();
+        long eventId = eventDtoExpected.getId();
+        Mockito.when(eventRepository.findById(eventId)).thenReturn(Optional.of(eventEntity));
+        eventService.getEvent(eventDtoExpected.getId());
+
+        EventDto eventDtoActual = eventService.getEventDto(eventId);
+        assertEquals(eventDtoExpected, eventDtoActual);
     }
 
     @Test
@@ -249,7 +258,7 @@ class EventServiceTest {
     public void testFailedDeleteEventByIncorrectId() {
         long wrongId = 15L;
 
-        Mockito.verify(eventRepository, Mockito.never()).deleteById(wrongId);
+        verify(eventRepository, Mockito.never()).deleteById(wrongId);
     }
 
     @Test

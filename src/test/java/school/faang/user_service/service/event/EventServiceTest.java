@@ -17,6 +17,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.user.UserService;
+import school.faang.user_service.validator.event.EventValidator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class EventServiceTest {
     private EventMapperImpl eventMapper;
     @Mock
     private UserService userService;
+    @Mock
+    private EventValidator eventValidator;
 
     @Test
     public void successUpdateEventWhenAllConditionsValid() {

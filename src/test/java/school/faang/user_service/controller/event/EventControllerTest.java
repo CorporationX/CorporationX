@@ -8,14 +8,17 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.event.EventValidator;
+import school.faang.user_service.validator.eventFilter.EventFilterValidator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,9 +35,11 @@ public class EventControllerTest {
     private EventValidator eventValidator;
     @Mock
     private EventService eventService;
+    @Mock
+    private EventFilterValidator eventFilterValidator;
 
     @Test
-    void successGetOwnedEvents() {
+    public void successGetOwnedEvents() {
         long userId = 1L;
         List<Event> eventEntities = List.of(
                 Event.builder()
@@ -79,7 +84,8 @@ public class EventControllerTest {
     }
 
     @Test
-    void successGetEvent() {
+    public void successGetEvent() {
+
         EventDto eventDtoExpected = EventDto.builder()
                 .id(1L)
                 .build();
@@ -88,6 +94,22 @@ public class EventControllerTest {
 
         Mockito.verify(eventService, times(1)).getEventDto(eventDtoExpected.getId());
         assertEquals(eventDtoExpected, eventDtoActual);
+    }
+
+    @Test
+    public void successGetEventsByFilter() {
+        List<EventDto> eventDtos = new ArrayList<>(List.of(EventDto.builder()
+                .id(1L)
+                .build()));
+        EventFilterDto eventFilterDto = EventFilterDto.builder()
+                .ownerPattern(1L)
+                .build();
+
+        eventFilterValidator.checkFilterNotNull(eventFilterDto);
+        Mockito.when(eventService.getEventsByFilter(eventFilterDto)).thenReturn(eventDtos);
+        List<EventDto> resultEvents = eventController.getEventsByFilter(eventFilterDto);
+        assertEquals(eventDtos, resultEvents);
+        Mockito.verify(eventService, times(1)).getEventsByFilter(eventFilterDto);
     }
 
     @Test

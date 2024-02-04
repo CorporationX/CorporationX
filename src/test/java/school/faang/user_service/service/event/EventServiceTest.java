@@ -23,7 +23,6 @@ import school.faang.user_service.filter.event.EventTitlePattern;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validator.event.EventValidator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,8 +45,6 @@ public class EventServiceTest {
     private EventMapperImpl eventMapper;
     @Mock
     private UserService userService;
-    @Mock
-    private EventValidator eventValidator;
 
     private List<EventFilter> eventFilters = new ArrayList<>();
     private LocalDateTime startDate;
@@ -65,7 +62,7 @@ public class EventServiceTest {
         eventFilters.add(new EventTitlePattern());
         eventFilters.add(new EventStartDatePattern());
 
-        eventService = new EventService(eventRepository, eventMapper, eventValidator, userService, eventFilters);
+        eventService = new EventService(eventRepository, eventMapper, eventValidator, eventFilters);
 
         startDate = LocalDateTime.now().plusDays(1L);
         owner = User.builder().id(1L).active(true).build();

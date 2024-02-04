@@ -8,7 +8,6 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
@@ -18,7 +17,6 @@ import school.faang.user_service.validator.event.EventValidator;
 import school.faang.user_service.validator.eventFilter.EventFilterValidator;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

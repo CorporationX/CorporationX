@@ -34,7 +34,7 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT s.* FROM skill s
-            JOIN user_skill us ON us.skill_id = :skillId AND us.user_id = :userId
+            JOIN user_skill us ON s.id = us.skill_id AND us.skill_id = :skillId AND us.user_id = :userId
             """)
     Optional<Skill> findUserSkill(long skillId, long userId);
 

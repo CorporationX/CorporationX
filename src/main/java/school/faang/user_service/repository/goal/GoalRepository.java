@@ -37,7 +37,7 @@ public interface GoalRepository extends CrudRepository<Goal, Long> {
             SELECT * FROM goal WHERE id = :goalId
             UNION
             SELECT g.* FROM goal g
-            JOIN subtasks st ON st.id = g.parent_id
+            JOIN subtasks st ON st.id = g.parent_goal_id
             )
             SELECT * FROM subtasks WHERE id != :goalId
             """)

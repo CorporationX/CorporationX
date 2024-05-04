@@ -1,8 +1,12 @@
 package school.faang.user_service.service.recommendation;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScans;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -11,12 +15,15 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.recommendation.filters.RecommendationRequestFilter;
+import school.faang.user_service.service.recommendation.filters.RecommendationRequestFilterStorage;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class StandardRecommendationRequestService implements RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final UserRepository userRepository;
@@ -29,6 +36,19 @@ public class StandardRecommendationRequestService implements RecommendationReque
         validateRecommendationRequest(recommendationRequest);
         RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.save(recommendationRequest);
         return recommendationRequestMapper.fromEntityToDto(savedRecommendationRequest);
+    }
+
+    @Override
+    public List<RecommendationRequestDto> getRecommendationRequests(RecommendationRequestFilterDto requestFilterDto) {
+        List<RecommendationRequest> allRequests = new ArrayList<>(recommendationRequestRepository.findAll());
+        Stream<RecommendationRequest> requestStream = allRequests.stream();
+        List<RecommendationRequestFilter> suitableFilters = recommendationRequestFilters.stream()
+                .filter(requestFilter -> requestFilter.isApplicable(requestFilterDto))
+                .toList();
+        for (RecommendationRequestFilter requestFilter : suitableFilters) {
+            requestStream = requestFilter.filter(requestStream, requestFilterDto);
+        }
+        return recommendationRequestMapper.fromEntityListToDtoList(requestStream.toList());
     }
 
     private void validateRecommendationRequest(RecommendationRequest recommendationRequest) {

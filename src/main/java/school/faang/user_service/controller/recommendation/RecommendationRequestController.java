@@ -21,4 +21,8 @@ public class RecommendationRequestController {
     public List<RecommendationRequestDto> getRecommendationRequests(RecommendationRequestFilterDto requestFilterDto) {
         return recommendationRequestService.getRecommendationRequests(requestFilterDto);
     }
+
+    public RecommendationRequestDto getRecommendationRequest(long id) {
+        return recommendationRequestService.getRequest(id);
+    }
 }

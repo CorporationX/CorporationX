@@ -1,9 +1,6 @@
 package school.faang.user_service.service.recommendation;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScans;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
@@ -15,7 +12,6 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.recommendation.filters.RecommendationRequestFilter;
-import school.faang.user_service.service.recommendation.filters.RecommendationRequestFilterStorage;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,6 +45,12 @@ public class StandardRecommendationRequestService implements RecommendationReque
             requestStream = requestFilter.filter(requestStream, requestFilterDto);
         }
         return recommendationRequestMapper.fromEntityListToDtoList(requestStream.toList());
+    }
+
+    @Override
+    public RecommendationRequestDto getRequest(long recommendationRequestId) {
+        return recommendationRequestMapper.fromEntityToDto(recommendationRequestRepository.findById(recommendationRequestId)
+                .orElseThrow(() -> new DataValidationException(String.format("recommendation request with id: %d is not exists", recommendationRequestId))));
     }
 
     private void validateRecommendationRequest(RecommendationRequest recommendationRequest) {

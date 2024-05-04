@@ -26,6 +26,7 @@ import school.faang.user_service.service.recommendation.filters.RecommendationRe
 import school.faang.user_service.service.recommendation.filters.RecommendationRequestFilterStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -199,6 +200,19 @@ class StandardRecommendationRequestServiceTest {
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(recommendationRequest));
         List<RecommendationRequestDto> filteredRequests = recommendationRequestService.getRecommendationRequests(requestFilterDto);
         assertThat(filteredRequests).isEqualTo(List.of(recommendationRequestDto));
+    }
+
+    @Test
+    public void whenGetRecommendationRequestByIdAndRecommendationRequestISNotExistsThenThrowsException() {
+        Assert.assertThrows(DataValidationException.class,
+                () -> recommendationRequestService.getRequest(1L));
+    }
+
+    @Test
+    public void whenGetRecommendationRequestByIdSuccessfully() {
+        when(recommendationRequestRepository.findById(RECOMMENDATION_REQUEST_ID)).thenReturn(Optional.of(recommendationRequest));
+        RecommendationRequestDto actual = recommendationRequestService.getRequest(RECOMMENDATION_REQUEST_ID);
+        assertThat(actual).isEqualTo(recommendationRequestDto);
     }
 
     private List<RecommendationRequestFilter> getFilters() {

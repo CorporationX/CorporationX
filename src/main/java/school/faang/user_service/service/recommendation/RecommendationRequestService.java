@@ -11,4 +11,5 @@ import java.util.List;
 public interface RecommendationRequestService {
     RecommendationRequestDto requestRecommendation(RecommendationRequest recommendationRequest);
     List<RecommendationRequestDto> getRecommendationRequests(RecommendationRequestFilterDto requestFilterDto);
+    RecommendationRequestDto getRequest(long id);
 }

@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RejectionDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -53,6 +55,17 @@ public class StandardRecommendationRequestService implements RecommendationReque
                 .orElseThrow(() -> new DataValidationException(String.format("recommendation request with id: %d is not exists", recommendationRequestId))));
     }
 
+    @Override
+    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
+        RecommendationRequest request = recommendationRequestRepository.findById(id)
+                .orElseThrow(() -> new DataValidationException(String.format("recommendation request with id: %d is not exists", id)));
+        checkRejectionDto(rejection);
+        validateRecommendationRequest(request);
+        checkRecommendationRequestStatus(request.getStatus());
+        request.setRejectionReason(rejection.getReason());
+        return recommendationRequestMapper.fromEntityToDto(recommendationRequestRepository.save(request));
+    }
+
     private void validateRecommendationRequest(RecommendationRequest recommendationRequest) {
         long requesterId = recommendationRequest.getRequester().getId();
         long receiverId = recommendationRequest.getReceiver().getId();
@@ -83,6 +96,18 @@ public class StandardRecommendationRequestService implements RecommendationReque
         LocalDateTime createdTimePlusSixMonth = createdDateTime.plusMonths(6);
         if (LocalDateTime.now().isBefore(createdTimePlusSixMonth)) {
             throw new DataValidationException(String.format("you can request this recommendation from %s", createdTimePlusSixMonth));
+        }
+    }
+
+    private void checkRecommendationRequestStatus(RequestStatus status) {
+        if (status == RequestStatus.ACCEPTED || status == RequestStatus.REJECTED) {
+            throw new DataValidationException(String.format("recommendation request has already %s", status));
+        }
+    }
+
+    private void checkRejectionDto(RejectionDto rejection) {
+        if (rejection.getReason() == null || rejection.getReason().isBlank()) {
+            throw new DataValidationException("rejection should contain the reason");
         }
     }
 }

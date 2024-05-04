@@ -12,6 +12,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -40,6 +41,7 @@ class StandardRecommendationRequestServiceTest {
     private static final long REQUESTER_ID = 1L;
     private static final long RECEIVER_ID = 2L;
     private static final String REQUEST_MESSAGE = "msg";
+    private static final String REJECTION_REASON = "reason";
     private static final LocalDateTime CREATED_DATE_TIME = LocalDateTime.now().minusMonths(12);
     private static final LocalDateTime UPDATED_DATE_TIME = LocalDateTime.now().plusMonths(7);
     @Mock
@@ -55,6 +57,7 @@ class StandardRecommendationRequestServiceTest {
     private RecommendationRequest recommendationRequest;
     private RecommendationRequestDto recommendationRequestDto;
     private RecommendationRequestFilterDto requestFilterDto;
+    private RejectionDto rejection;
 
     @BeforeEach
     public void setUp() {
@@ -69,7 +72,7 @@ class StandardRecommendationRequestServiceTest {
         recommendationRequest = RecommendationRequest.builder()
                 .id(RECOMMENDATION_REQUEST_ID)
                 .message(REQUEST_MESSAGE)
-                .status(RequestStatus.ACCEPTED)
+                .status(RequestStatus.PENDING)
                 .skills(List.of(skillRequest))
                 .requester(requester)
                 .receiver(receiver)
@@ -79,7 +82,7 @@ class StandardRecommendationRequestServiceTest {
         recommendationRequestDto = RecommendationRequestDto.builder()
                 .id(recommendationRequest.getId())
                 .message(recommendationRequest.getMessage())
-                .status(RequestStatus.ACCEPTED)
+                .status(RequestStatus.PENDING)
                 .skillIds(List.of(skill.getId()))
                 .requesterId(requester.getId())
                 .receiverId(receiver.getId())
@@ -87,6 +90,7 @@ class StandardRecommendationRequestServiceTest {
                 .updatedAt(recommendationRequest.getUpdatedAt())
                 .build();
         requestFilterDto = new RecommendationRequestFilterDto();
+        rejection = new RejectionDto();
     }
 
     @Test
@@ -203,15 +207,53 @@ class StandardRecommendationRequestServiceTest {
     }
 
     @Test
-    public void whenGetRecommendationRequestByIdAndRecommendationRequestISNotExistsThenThrowsException() {
+    public void whenGetRecommendationRequestByIdAndRecommendationRequestIsNotExistsThenThrowsException() {
         Assert.assertThrows(DataValidationException.class,
-                () -> recommendationRequestService.getRequest(1L));
+                () -> recommendationRequestService.getRequest(RECOMMENDATION_REQUEST_ID));
     }
 
     @Test
     public void whenGetRecommendationRequestByIdSuccessfully() {
         when(recommendationRequestRepository.findById(RECOMMENDATION_REQUEST_ID)).thenReturn(Optional.of(recommendationRequest));
         RecommendationRequestDto actual = recommendationRequestService.getRequest(RECOMMENDATION_REQUEST_ID);
+        assertThat(actual).isEqualTo(recommendationRequestDto);
+    }
+
+    @Test
+    public void whenRejectRecommendationRequestAndRecommendationRequestIsNotExistsThenThrowsException() {
+        rejection.setReason(REJECTION_REASON);
+        Assert.assertThrows(DataValidationException.class,
+                () -> recommendationRequestService.rejectRequest(RECOMMENDATION_REQUEST_ID, rejection));
+    }
+
+    @Test
+    public void whenRejectRecommendationRequestAndRejectionReasonIsNullThenThrowsException() {
+        when(recommendationRequestRepository.findById(RECOMMENDATION_REQUEST_ID)).thenReturn(Optional.of(recommendationRequest));
+        Assert.assertThrows(DataValidationException.class,
+                () -> recommendationRequestService.rejectRequest(RECOMMENDATION_REQUEST_ID, rejection));
+    }
+
+    @Test
+    public void whenRejectRecommendationRequestAndStatusAlreadyAcceptedThrowsException() {
+        recommendationRequest.setStatus(RequestStatus.ACCEPTED);
+        rejection.setReason(REJECTION_REASON);
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(skillRepository.existsById(SKILL_ID)).thenReturn(true);
+        when(recommendationRequestRepository.findById(RECOMMENDATION_REQUEST_ID)).thenReturn(Optional.of(recommendationRequest));
+        Assert.assertThrows(DataValidationException.class,
+                () -> recommendationRequestService.rejectRequest(RECOMMENDATION_REQUEST_ID, rejection));
+    }
+
+    @Test
+    public void whenRejectRecommendationRequestSuccessfully() {
+        rejection.setReason(REJECTION_REASON);
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(skillRepository.existsById(SKILL_ID)).thenReturn(true);
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(skillRepository.existsById(SKILL_ID)).thenReturn(true);
+        when(recommendationRequestRepository.findById(RECOMMENDATION_REQUEST_ID)).thenReturn(Optional.of(recommendationRequest));
+        when(recommendationRequestRepository.save(recommendationRequest)).thenReturn(recommendationRequest);
+        RecommendationRequestDto actual = recommendationRequestService.rejectRequest(RECOMMENDATION_REQUEST_ID, rejection);
         assertThat(actual).isEqualTo(recommendationRequestDto);
     }
 

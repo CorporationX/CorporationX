@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,42 +20,42 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class StandardSkillServiceTest {
+class SkillServiceImplTest {
     @Mock
     private SkillRepository skillRepository;
     @Mock
     private SkillOfferRepository skillOfferRepository;
     @Mock
     private SkillMapper skillMapper;
+    @Mock
+    private SkillValidator skillValidator;
     @InjectMocks
-    private StandardSkillService skillService;
+    private SkillServiceImpl skillService;
+    private Skill skill;
 
-    @Test
-    public void whenCreateSkillWithBlankTitleThenThrowsException() {
-        Assert.assertThrows(DataValidationException.class,
-                () -> skillService.create(new Skill()));
+    @BeforeEach
+    public void srtUp() {
+        skill = new Skill();
+        skill.setId(1L);
+        skill.setTitle("firstSkill");
     }
 
     @Test
-    public void whenCreateExistedSkillThenThrowsException() {
-        Skill creatingSkill = new Skill();
-        creatingSkill.setTitle("title");
-        when(skillRepository.existsByTitle(creatingSkill.getTitle())).thenReturn(true);
+    public void whenCreateSkillWithBlankTitleAndThrowsException() {
+        when(skillValidator.validateSkill(skill)).thenThrow(DataValidationException.class);
         Assert.assertThrows(DataValidationException.class,
-                () -> skillService.create(creatingSkill));
+                () -> skillService.create(skill));
     }
 
     @Test
     public void whenCreateSkillSuccessfully() {
-        Skill skill = new Skill();
-        skill.setId(1L);
-        skill.setTitle("title");
         SkillDto expected = new SkillDto(skill.getId(), skill.getTitle());
-        when(skillMapper.fromSkillToSkillDto(skill)).thenReturn(expected);
+        when(skillValidator.validateSkill(skill)).thenReturn(true);
+        when(skillMapper.toDTO(skill)).thenReturn(expected);
         when(skillRepository.save(skill)).thenReturn(skill);
         SkillDto actual = skillService.create(skill);
         assertThat(actual).isEqualTo(expected);
@@ -63,14 +64,11 @@ class StandardSkillServiceTest {
     @Test
     public void whenGetAllUserSkillsByIdSuccessfully() {
         long userId = 3L;
-        Skill skill = new Skill();
-        skill.setId(1L);
-        skill.setTitle("firstSkill");
         SkillDto skillDto = new SkillDto(skill.getId(), skill.getTitle());
         List<Skill> skills = List.of(skill);
         List<SkillDto> expectedSkills = List.of(skillDto);
         when(skillRepository.findAllByUserId(anyLong())).thenReturn(skills);
-        when(skillMapper.fromSkillListToSkillDtoList(skills)).thenReturn(expectedSkills);
+        when(skillMapper.toDTOList(skills)).thenReturn(expectedSkills);
         List<SkillDto> actualSkills = skillService.getUserSkills(userId);
         assertThat(actualSkills).isEqualTo(expectedSkills);
     }
@@ -79,16 +77,27 @@ class StandardSkillServiceTest {
     public void whenGetOfferedUserSkillsSuccessfully() {
         int offersAmount = 2;
         long userId = 3L;
-        Skill skill = new Skill();
-        skill.setId(1L);
-        skill.setTitle("firstSkill");
         SkillDto skillDto = new SkillDto(skill.getId(), skill.getTitle());
         List<Skill> offeredSkills = List.of(skill, skill);
         when(skillRepository.findSkillsOfferedToUser(anyLong())).thenReturn(offeredSkills);
-        when(skillMapper.fromSkillToSkillDto(skill)).thenReturn(skillDto);
+        when(skillMapper.toDTO(skill)).thenReturn(skillDto);
         List<SkillCandidateDto> expectedOfferedSkills = List.of(new SkillCandidateDto(skillDto, offersAmount));
         List<SkillCandidateDto> actualOfferedSkills = skillService.getOfferedSkills(userId);
         assertThat(actualOfferedSkills).isEqualTo(expectedOfferedSkills);
+    }
+
+    @Test
+    public void whenFindByIdThenThrowsException() {
+        when(skillRepository.findById(anyLong())).thenThrow(NoSuchElementException.class);
+        Assert.assertThrows(NoSuchElementException.class,
+                () -> skillService.findById(skill.getId()));
+    }
+
+    @Test
+    public void whenFindByIdThenGetSkill() {
+        when(skillRepository.findById(skill.getId())).thenReturn(Optional.of(skill));
+        Skill actual = skillService.findById(skill.getId());
+        assertThat(actual).isEqualTo(skill);
     }
 
     @Test
@@ -99,16 +108,13 @@ class StandardSkillServiceTest {
 
     @Test
     public void whenAcquireSkillFromOffersSuccessfully() {
-        long skillId = 1L;
+        long skillId = skill.getId();
         long userId = 1L;
         int offersAmount = 3;
-        Skill skill = new Skill();
-        skill.setId(skillId);
-        skill.setTitle("title");
-        SkillDto expected = new SkillDto(skill.getId(), skill.getTitle());
+        SkillDto expected = new SkillDto(skillId, skill.getTitle());
         when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
         when(skillOfferRepository.countAllOffersOfSkill(skillId, userId)).thenReturn(offersAmount);
-        when(skillMapper.fromSkillToSkillDto(skill)).thenReturn(expected);
+        when(skillMapper.toDTO(skill)).thenReturn(expected);
         SkillDto actual = skillService.acquireSkillFromOffers(skillId, userId);
         assertThat(actual).isEqualTo(expected);
     }

@@ -7,43 +7,43 @@ import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
-import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class StandardSkillService implements SkillService {
+public class SkillServiceImpl implements SkillService {
     private static final int MIN_SKILL_OFFERS = 3;
     private final SkillRepository skillRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final SkillMapper skillMapper;
+    private final SkillValidator skillValidator;
 
     @Override
     public SkillDto create(Skill skill) {
-        validateSkill(skill);
-        Skill savingSkill = skillRepository.save(skill);
-        return skillMapper.fromSkillToSkillDto(savingSkill);
+        skillValidator.validateSkill(skill);
+        Skill savedSkill = skillRepository.save(skill);
+        return skillMapper.toDTO(savedSkill);
     }
 
     @Override
     public List<SkillDto> getUserSkills(long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
-        return skillMapper.fromSkillListToSkillDtoList(skills);
+        return skillMapper.toDTOList(skills);
     }
 
     @Override
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        List<Skill> offeredSkills = skillRepository.findSkillsOfferedToUser(userId);
-        Map<SkillDto, Long> offeredSkillsCountingMap = new HashMap<>();
-        offeredSkills.stream()
-                .map(skillMapper::fromSkillToSkillDto)
-                .forEach(skillDto -> offeredSkillsCountingMap.compute(skillDto, (key, value) -> value == null ? 1L : value + 1));
+        Map<SkillDto, Long> offeredSkillsCountingMap = skillRepository.findSkillsOfferedToUser(userId)
+                .stream()
+                .map(skillMapper::toDTO)
+                .collect(Collectors.groupingBy(skill -> skill, Collectors.counting()));
         return offeredSkillsCountingMap.entrySet()
                 .stream()
                 .map(entry -> new SkillCandidateDto(entry.getKey(), entry.getValue()))
@@ -52,8 +52,7 @@ public class StandardSkillService implements SkillService {
 
     @Override
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new NoSuchElementException(String.format("skill with id=%d not found", skillId)));
+        Skill skill = findById(skillId);
         Optional<Skill> offeredSkill = skillRepository.findUserSkill(skillId, userId);
         if (offeredSkill.isEmpty()) {
             if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) >= MIN_SKILL_OFFERS) {
@@ -61,8 +60,15 @@ public class StandardSkillService implements SkillService {
                 skillRepository.assignSkillToUser(skillId, userId);
             }
         }
-        return skillMapper.fromSkillToSkillDto(skill);
+        return skillMapper.toDTO(skill);
     }
+
+    @Override
+    public Skill findById(long skillId) {
+        return skillRepository.findById(skillId)
+                .orElseThrow(() -> new NoSuchElementException(String.format("skill with id=%d not found", skillId)));
+    }
+
 
     private void setSkillGuarantors(long skillId, long userId, Skill skill) {
         skillOfferRepository.findAllOffersOfSkill(skillId, userId)
@@ -73,21 +79,12 @@ public class StandardSkillService implements SkillService {
                     userSkillGuarantee.setUser(receiver);
                     userSkillGuarantee.setSkill(skill);
                     userSkillGuarantee.setGuarantor(guarantor);
-                    UserSkillGuarantee savingGuarantee = userSkillGuaranteeRepository.save(userSkillGuarantee);
+                    UserSkillGuarantee savedGuarantee = userSkillGuaranteeRepository.save(userSkillGuarantee);
                     if (skill.getGuarantees() == null) {
                         List<UserSkillGuarantee> guaranties = new ArrayList<>();
                         skill.setGuarantees(guaranties);
                     }
-                    skill.getGuarantees().add(savingGuarantee);
+                    skill.getGuarantees().add(savedGuarantee);
                 });
-    }
-
-    private void validateSkill(Skill skill) {
-        if (skill.getTitle() == null || skill.getTitle().isBlank()) {
-            throw new DataValidationException("please enter the title of the skill");
-        }
-        if (skillRepository.existsByTitle(skill.getTitle())) {
-            throw new DataValidationException(String.format("skill \"%s\" already exists", skill.getTitle()));
-        }
     }
 }

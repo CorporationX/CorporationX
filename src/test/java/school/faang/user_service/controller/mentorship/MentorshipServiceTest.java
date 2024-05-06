@@ -10,8 +10,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.MentorshipException;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.service.mentorship.MentorshipService;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -23,8 +26,11 @@ class MentorshipServiceTest {
     @Mock
     private MentorshipRepository mentorshipRepository;
 
-    @InjectMocks
+    @Mock
     private MentorshipService mentorshipService;
+
+    @InjectMocks
+    private MentorshipController mentorshipController;
 
     @BeforeEach
     void setUp() {
@@ -32,69 +38,77 @@ class MentorshipServiceTest {
     }
 
     @Test
-    void testGetMenteesForMentorWithNoMentees() {
-        long userId = 1L;
-        User mentor = new User();
-        mentor.setId(userId);
-        List<User> mentees = new ArrayList<>();
-        mentor.setMentees(mentees);
-        when(mentorshipRepository.findById(userId)).thenReturn(Optional.of(mentor));
-        List<UserDTO> result = mentorshipService.getMentees(userId);
-        assertEquals(mentees.size(), result.size());
-    }
-
-    @Test
     void testGetMenteesWhenMentorNotFound() {
-        long userId = 2L;
-        when(mentorshipRepository.findById(userId)).thenReturn(Optional.empty());
-        List<UserDTO> result = mentorshipService.getMentees(userId);
-        assertEquals(0, result.size());
+        long nonExistentMentorId = 100L;
+        when(mentorshipService.getMentees(nonExistentMentorId))
+                .thenThrow(new MentorshipException("Ментор с id: " + nonExistentMentorId + " не найден"));
     }
 
     @Test
-    void testGetMenteesWithNonMentorId() {
-        long nonMentorId = 5L;
-        when(mentorshipRepository.findById(nonMentorId)).thenReturn(Optional.empty());
-
-        List<UserDTO> result = mentorshipService.getMentees(nonMentorId);
-        assertEquals(0, result.size());
+    void testGetMenteesWhenMentorFound() {
+        long mentorId = 1L;
+        UserDTO menteeDTO = new UserDTO();
+        menteeDTO.setId(2L);
+        List<UserDTO> expectedMentees = Collections.singletonList(menteeDTO);
+        when(mentorshipService.getMentees(mentorId)).thenReturn(expectedMentees);
+        List<UserDTO> actualMentees = mentorshipController.getMentees(mentorId);
+        assertEquals(expectedMentees.size(), actualMentees.size());
+        assertEquals(expectedMentees.get(0).getId(), actualMentees.get(0).getId());
+    }
+    @Test
+    public void testGetMenteesReturnsExpectedList() {
+        long mentorId = 1L;
+        User mentor = new User();
+        mentor.setId(mentorId);
+        UserDTO mentee1 = new UserDTO();
+        mentee1.setId(2L);
+        UserDTO mentee2 = new UserDTO();
+        mentee2.setId(3L);
+        List<UserDTO> expectedMentees = Arrays.asList(mentee1, mentee2);
+        when(mentorshipService.getMentees(mentorId)).thenReturn(expectedMentees);
+        List<UserDTO> actualMentees = mentorshipController.getMentees(mentorId);
+        assertEquals(expectedMentees, actualMentees);
     }
 
-//==================================================================================================================
+    @Test
+    public void testGetMenteesWithEmptyList() {
+        long mentorId = 1L;
+        when(mentorshipService.getMentees(mentorId)).thenReturn(List.of());
+        List<UserDTO> actualMentees = mentorshipController.getMentees(mentorId);
+        assertTrue(actualMentees.isEmpty());
+    }
+
 
     @Test
-    void testGetMentors_ReturnsListOfMentorsForUser() {
+    public void testGetMentorsReturnsExpectedList() {
         long userId = 1L;
         User user = new User();
         user.setId(userId);
-        List<User> mentors = new ArrayList<>();
-        user.setMentors(mentors);
-        when(mentorshipRepository.findById(userId)).thenReturn(Optional.of(user));
-        List<UserDTO> result = mentorshipService.getMentors(userId);
-        assertEquals(mentors.size(), result.size());
+        UserDTO mentor1 = new UserDTO();
+        mentor1.setId(2L);
+        UserDTO mentor2 = new UserDTO();
+        mentor2.setId(3L);
+        List<UserDTO> expectedMentors = Arrays.asList(mentor1, mentor2);
+        when(mentorshipService.getMentors(userId)).thenReturn(expectedMentors);
+        List<UserDTO> actualMentors = mentorshipController.getMentors(userId);
+        assertEquals(expectedMentors, actualMentors);
     }
 
     @Test
-    void testGetMentors_UserNotFound() {
-        long userId = 1L;
-        when(mentorshipRepository.findById(userId)).thenReturn(Optional.empty());
-        List<UserDTO> result = mentorshipService.getMentors(userId);
-        assertTrue(result.isEmpty());
+    public void testGetMentorsHandlesException() {
+        long invalidUserId = -1L;
+        when(mentorshipService.getMentors(invalidUserId))
+                .thenThrow(new MentorshipException("Пользователь с id: " + invalidUserId + " не найден"));
+        assertThrows(MentorshipException.class, () -> mentorshipController.getMentors(invalidUserId));
     }
 
     @Test
-    void testGetMentors_UserHasNoMentors() {
+    public void testGetMentorsWithEmptyList() {
         long userId = 1L;
-        User user = new User();
-        user.setId(userId);
-        user.setMentors(new ArrayList<>());
-        when(mentorshipRepository.findById(userId)).thenReturn(Optional.of(user));
-        List<UserDTO> result = mentorshipService.getMentors(userId);
-        assertTrue(result.isEmpty());
+        when(mentorshipService.getMentors(userId)).thenReturn(List.of());
+        List<UserDTO> actualMentors = mentorshipController.getMentors(userId);
+        assertTrue(actualMentors.isEmpty());
     }
-
-
-//================================================================================================================
 
     @Test
     void testDeleteMentee_RemovingMenteeFromMentorList() {
@@ -136,7 +150,6 @@ class MentorshipServiceTest {
         verify(mentorshipRepository, times(0)).save(mentor);
     }
 
-//==============================================================================================================
 
     @Test
     void testDeleteMentor_RemovesMentorFromMentee() {

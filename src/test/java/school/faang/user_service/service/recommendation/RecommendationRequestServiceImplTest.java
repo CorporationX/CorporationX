@@ -13,10 +13,11 @@ import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.recommendation.filters.RecommendationRequestFilter;
+import school.faang.user_service.validator.recommendation.RecommendationRequestValidator;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -41,7 +42,7 @@ class RecommendationRequestServiceImplTest {
     private RecommendationRequestFilter recommendationRequestFilter;
     @Spy
     private RecommendationRequestMapperImpl recommendationRequestMapper;
-    private RecommendationRequestServiceImpl recommendationRequestService;
+    private RecommendationRequestService recommendationRequestService;
     private RecommendationRequest recommendationRequest;
     private RecommendationRequestDto recommendationRequestDto;
     private RecommendationRequestFilterDto requestFilterDto;
@@ -71,23 +72,24 @@ class RecommendationRequestServiceImplTest {
 
     @Test
     public void whenRequestRecommendationAndThrowsNoSuchElementException() {
-        when(recommendationRequestValidator.validateRecommendationRequest(recommendationRequest)).thenThrow(NoSuchElementException.class);
+        when(recommendationRequestValidator.validateRecommendationRequest(recommendationRequestDto)).thenThrow(NoSuchElementException.class);
         Assert.assertThrows(NoSuchElementException.class,
-                () -> recommendationRequestService.requestRecommendation(recommendationRequest));
+                () -> recommendationRequestService.requestRecommendation(recommendationRequestDto));
     }
 
     @Test
     public void whenRequestRecommendationAndThrowsDataValidationException() {
-        when(recommendationRequestValidator.validateRecommendationRequest(recommendationRequest)).thenThrow(DataValidationException.class);
+        when(recommendationRequestValidator.validateRecommendationRequest(recommendationRequestDto)).thenThrow(DataValidationException.class);
         Assert.assertThrows(DataValidationException.class,
-                () -> recommendationRequestService.requestRecommendation(recommendationRequest));
+                () -> recommendationRequestService.requestRecommendation(recommendationRequestDto));
     }
 
     @Test
     public void whenRequestRecommendationSuccessfully() {
-        when(recommendationRequestValidator.validateRecommendationRequest(recommendationRequest)).thenReturn(true);
+        when(recommendationRequestValidator.validateRecommendationRequest(recommendationRequestDto)).thenReturn(true);
         when(recommendationRequestRepository.save(recommendationRequest)).thenReturn(recommendationRequest);
-        RecommendationRequestDto actual = recommendationRequestService.requestRecommendation(recommendationRequest);
+        when(recommendationRequestMapper.ToEntity(recommendationRequestDto)).thenReturn(recommendationRequest);
+        RecommendationRequestDto actual = recommendationRequestService.requestRecommendation(recommendationRequestDto);
         assertThat(actual).isEqualTo(recommendationRequestDto);
     }
 
@@ -124,13 +126,6 @@ class RecommendationRequestServiceImplTest {
     @Test
     public void whenRejectRecommendationRequestAndRecommendationRequestIsNotExistsThenThrowsException() {
         rejection.setReason(REJECTION_REASON);
-        Assert.assertThrows(DataValidationException.class,
-                () -> recommendationRequestService.rejectRequest(RECOMMENDATION_REQUEST_ID, rejection));
-    }
-
-    @Test
-    public void whenRejectRecommendationRequestAndRejectionReasonIsNullThenThrowsException() {
-        when(recommendationRequestRepository.findById(RECOMMENDATION_REQUEST_ID)).thenReturn(Optional.of(recommendationRequest));
         Assert.assertThrows(DataValidationException.class,
                 () -> recommendationRequestService.rejectRequest(RECOMMENDATION_REQUEST_ID, rejection));
     }

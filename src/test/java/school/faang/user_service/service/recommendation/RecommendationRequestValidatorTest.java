@@ -12,7 +12,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.skill.SkillServiceImpl;
 import school.faang.user_service.service.user.UserServiceImpl;
-import school.faang.user_service.validator.recommendation.RecommendationRequestValidator;
+import school.faang.user_service.validator.RecommendationRequestValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -58,18 +58,9 @@ class RecommendationRequestValidatorTest {
     }
 
     @Test
-    void whenValidateRecommendationRequestAndSkillIsNotExistThenThrowsException() {
-        when(userService.existsById(anyLong())).thenReturn(true);
-        when(skillService.existsById(SKILL_ID)).thenThrow(NoSuchElementException.class);
-        Assert.assertThrows(NoSuchElementException.class,
-                () -> validator.validateRecommendationRequest(recommendationRequest));
-    }
-
-    @Test
     void whenValidateRecommendationRequestAndCreatedDateIsNotValidThenThrowsException() {
         recommendationRequest.setCreatedAt(LocalDateTime.now().minusDays(4));
         when(userService.existsById(anyLong())).thenReturn(true);
-        when(skillService.existsById(anyLong())).thenReturn(true);
         Assert.assertThrows(DataValidationException.class,
                 () -> validator.validateRecommendationRequest(recommendationRequest));
     }
@@ -77,7 +68,6 @@ class RecommendationRequestValidatorTest {
     @Test
     void whenValidateRecommendationRequestSuccessfully() {
         when(userService.existsById(anyLong())).thenReturn(true);
-        when(skillService.existsById(anyLong())).thenReturn(true);
         assertThat(validator.validateRecommendationRequest(recommendationRequest)).isTrue();
     }
 

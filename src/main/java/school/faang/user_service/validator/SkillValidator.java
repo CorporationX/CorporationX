@@ -1,16 +1,14 @@
-package school.faang.user_service.service;
+package school.faang.user_service.validator;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 
 @Component
 @AllArgsConstructor
-@NoArgsConstructor
-class SkillValidator {
+public class SkillValidator {
     private SkillRepository skillRepository;
 
     public boolean validateSkill(Skill skill) {

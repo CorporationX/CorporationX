@@ -1,4 +1,4 @@
-package school.faang.user_service.validator.recommendation;
+package school.faang.user_service.validator;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;

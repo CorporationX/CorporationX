@@ -8,11 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import school.faang.user_service.dto.UserDTO;
-import school.faang.user_service.exception.MentorshipException;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import static org.mockito.Mockito.when;
 

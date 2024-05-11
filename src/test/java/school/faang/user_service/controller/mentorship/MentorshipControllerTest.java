@@ -2,18 +2,18 @@ package school.faang.user_service.controller.mentorship;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.service.mentorship.MentorshipService;
-
 import java.util.ArrayList;
 import java.util.List;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class MentorshipControllerTest {
 
     @Mock
@@ -21,11 +21,6 @@ class MentorshipControllerTest {
 
     @InjectMocks
     private MentorshipController mentorshipController;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testGetMentees() {

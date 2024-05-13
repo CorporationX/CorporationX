@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.service.event.EventParticipationServiceImpl;
+import school.faang.user_service.service.event.EventParticipantService;
 
 import java.util.List;
 
@@ -14,19 +14,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventParticipationController {
 
-    private final EventParticipationServiceImpl eventParticipationServiceImpl;
+    private final EventParticipantService eventParticipantService;
     private final UserMapper userMapper;
 
     public void registerParticipant(Long eventId, Long userId) {
-        eventParticipationServiceImpl.registerParticipant(eventId, userId);
+        eventParticipantService.registerParticipant(eventId, userId);
     }
 
     public void unregisterParticipant(Long eventId, Long userId) {
-        eventParticipationServiceImpl.unregisterParticipant(eventId, userId);
+        eventParticipantService.unregisterParticipant(eventId, userId);
     }
 
     public List<UserDTO> getParticipants(Long eventId) {
-        List<User> participants = eventParticipationServiceImpl.getParticipants(eventId);
+        List<User> participants = eventParticipantService.getParticipants(eventId);
         return userMapper.toDTOList(participants);
     }
 
@@ -34,7 +34,7 @@ public class EventParticipationController {
         if (eventId == null || eventId <= 0) {
             throw new IllegalArgumentException("Invalid eventId");
         }
-        return eventParticipationServiceImpl.getParticipantsCount(eventId);
+        return eventParticipantService.getParticipantsCount(eventId);
     }
 
 }

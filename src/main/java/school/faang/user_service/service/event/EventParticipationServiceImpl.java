@@ -38,14 +38,7 @@ public class EventParticipationServiceImpl implements EventParticipantService{
         if (eventId == null || eventId <= 0) {
             throw new IllegalArgumentException("Invalid eventId");
         }
-
-        List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-
-        if (participants.isEmpty()) {
-            return participants;
-        }
-
-        return participants;
+        return eventParticipationRepository.findAllParticipantsByEventId(eventId);
     }
 
     public Integer getParticipantsCount(Long eventId) {

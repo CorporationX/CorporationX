@@ -27,6 +27,13 @@ class EventParticipationServiceImplTest {
     private EventParticipationServiceImpl eventParticipationServiceImpl;
 
     @Test
+    public void testGetParticipantsThrowsExceptionForInvalidEventId() {
+        long invalidEventId = -1L;
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> eventParticipationServiceImpl.getParticipants(invalidEventId));
+    }
+
+    @Test
     public void testRegisterParticipantThrowsExceptionIfAlreadyRegistered() {
         long userId = 1L;
         long eventId = 1L;

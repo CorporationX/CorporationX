@@ -31,6 +31,9 @@ public class EventParticipationController {
     }
 
     public Integer getParticipantsCount(Long eventId) {
+        if (eventId == null || eventId <= 0) {
+            throw new IllegalArgumentException("Invalid eventId");
+        }
         return eventParticipationService.getParticipantsCount(eventId);
     }
 

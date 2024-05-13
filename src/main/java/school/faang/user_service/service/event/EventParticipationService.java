@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -43,17 +42,13 @@ public class EventParticipationService {
         List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
 
         if (participants.isEmpty()) {
-            return new ArrayList<>();
+            return participants;
         }
 
         return participants;
     }
 
     public Integer getParticipantsCount(Long eventId) {
-        if (eventId == null || eventId <= 0) {
-            throw new IllegalArgumentException("Invalid eventId");
-        }
-
         return eventParticipationRepository.countParticipants(eventId);
     }
 }

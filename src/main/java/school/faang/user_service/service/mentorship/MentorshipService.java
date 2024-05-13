@@ -18,36 +18,41 @@ public class MentorshipService {
     private final UserMapper userMapper;
 
     public List<UserDTO> getMentees(long userId) {
-        User mentor = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Ментор с id: " + userId + " не найден"));
+        User mentor = getUserById(userId);
         return mentor.getMentees().stream()
-                .map(userMapper::userToUserDTO)
+                .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<UserDTO> getMentors(long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id: " + userId + " не найден"));
+        User user = getUserById(userId);
         return user.getMentors().stream()
-                .map(userMapper::userToUserDTO)
+                .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 
+    public User getUserById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(userId + " не найден"));
+    }
+
     public void deleteMentee(long menteeId, long mentorId) {
-        User mentor = userRepository.findById(mentorId).orElse(null);
-        User mentee = userRepository.findById(menteeId).orElse(null);
-        if (mentor != null && mentee != null && mentor.getMentees().contains(mentee)) {
-            mentor.getMentees().remove(mentee);
-            userRepository.save(mentor);
+        User mentor = getUserById(mentorId);
+        User mentee = getUserById(menteeId);
+        if (!mentor.getMentees().contains(mentee)) {
+            throw new EntityNotFoundException("Данный пользователь не является менти у указанного ментора");
         }
+        mentor.getMentees().remove(mentee);
+        userRepository.save(mentor);
     }
 
     public void deleteMentor(long menteeId, long mentorId) {
-        User mentor = userRepository.findById(mentorId).orElse(null);
-        User mentee = userRepository.findById(menteeId).orElse(null);
-        if (mentor != null && mentee != null && mentee.getMentors().contains(mentor)) {
+        User mentor = getUserById(mentorId);
+        User mentee = getUserById(menteeId);
+        if (!mentee.getMentors().contains(mentor)) {
+            throw new EntityNotFoundException("Данный пользователь не является ментором для указанного менти");
+        }
             mentee.getMentors().remove(mentor);
             userRepository.save(mentee);
-        }
     }
 }

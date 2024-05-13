@@ -18,13 +18,13 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-class EventParticipationServiceTest {
+class EventParticipationServiceImplTest {
 
     @Mock
     private EventParticipationRepository eventParticipationRepository;
 
     @InjectMocks
-    private EventParticipationService eventParticipationService;
+    private EventParticipationServiceImpl eventParticipationServiceImpl;
 
     @Test
     public void testRegisterParticipantThrowsExceptionIfAlreadyRegistered() {
@@ -37,7 +37,7 @@ class EventParticipationServiceTest {
         when(eventParticipationRepository.findAllParticipantsByEventId(userId)).thenReturn(participants);
 
         Assert.assertThrows(IllegalArgumentException.class,
-                () -> eventParticipationService.registerParticipant(eventId, userId));
+                () -> eventParticipationServiceImpl.registerParticipant(eventId, userId));
     }
 
     @Test
@@ -47,7 +47,7 @@ class EventParticipationServiceTest {
         List<User> participants = new ArrayList<>();
         when(eventParticipationRepository.findAllParticipantsByEventId(userId)).thenReturn(participants);
 
-        eventParticipationService.registerParticipant(eventId, userId);
+        eventParticipationServiceImpl.registerParticipant(eventId, userId);
 
         verify(eventParticipationRepository).register(eventId, userId);
     }
@@ -60,7 +60,7 @@ class EventParticipationServiceTest {
         when(eventParticipationRepository.findAllParticipantsByEventId(userId)).thenReturn(participants);
 
         Assert.assertThrows(IllegalArgumentException.class,
-                () -> eventParticipationService.unregisterParticipant(eventId, userId));
+                () -> eventParticipationServiceImpl.unregisterParticipant(eventId, userId));
     }
 
     @Test
@@ -73,7 +73,7 @@ class EventParticipationServiceTest {
         participants.add(user);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(participants);
 
-        eventParticipationService.unregisterParticipant(eventId, userId);
+        eventParticipationServiceImpl.unregisterParticipant(eventId, userId);
 
         verify(eventParticipationRepository).unregister(eventId, userId);
     }
@@ -88,7 +88,7 @@ class EventParticipationServiceTest {
         participants.add(user);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(participants);
 
-        List<User> actualParticipants = eventParticipationService.getParticipants(eventId);
+        List<User> actualParticipants = eventParticipationServiceImpl.getParticipants(eventId);
 
         Assertions.assertEquals(participants, actualParticipants);
     }
@@ -99,7 +99,7 @@ class EventParticipationServiceTest {
         Integer count = 5;
         when(eventParticipationRepository.countParticipants(eventId)).thenReturn(count);
 
-        Integer actualCount = eventParticipationService.getParticipantsCount(eventId);
+        Integer actualCount = eventParticipationServiceImpl.getParticipantsCount(eventId);
         Assertions.assertEquals(count, actualCount);
 
     }

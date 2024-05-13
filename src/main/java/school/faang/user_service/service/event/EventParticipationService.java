@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class EventParticipationService {
-    private EventParticipationRepository eventParticipationRepository;
+    private final EventParticipationRepository eventParticipationRepository;
 
     public void registerParticipant(Long eventId, Long userId) {
         List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);

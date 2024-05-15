@@ -6,7 +6,10 @@ import java.util.List;
 
 public interface EventParticipantService {
     void registerParticipant(Long eventId, Long userId);
+
     void unregisterParticipant(Long eventId, Long userId);
+
     List<User> getParticipants(Long eventId);
+
     Integer getParticipantsCount(Long eventId);
 }

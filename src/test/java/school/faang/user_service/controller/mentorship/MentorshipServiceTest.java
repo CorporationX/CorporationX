@@ -14,7 +14,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.mentorship.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.ArrayList;
@@ -27,20 +26,17 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class MentorshipServiceTest {
 
-    private final Long USER_ID = 1l;
-    private final Long MENTOR_ID = 1L;
-    private final Long MENTEE_ID = 2L;
-    public User user;
-    public UserDTO userDto;
-    public List<User> mentees;
-    public User first = new User();
-    public User second = new User();
-    public UserDTO firstDto;
-    public UserDTO secondDto;
-    public User mentee;
-
-    @Mock
-    private MentorshipRepository mentorshipRepository;
+    private static final Long USER_ID = 1l;
+    private static final Long MENTOR_ID = 1L;
+    private static final Long MENTEE_ID = 2L;
+    private User user;
+    private UserDTO userDto;
+    private List<User> mentees;
+    private User first = new User();
+    private User second = new User();
+    private UserDTO firstDto;
+    private UserDTO secondDto;
+    private User mentee;
 
     @Mock
     private UserRepository userRepository;

@@ -80,8 +80,8 @@ class MentorshipServiceTest {
     @Test
     void testGetMenteesExistingUserReturnsListOfMenteesDTO() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(first)).thenReturn(userDto);
-        when(userMapper.toDto(second)).thenReturn(userDto);
+        when(userMapper.toDTO(first)).thenReturn(userDto);
+        when(userMapper.toDTO(second)).thenReturn(userDto);
         List<UserDTO> actual = mentorshipService.getMentees(USER_ID);
         assertEquals(2, actual.size());
         assertEquals(userDto, actual.get(0));
@@ -98,8 +98,8 @@ class MentorshipServiceTest {
     @Test
     void testGetMenteesSuccessVerifyMapping() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(first)).thenReturn(firstDto);
-        when(userMapper.toDto(second)).thenReturn(secondDto);
+        when(userMapper.toDTO(first)).thenReturn(firstDto);
+        when(userMapper.toDTO(second)).thenReturn(secondDto);
         List<UserDTO> actual = mentorshipService.getMentees(USER_ID);
         assertEquals(2, actual.size());
         assertEquals(firstDto, actual.get(0));
@@ -111,8 +111,8 @@ class MentorshipServiceTest {
         List<User> mentors = List.of(first, second);
         user.setMentors(mentors);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(first)).thenReturn(new UserDTO());
-        when(userMapper.toDto(second)).thenReturn(new UserDTO());
+        when(userMapper.toDTO(first)).thenReturn(new UserDTO());
+        when(userMapper.toDTO(second)).thenReturn(new UserDTO());
         List<UserDTO> actual = mentorshipService.getMentors(USER_ID);
         assertEquals(2, actual.size());
     }
@@ -134,8 +134,8 @@ class MentorshipServiceTest {
         UserDTO secondDto = new UserDTO();
         secondDto.setId(3L);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(first)).thenReturn(firstDto);
-        when(userMapper.toDto(second)).thenReturn(secondDto);
+        when(userMapper.toDTO(first)).thenReturn(firstDto);
+        when(userMapper.toDTO(second)).thenReturn(secondDto);
         List<UserDTO> actual = mentorshipService.getMentors(USER_ID);
         assertEquals(2, actual.size());
         assertEquals(firstDto, actual.get(0));

@@ -20,14 +20,14 @@ public class MentorshipService {
     public List<UserDTO> getMentees(long userId) {
         User mentor = getUserById(userId);
         return mentor.getMentees().stream()
-                .map(userMapper::toDto)
+                .map(userMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     public List<UserDTO> getMentors(long userId) {
         User user = getUserById(userId);
         return user.getMentors().stream()
-                .map(userMapper::toDto)
+                .map(userMapper::toDTO)
                 .collect(Collectors.toList());
     }
 

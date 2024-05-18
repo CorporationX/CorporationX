@@ -9,27 +9,43 @@ import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
+import faang.school.postservice.validator.CommentValidator;
 import faang.school.postservice.validator.LikeValidator;
+import faang.school.postservice.validator.PostValidator;
+import faang.school.postservice.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
     private final LikeRepository likeRepository;
-    private final LikeValidator validator;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final LikeMapper mapper;
 
+    private final LikeValidator likeValidator;
+    private final UserValidator userValidator;
+    private final PostValidator postValidator;
+    private final CommentValidator commentValidator;
+
     @Override
-    public LikeDto addLikeOnPost(LikeDto likeDto) {
-        validator.validate(likeDto);
+    @Transactional
+    public LikeDto addLikeOnPost(long userId, long postId) {
+        LikeDto likeDto = LikeDto.builder()
+                .userId(userId)
+                .postId(postId)
+                .build();
+
+        likeValidator.validate(likeDto);
+        userValidator.validateUserExistence(userId);
+        postValidator.validatePostToLike(userId, postId);
 
         Like like = mapper.toEntity(likeDto);
 
-        Post post = postRepository.findById(likeDto.getPostId())
-                .orElseThrow(() -> new EntityNotFoundException("post with postId:" + likeDto.getPostId() + " not found"));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("post with postId:" + postId + " not found"));
         post.getLikes().add(like);
 
         Like saved = likeRepository.save(like);
@@ -38,12 +54,21 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public void removeLikeFromPost(LikeDto likeDto) {
-        validator.validate(likeDto);
+    @Transactional
+    public void removeLikeFromPost(long likeId, long userId, long postId) {
+        LikeDto likeDto = LikeDto.builder()
+                .id(likeId)
+                .userId(userId)
+                .postId(postId)
+                .build();
+
+        likeValidator.validate(likeDto);
+        userValidator.validateUserExistence(userId);
+        postValidator.validatePostToLike(userId, postId);
 
         Like like = mapper.toEntity(likeDto);
 
-        Post post = postRepository.findById(likeDto.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("post with postId:" + likeDto.getPostId() + " not found"));
         post.getLikes().remove(like);
 
@@ -51,12 +76,20 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public LikeDto addLikeOnComment(LikeDto likeDto) {
-        validator.validate(likeDto);
+    @Transactional
+    public LikeDto addLikeOnComment(long userId, long commentId) {
+        LikeDto likeDto = LikeDto.builder()
+                .userId(userId)
+                .commentId(commentId)
+                .build();
+
+        likeValidator.validate(likeDto);
+        userValidator.validateUserExistence(userId);
+        commentValidator.validateCommentToLike(userId, commentId);
 
         Like like = mapper.toEntity(likeDto);
 
-        Comment comment = commentRepository.findById(likeDto.getCommentId())
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("comment with commentId:" + likeDto.getCommentId() + " not found"));
         comment.getLikes().add(like);
 
@@ -66,12 +99,21 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public void removeLikeFromComment(LikeDto likeDto) {
-        validator.validate(likeDto);
+    @Transactional
+    public void removeLikeFromComment(long likeId, long userId, long commentId) {
+        LikeDto likeDto = LikeDto.builder()
+                .id(likeId)
+                .userId(userId)
+                .commentId(commentId)
+                .build();
+
+        likeValidator.validate(likeDto);
+        userValidator.validateUserExistence(userId);
+        commentValidator.validateCommentToLike(userId, commentId);
 
         Like like = mapper.toEntity(likeDto);
 
-        Comment comment = commentRepository.findById(likeDto.getCommentId())
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("comment with commentId:" + likeDto.getCommentId() + " not found"));
         comment.getLikes().remove(like);
 

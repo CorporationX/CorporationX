@@ -63,7 +63,7 @@ class PostServiceImplTest {
                 .published(false)
                 .build();
 
-        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(postRepository.findByIdWithLikes(post.getId())).thenReturn(Optional.of(post));
         when(postRepository.save(post)).thenReturn(post);
 
         PostDto result = postServiceImpl.publish(1L);
@@ -77,7 +77,7 @@ class PostServiceImplTest {
                 .content("test")
                 .published(false)
                 .build();
-        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(postRepository.findByIdWithLikes(post.getId())).thenReturn(Optional.of(post));
         when(postRepository.save(post)).thenReturn(post);
 
         PostDto result = postServiceImpl.update(1L, new PostUpdateDto("new"));
@@ -92,7 +92,7 @@ class PostServiceImplTest {
                 .content("test")
                 .published(false)
                 .build();
-        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(postRepository.findByIdWithLikes(post.getId())).thenReturn(Optional.of(post));
         when(postRepository.save(post)).thenReturn(post);
         postServiceImpl.deleteById(1L);
 

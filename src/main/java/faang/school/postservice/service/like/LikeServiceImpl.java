@@ -9,10 +9,7 @@ import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
-import faang.school.postservice.validator.CommentValidator;
-import faang.school.postservice.validator.LikeValidator;
-import faang.school.postservice.validator.PostValidator;
-import faang.school.postservice.validator.UserValidator;
+import faang.school.postservice.validator.like.LikeValidatorImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
+
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final LikeMapper mapper;
-
-    private final LikeValidator likeValidator;
-    private final UserValidator userValidator;
-    private final PostValidator postValidator;
-    private final CommentValidator commentValidator;
+    private final LikeValidatorImpl likeValidator;
 
     @Override
     @Transactional
@@ -38,9 +32,7 @@ public class LikeServiceImpl implements LikeService {
                 .postId(postId)
                 .build();
 
-        likeValidator.validate(likeDto);
-        userValidator.validateUserExistence(userId);
-        postValidator.validatePostToLike(userId, postId);
+        likeValidator.validateLike(likeDto);
 
         Like like = mapper.toEntity(likeDto);
 
@@ -62,9 +54,7 @@ public class LikeServiceImpl implements LikeService {
                 .postId(postId)
                 .build();
 
-        likeValidator.validate(likeDto);
-        userValidator.validateUserExistence(userId);
-        postValidator.validatePostToLike(userId, postId);
+        likeValidator.validateLike(likeDto);
 
         Like like = mapper.toEntity(likeDto);
 
@@ -83,9 +73,7 @@ public class LikeServiceImpl implements LikeService {
                 .commentId(commentId)
                 .build();
 
-        likeValidator.validate(likeDto);
-        userValidator.validateUserExistence(userId);
-        commentValidator.validateCommentToLike(userId, commentId);
+        likeValidator.validateLike(likeDto);
 
         Like like = mapper.toEntity(likeDto);
 
@@ -107,9 +95,7 @@ public class LikeServiceImpl implements LikeService {
                 .commentId(commentId)
                 .build();
 
-        likeValidator.validate(likeDto);
-        userValidator.validateUserExistence(userId);
-        commentValidator.validateCommentToLike(userId, commentId);
+        likeValidator.validateLike(likeDto);
 
         Like like = mapper.toEntity(likeDto);
 

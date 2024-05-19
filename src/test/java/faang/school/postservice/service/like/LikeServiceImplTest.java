@@ -8,10 +8,7 @@ import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
-import faang.school.postservice.validator.CommentValidator;
-import faang.school.postservice.validator.LikeValidator;
-import faang.school.postservice.validator.PostValidator;
-import faang.school.postservice.validator.UserValidator;
+import faang.school.postservice.validator.like.LikeValidatorImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,13 +34,7 @@ class LikeServiceImplTest {
     @Mock
     private LikeRepository likeRepository;
     @Mock
-    private LikeValidator likeValidator;
-    @Mock
-    private CommentValidator commentValidator;
-    @Mock
-    private PostValidator postValidator;
-    @Mock
-    private UserValidator userValidator;
+    private LikeValidatorImpl likeValidator;
     @Mock
     private PostRepository postRepository;
     @Mock
@@ -94,10 +85,8 @@ class LikeServiceImplTest {
         assertEquals(likeDto, actual);
         assertFalse(post.getLikes().isEmpty());
 
-        InOrder inOrder = inOrder(likeValidator, userValidator, postValidator, mapper, likeRepository, postRepository);
-        inOrder.verify(likeValidator, times(1)).validate(any(LikeDto.class));
-        inOrder.verify(userValidator, times(1)).validateUserExistence(userId);
-        inOrder.verify(postValidator, times(1)).validatePostToLike(userId, postId);
+        InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository);
+        inOrder.verify(likeValidator, times(1)).validateLike(any(LikeDto.class));
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(postRepository, times(1)).findById(postId);
         inOrder.verify(likeRepository, times(1)).save(like);
@@ -114,10 +103,8 @@ class LikeServiceImplTest {
         likeService.removeLikeFromPost(likeId, userId, postId);
         assertTrue(post.getLikes().isEmpty());
 
-        InOrder inOrder = inOrder(likeValidator, userValidator, postValidator, mapper, likeRepository, postRepository);
-        inOrder.verify(likeValidator, times(1)).validate(any(LikeDto.class));
-        inOrder.verify(userValidator, times(1)).validateUserExistence(userId);
-        inOrder.verify(postValidator, times(1)).validatePostToLike(userId, postId);
+        InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository);
+        inOrder.verify(likeValidator, times(1)).validateLike(any(LikeDto.class));
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(postRepository, times(1)).findById(postId);
         inOrder.verify(likeRepository, times(1)).delete(like);
@@ -134,10 +121,8 @@ class LikeServiceImplTest {
         assertEquals(likeDto, actual);
         assertFalse(comment.getLikes().isEmpty());
 
-        InOrder inOrder = inOrder(likeValidator, userValidator, commentValidator, mapper, likeRepository, commentRepository);
-        inOrder.verify(likeValidator, times(1)).validate(any(LikeDto.class));
-        inOrder.verify(userValidator, times(1)).validateUserExistence(userId);
-        inOrder.verify(commentValidator, times(1)).validateCommentToLike(userId, commentId);
+        InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, commentRepository);
+        inOrder.verify(likeValidator, times(1)).validateLike(any(LikeDto.class));
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(commentRepository, times(1)).findById(commentId);
         inOrder.verify(likeRepository, times(1)).save(like);
@@ -154,10 +139,8 @@ class LikeServiceImplTest {
         likeService.removeLikeFromComment(likeId, userId, commentId);
         assertTrue(comment.getLikes().isEmpty());
 
-        InOrder inOrder = inOrder(likeValidator, userValidator, commentValidator, mapper, likeRepository, commentRepository);
-        inOrder.verify(likeValidator, times(1)).validate(any(LikeDto.class));
-        inOrder.verify(userValidator, times(1)).validateUserExistence(userId);
-        inOrder.verify(commentValidator, times(1)).validateCommentToLike(userId, commentId);
+        InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, commentRepository);
+        inOrder.verify(likeValidator, times(1)).validateLike(any(LikeDto.class));
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(commentRepository, times(1)).findById(commentId);
         inOrder.verify(likeRepository, times(1)).delete(like);

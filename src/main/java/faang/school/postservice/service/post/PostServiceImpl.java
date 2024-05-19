@@ -1,7 +1,5 @@
 package faang.school.postservice.service.post;
 
-import faang.school.postservice.client.ProjectServiceClient;
-import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.dto.post.PostCreateDto;
 import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.dto.post.PostUpdateDto;
@@ -28,7 +26,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post findById(Long id) {
-        return postRepository.findById(id)
+        return postRepository.findByIdWithLikes(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
     }
 
@@ -69,7 +67,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> findPostDraftsByUserAuthorId(Long id) {
-        return postRepository.findAllByAuthorIdAndPublishedAndDeleted(id, false, false).stream()
+        return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, false, false).stream()
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
                 .toList();
@@ -77,7 +75,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> findPostDraftsByProjectAuthorId(Long id) {
-        return postRepository.findAllByProjectIdAndPublishedAndDeleted(id, false, false).stream()
+        return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, false, false).stream()
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
                 .toList();
@@ -85,7 +83,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> findPostPublicationsByUserAuthorId(Long id) {
-        return postRepository.findAllByAuthorIdAndPublishedAndDeleted(id, true, false).stream()
+        return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
@@ -93,7 +91,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> findPostPublicationsByProjectAuthorId(Long id) {
-        return postRepository.findAllByProjectIdAndPublishedAndDeleted(id, true, false).stream()
+        return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();

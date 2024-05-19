@@ -19,4 +19,5 @@ public class PostDto {
     private boolean deleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private int likesCount;
 }

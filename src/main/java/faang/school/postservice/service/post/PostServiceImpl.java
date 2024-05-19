@@ -26,7 +26,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post findById(Long id) {
-        return postRepository.findByIdWithLikes(id)
+        return postRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
     }
 

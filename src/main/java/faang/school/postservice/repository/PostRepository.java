@@ -6,7 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface PostRepository extends CrudRepository<Post, Long> {
@@ -28,9 +27,6 @@ public interface PostRepository extends CrudRepository<Post, Long> {
             LEFT JOIN FETCH p.likes WHERE p.projectId = :projectId
             """)
     List<Post> findByProjectIdAndPublishedAndDeletedWithLikes(Long projectId, boolean published, boolean deleted);
-
-    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.likes WHERE p.id = :postId")
-    Optional<Post> findByIdWithLikes(long postId);
 
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.likes WHERE p.projectId = :projectId")
     List<Post> findByProjectIdWithLikes(long projectId);

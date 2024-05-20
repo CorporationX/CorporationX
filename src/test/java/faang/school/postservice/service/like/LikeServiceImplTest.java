@@ -86,7 +86,8 @@ class LikeServiceImplTest {
         assertFalse(post.getLikes().isEmpty());
 
         InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository);
-        inOrder.verify(likeValidator, times(1)).validateLike(any(LikeDto.class));
+        inOrder.verify(likeValidator, times(1)).validateUserExistence(userId);
+        inOrder.verify(likeValidator, times(1)).validatePostToLike(userId, postId);
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(postRepository, times(1)).findById(postId);
         inOrder.verify(likeRepository, times(1)).save(like);
@@ -104,7 +105,6 @@ class LikeServiceImplTest {
         assertTrue(post.getLikes().isEmpty());
 
         InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository);
-        inOrder.verify(likeValidator, times(1)).validateLike(any(LikeDto.class));
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(postRepository, times(1)).findById(postId);
         inOrder.verify(likeRepository, times(1)).delete(like);
@@ -122,7 +122,8 @@ class LikeServiceImplTest {
         assertFalse(comment.getLikes().isEmpty());
 
         InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, commentRepository);
-        inOrder.verify(likeValidator, times(1)).validateLike(any(LikeDto.class));
+        inOrder.verify(likeValidator, times(1)).validateUserExistence(userId);
+        inOrder.verify(likeValidator, times(1)).validateCommentToLike(userId, commentId);
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(commentRepository, times(1)).findById(commentId);
         inOrder.verify(likeRepository, times(1)).save(like);
@@ -140,7 +141,6 @@ class LikeServiceImplTest {
         assertTrue(comment.getLikes().isEmpty());
 
         InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, commentRepository);
-        inOrder.verify(likeValidator, times(1)).validateLike(any(LikeDto.class));
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(commentRepository, times(1)).findById(commentId);
         inOrder.verify(likeRepository, times(1)).delete(like);

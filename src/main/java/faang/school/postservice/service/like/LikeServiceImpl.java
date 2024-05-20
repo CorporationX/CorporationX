@@ -32,7 +32,8 @@ public class LikeServiceImpl implements LikeService {
                 .postId(postId)
                 .build();
 
-        likeValidator.validateLike(likeDto);
+        likeValidator.validateUserExistence(userId);
+        likeValidator.validatePostToLike(userId, postId);
 
         Like like = mapper.toEntity(likeDto);
 
@@ -54,8 +55,6 @@ public class LikeServiceImpl implements LikeService {
                 .postId(postId)
                 .build();
 
-        likeValidator.validateLike(likeDto);
-
         Like like = mapper.toEntity(likeDto);
 
         Post post = postRepository.findById(postId)
@@ -73,7 +72,8 @@ public class LikeServiceImpl implements LikeService {
                 .commentId(commentId)
                 .build();
 
-        likeValidator.validateLike(likeDto);
+        likeValidator.validateUserExistence(userId);
+        likeValidator.validateCommentToLike(userId, commentId);
 
         Like like = mapper.toEntity(likeDto);
 
@@ -94,8 +94,6 @@ public class LikeServiceImpl implements LikeService {
                 .userId(userId)
                 .commentId(commentId)
                 .build();
-
-        likeValidator.validateLike(likeDto);
 
         Like like = mapper.toEntity(likeDto);
 

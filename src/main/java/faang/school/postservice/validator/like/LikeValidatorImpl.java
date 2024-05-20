@@ -1,7 +1,6 @@
 package faang.school.postservice.validator.like;
 
 import faang.school.postservice.client.UserServiceClient;
-import faang.school.postservice.dto.like.LikeDto;
 import faang.school.postservice.exception.DataValidationException;
 import faang.school.postservice.exception.EntityNotFoundException;
 import faang.school.postservice.model.Comment;
@@ -21,16 +20,6 @@ public class LikeValidatorImpl implements LikeValidator {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final UserServiceClient userServiceClient;
-
-    public void validateLike(LikeDto likeDto) {
-        if (likeDto.getPostId() != null && likeDto.getCommentId() != null) {
-            throw new DataValidationException("can't like both post and comment");
-        }
-
-        if (likeDto.getPostId() == null && likeDto.getCommentId() == null) {
-            throw new DataValidationException("postId or commentId must not be null");
-        }
-    }
 
     @Transactional(readOnly = true)
     public void validatePostToLike(long userId, long postId) {

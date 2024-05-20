@@ -2,6 +2,7 @@ package school.faang.user_service.service.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.mentorship.UserMapper;
 import school.faang.user_service.dto.UserDTO;
@@ -17,6 +18,7 @@ public class MentorshipService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Transactional
     public List<UserDTO> getMentees(long userId) {
         User mentor = getUserById(userId);
         return mentor.getMentees().stream()
@@ -24,6 +26,7 @@ public class MentorshipService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public List<UserDTO> getMentors(long userId) {
         User user = getUserById(userId);
         return user.getMentors().stream()
@@ -36,6 +39,7 @@ public class MentorshipService {
                 .orElseThrow(() -> new EntityNotFoundException(userId + " не найден"));
     }
 
+    @Transactional
     public void deleteMentee(long menteeId, long mentorId) {
         User mentor = getUserById(mentorId);
         User mentee = getUserById(menteeId);
@@ -46,6 +50,7 @@ public class MentorshipService {
         userRepository.save(mentor);
     }
 
+    @Transactional
     public void deleteMentor(long menteeId, long mentorId) {
         User mentor = getUserById(mentorId);
         User mentee = getUserById(menteeId);

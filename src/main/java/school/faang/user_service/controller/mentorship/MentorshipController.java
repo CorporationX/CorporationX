@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDTO;
@@ -21,25 +22,23 @@ public class MentorshipController {
 
     @GetMapping("/mentees/{mentorId}")
     @Operation(summary = "Получить список менти", description = "Возвращает список менти для указанного ментора")
-    public List<UserDTO> getMentees(long mentorId) {
-        return mentorshipService.getMentees(mentorId);
-    }
+    public List<UserDTO> getMentees(@PathVariable long mentorId) {return mentorshipService.getMentees(mentorId);}
 
     @GetMapping("/mentors/{userId}")
     @Operation(summary = "Получить список менторов", description = "Возвращает список менторов для указанного пользователя")
-    public List<UserDTO> getMentors(long userId) {
+    public List<UserDTO> getMentors(@PathVariable long userId) {
         return mentorshipService.getMentors(userId);
     }
 
     @DeleteMapping("/mentees/{mentorId}/{menteeId}")
     @Operation(summary = "Удалить менти", description = "Удаляет менти от ментора")
-    public void deleteMentee(long mentorId, long menteeId) {
+    public void deleteMentee(@PathVariable long mentorId,@PathVariable long menteeId) {
         mentorshipService.deleteMentee(menteeId, mentorId);
     }
 
     @DeleteMapping("/mentors/{menteeId}/{mentorId}")
     @Operation(summary = "Удалить ментора", description = "Удаляет ментора от менти")
-    public void deleteMentor(long menteeId, long mentorId) {
+    public void deleteMentor(@PathVariable long menteeId,@PathVariable long mentorId) {
         mentorshipService.deleteMentor(menteeId, mentorId);
     }
 }

@@ -2,7 +2,7 @@ package faang.school.postservice.validator.like;
 
 import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.exception.DataValidationException;
-import faang.school.postservice.exception.EntityNotFoundException;
+import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
@@ -68,7 +68,7 @@ class LikeValidatorImplTest {
     void validateCommentToLikeNotFoundComment() {
         like.setComment(comment);
 
-        EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> validator.validateCommentToLike(userId, commentId));
+        NotFoundException e = assertThrows(NotFoundException.class, () -> validator.validateCommentToLike(userId, comment));
         assertEquals(
                 "comment with commentId:" + commentId + " not found",
                 e.getMessage()
@@ -83,7 +83,7 @@ class LikeValidatorImplTest {
 
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
-        DataValidationException e = assertThrows(DataValidationException.class, () -> validator.validateCommentToLike(userId, commentId));
+        DataValidationException e = assertThrows(DataValidationException.class, () -> validator.validateCommentToLike(userId, comment));
         assertEquals(
                 "user with userId:" + userId + " can't like comment with commentId:" + commentId + " two times",
                 e.getMessage()
@@ -96,14 +96,14 @@ class LikeValidatorImplTest {
 
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
-        assertDoesNotThrow(() -> validator.validateCommentToLike(userId, commentId));
+        assertDoesNotThrow(() -> validator.validateCommentToLike(userId, comment));
     }
 
     @Test
-    void validatePostToLikeNotFoundPost() {
+    void validatePostToLikeNotFoundAndGetPost() {
         like.setPost(post);
 
-        EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> validator.validatePostToLike(userId, postId));
+        NotFoundException e = assertThrows(NotFoundException.class, () -> validator.validateAndGetPostToLike(userId, post));
         assertEquals(
                 "post with postId:" + postId + " not found",
                 e.getMessage()
@@ -111,13 +111,13 @@ class LikeValidatorImplTest {
     }
 
     @Test
-    void validatePostToLikeAlreadyLikedPost() {
+    void validatePostToLikeAlreadyLikedAndGetPost() {
         post.setLikes(List.of(like));
         like.setPost(post);
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-        DataValidationException e = assertThrows(DataValidationException.class, () -> validator.validatePostToLike(userId, postId));
+        DataValidationException e = assertThrows(DataValidationException.class, () -> validator.validateAndGetPostToLike(userId, post));
         assertEquals(
                 "user with userId:" + userId + " can't like post with postId:" + postId + " two times",
                 e.getMessage()
@@ -125,12 +125,12 @@ class LikeValidatorImplTest {
     }
 
     @Test
-    void validatePostToLike() {
+    void validateAndGetPostToLike() {
         like.setPost(post);
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-        assertDoesNotThrow(() -> validator.validatePostToLike(userId, postId));
+        assertDoesNotThrow(() -> validator.validateAndGetPostToLike(userId, post));
     }
 
     @Test
@@ -140,7 +140,7 @@ class LikeValidatorImplTest {
 
         when(userServiceClient.getUser(userId)).thenThrow(new FeignException.NotFound("", request, null, new HashMap<>()));
 
-        EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> validator.validateUserExistence(userId));
+        NotFoundException e = assertThrows(NotFoundException.class, () -> validator.validateUserExistence(userId));
         assertEquals(
                 "can't find user with userId:" + userId,
                 e.getMessage()

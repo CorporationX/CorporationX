@@ -1,10 +1,13 @@
 package faang.school.postservice.validator.like;
 
+import faang.school.postservice.model.Comment;
+import faang.school.postservice.model.Post;
+
 public interface LikeValidator {
 
-    void validatePostToLike(long userId, long postId);
+    void validateAndGetPostToLike(long userId, Post post);
 
-    void validateCommentToLike(long userId, long commentId);
+    void validateCommentToLike(long userId, Comment comment);
 
     void validateUserExistence(long userId);
 }

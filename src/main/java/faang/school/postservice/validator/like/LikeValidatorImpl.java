@@ -2,12 +2,10 @@ package faang.school.postservice.validator.like;
 
 import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.exception.DataValidationException;
-import faang.school.postservice.exception.EntityNotFoundException;
+import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.repository.CommentRepository;
-import faang.school.postservice.repository.PostRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,35 +15,27 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LikeValidatorImpl implements LikeValidator {
 
-    private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
     private final UserServiceClient userServiceClient;
 
     @Transactional(readOnly = true)
-    public void validatePostToLike(long userId, long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("post with postId:" + postId + " not found"));
-
+    public void validateAndGetPostToLike(long userId, Post post) {
         boolean isLiked = post.getLikes().stream()
                 .map(Like::getUserId)
                 .anyMatch(likedUserId -> likedUserId == userId);
 
         if (isLiked) {
-            throw new DataValidationException("user with userId:" + userId + " can't like post with postId:" + postId + " two times");
+            throw new DataValidationException("user with userId:" + userId + " can't like post with postId:" + post.getId() + " two times");
         }
     }
 
     @Transactional(readOnly = true)
-    public void validateCommentToLike(long userId, long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("comment with commentId:" + commentId + " not found"));
-
+    public void validateCommentToLike(long userId, Comment comment) {
         boolean isLiked = comment.getLikes().stream()
                 .map(Like::getUserId)
                 .anyMatch(likedUserId -> likedUserId == userId);
 
         if (isLiked) {
-            throw new DataValidationException("user with userId:" + userId + " can't like comment with commentId:" + commentId + " two times");
+            throw new DataValidationException("user with userId:" + userId + " can't like comment with commentId:" + comment.getId() + " two times");
         }
     }
 
@@ -53,7 +43,7 @@ public class LikeValidatorImpl implements LikeValidator {
         try {
             userServiceClient.getUser(userId);
         } catch (FeignException e) {
-            throw new EntityNotFoundException("can't find user with userId:" + userId);
+            throw new NotFoundException("can't find user with userId:" + userId);
         }
     }
 }

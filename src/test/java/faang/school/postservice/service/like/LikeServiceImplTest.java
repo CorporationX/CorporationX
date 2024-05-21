@@ -87,9 +87,9 @@ class LikeServiceImplTest {
 
         InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository);
         inOrder.verify(likeValidator, times(1)).validateUserExistence(userId);
-        inOrder.verify(likeValidator, times(1)).validatePostToLike(userId, postId);
-        inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(postRepository, times(1)).findById(postId);
+        inOrder.verify(likeValidator, times(1)).validateAndGetPostToLike(userId, post);
+        inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(likeRepository, times(1)).save(like);
         inOrder.verify(mapper, times(1)).toDto(like);
     }
@@ -123,9 +123,9 @@ class LikeServiceImplTest {
 
         InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, commentRepository);
         inOrder.verify(likeValidator, times(1)).validateUserExistence(userId);
-        inOrder.verify(likeValidator, times(1)).validateCommentToLike(userId, commentId);
-        inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(commentRepository, times(1)).findById(commentId);
+        inOrder.verify(likeValidator, times(1)).validateCommentToLike(userId, comment);
+        inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(likeRepository, times(1)).save(like);
         inOrder.verify(mapper, times(1)).toDto(like);
     }

@@ -25,6 +25,9 @@ spring:
         calculations_channel:
           name: calculations_channel
 
+  profiles:
+    active: test
+
 server:
   port: 8081
 

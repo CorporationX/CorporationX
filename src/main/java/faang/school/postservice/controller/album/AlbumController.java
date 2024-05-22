@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,7 +39,7 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @PostMapping("/create/album")
+    @PostMapping("/new/album")
     @ResponseStatus(HttpStatus.CREATED)
     public AlbumDto createAlbum(@RequestBody @Valid AlbumDto albumDto) {
         long userId = userContext.getUserId();
@@ -79,14 +79,11 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @GetMapping("/get/album/user")
+    @GetMapping("/album/user")
     @ResponseStatus(HttpStatus.OK)
     public List<AlbumDto> getUserAlbums(
-            @RequestParam(required = false) String titlePattern,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String beforeDate) {
+            @ParameterObject @RequestBody(required = false) AlbumFilterDto filter) {
 
-        AlbumFilterDto filter = createFilter(titlePattern, fromDate, beforeDate);
         long userId = userContext.getUserId();
         return albumService.getAllUserAlbums(userId, filter);
     }
@@ -97,14 +94,11 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @GetMapping("/get/favorites")
+    @GetMapping("/favorites")
     @ResponseStatus(HttpStatus.OK)
     public List<AlbumDto> getUserFavoriteAlbums(
-            @RequestParam(required = false) String titlePattern,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String beforeDate) {
+            @ParameterObject @RequestBody(required = false) AlbumFilterDto filter) {
 
-        AlbumFilterDto filter = createFilter(titlePattern, fromDate, beforeDate);
         long userId = userContext.getUserId();
         return albumService.getAllUserFavoriteAlbums(userId, filter);
     }
@@ -115,14 +109,11 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @GetMapping("/get/all")
+    @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<AlbumDto> getAllAlbums(
-            @RequestParam(required = false) String titlePattern,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String beforeDate) {
+            @ParameterObject @RequestBody(required = false) AlbumFilterDto filter) {
 
-        AlbumFilterDto filter = createFilter(titlePattern, fromDate, beforeDate);
         return albumService.getAllAlbums(filter);
     }
 
@@ -132,7 +123,7 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @GetMapping("/get/album/{albumId}")
+    @GetMapping("/album/{albumId}")
     @ResponseStatus(HttpStatus.OK)
     public AlbumDto getAlbumById(@PathVariable("albumId") long albumId) {
         return albumService.getAlbumById(albumId);
@@ -144,7 +135,7 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @PutMapping("/update/album/{albumId}")
+    @PutMapping("/album/{albumId}")
     @ResponseStatus(HttpStatus.OK)
     public AlbumDto updateAlbum(@PathVariable("albumId") long albumId,
                                 @RequestBody AlbumDto albumDto) {
@@ -158,7 +149,7 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @DeleteMapping("/delete/album/{albumId}")
+    @DeleteMapping("/album/{albumId}")
     @ResponseStatus(HttpStatus.OK)
     public AlbumDto deleteAlbum(@PathVariable("albumId") long albumId) {
         long userId = userContext.getUserId();
@@ -171,7 +162,7 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @DeleteMapping("/remove/album/{albumId}/favorite")
+    @DeleteMapping("/album/{albumId}/favorites")
     @ResponseStatus(HttpStatus.OK)
     public AlbumDto removeAlbumFromFavorite(@PathVariable("albumId") long albumId) {
         long userId = userContext.getUserId();
@@ -184,19 +175,11 @@ public class AlbumController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = AlbumDto.class))})
     })
-    @DeleteMapping("/album/{albumId}/remove/post/{postId}")
+    @DeleteMapping("/album/{albumId}/post/{postId}")
     @ResponseStatus(HttpStatus.OK)
     public AlbumDto removePostFromAlbum(@PathVariable("albumId") long albumId,
                                         @PathVariable("postId") long postId) {
         long userId = userContext.getUserId();
         return albumService.removePostFromAlbum(albumId, postId, userId);
-    }
-
-    private AlbumFilterDto createFilter(String titlePattern, String fromDate, String beforeDate) {
-        AlbumFilterDto filter = new AlbumFilterDto();
-        filter.setTitlePattern(titlePattern);
-        filter.setFromDate(fromDate);
-        filter.setBeforeDate(beforeDate);
-        return filter;
     }
 }

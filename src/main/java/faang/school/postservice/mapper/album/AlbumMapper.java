@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
@@ -16,26 +17,21 @@ import java.util.stream.Collectors;
 public interface AlbumMapper {
 
     @Mappings({
-            @Mapping(source = "album.title", target = "title"),
-            @Mapping(source = "album.description", target = "description"),
-            @Mapping(target = "postIds", expression = "java(postsToPostIds(album.getPosts()))")
+            @Mapping(target = "postIds", source = "posts", qualifiedByName = "postsToPostIds")
     })
     AlbumDto toDto(Album album);
 
     @Mappings({
-            @Mapping(source = "albumDto.title", target = "title"),
-            @Mapping(source = "albumDto.description", target = "description"),
-            @Mapping(target = "posts", expression = "java(postIdsToPosts(albumDto.getPostIds()))")
+            @Mapping(target = "posts", source = "postIds", qualifiedByName = "postIdsToPosts")
     })
     Album toEntity(AlbumDto albumDto);
 
     @Mappings({
-            @Mapping(source = "dto.title", target = "title"),
-            @Mapping(source = "dto.description", target = "description"),
-            @Mapping(target = "posts", expression = "java(postIdsToPosts(dto.getPostIds()))")
+            @Mapping(target = "posts", source = "dto.postIds", qualifiedByName = "postIdsToPosts")
     })
     void update(AlbumDto dto, @MappingTarget Album entity);
 
+    @Named("postIdsToPosts")
     default List<Post> postIdsToPosts(List<Long> postIds) {
         return postIds.stream()
                 .map(id -> {
@@ -46,6 +42,7 @@ public interface AlbumMapper {
                 .collect(Collectors.toList());
     }
 
+    @Named("postsToPostIds")
     default List<Long> postsToPostIds(List<Post> posts) {
         return posts.stream()
                 .map(Post::getId)

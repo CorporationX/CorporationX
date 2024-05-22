@@ -9,14 +9,11 @@ import java.util.List;
 
 @Data
 public class AlbumDto {
-
     @NotBlank
     @NotNull
     private String title;
-
     @NotBlank
     @NotNull
     private String description;
-
     private List<Long> postIds = new ArrayList<>();
 }

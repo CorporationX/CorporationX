@@ -20,10 +20,8 @@ public class UserValidator {
             UserDto userDto = userServiceClient.getUser(userId);
             log.info("Found user: {}", userDto);
         } catch (FeignException.NotFound e) {
-            log.error("User not found: " + e.getMessage());
             throw new NotFoundException(String.format("User with id '%d' not exist", userId));
         } catch (FeignException e) {
-            log.error("Error fetching user: " + e.getMessage());
             throw new RuntimeException("Error fetching user", e);
         }
     }

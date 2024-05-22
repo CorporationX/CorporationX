@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -39,8 +38,7 @@ public class AlbumServiceImpl implements AlbumService {
         albumValidator.validateCreateAlbum(userId, album);
 
         albumRepository.save(album);
-        log.info("Saved album {}", albumDto.getTitle());
-
+        log.info("Saved album {} to user {}", album.getId(), userId);
         return albumDto;
     }
 
@@ -55,7 +53,6 @@ public class AlbumServiceImpl implements AlbumService {
         album.addPost(post);
         albumRepository.save(album);
         log.info("Added post {} to album {} for user {}", postId, albumId, userId);
-
         return albumMapper.toDto(album);
     }
 
@@ -69,7 +66,6 @@ public class AlbumServiceImpl implements AlbumService {
 
         albumRepository.addAlbumToFavorites(albumId, userId);
         log.info("Added album {} to favorites for user {}", albumId, userId);
-
         return albumMapper.toDto(album);
     }
 
@@ -95,9 +91,7 @@ public class AlbumServiceImpl implements AlbumService {
     @Transactional(readOnly = true)
     public List<AlbumDto> getAllAlbums(AlbumFilterDto filter) {
 
-        Iterable<Album> albums = albumRepository.findAll();
-
-        return albumFilterService.applyFilters(StreamSupport.stream(albums.spliterator(), false), filter)
+        return albumFilterService.applyFilters(albumRepository.findAll().stream(), filter)
                 .map(albumMapper::toDto)
                 .toList();
     }
@@ -108,7 +102,6 @@ public class AlbumServiceImpl implements AlbumService {
 
         Album album = findById(albumRepository, albumId, "Album");
         log.info("Got album by id {}", albumId);
-
         return albumMapper.toDto(album);
     }
 
@@ -121,7 +114,6 @@ public class AlbumServiceImpl implements AlbumService {
 
         albumMapper.update(updatedAlbumDto, albumToUpdate);
         log.info("Updated album {} for user {}", albumId, userId);
-
         return albumMapper.toDto(albumRepository.save(albumToUpdate));
     }
 
@@ -135,7 +127,6 @@ public class AlbumServiceImpl implements AlbumService {
 
         albumRepository.deleteById(albumId);
         log.info("Deleted album {} for user {}", albumId, userId);
-
         return albumToDelete;
     }
 
@@ -148,7 +139,6 @@ public class AlbumServiceImpl implements AlbumService {
 
         albumRepository.deleteAlbumFromFavorites(albumId, userId);
         log.info("Deleted album {} from favorites for user {}", albumId, userId);
-
         return albumMapper.toDto(album);
     }
 
@@ -162,7 +152,6 @@ public class AlbumServiceImpl implements AlbumService {
         album.removePost(postId);
         albumRepository.save(album);
         log.info("Removed post {} from album {} for user {}", postId, albumId, userId);
-
         return albumMapper.toDto(album);
     }
 

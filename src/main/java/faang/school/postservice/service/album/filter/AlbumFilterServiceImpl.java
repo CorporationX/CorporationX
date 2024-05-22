@@ -17,11 +17,9 @@ public class AlbumFilterServiceImpl implements AlbumFilterService {
     @Override
     public Stream<Album> applyFilters(Stream<Album> albums, AlbumFilterDto filterDto) {
         if (filterDto != null) {
-            for (AlbumFilter filter : filters) {
-                if (filter.isAcceptable(filterDto)) {
-                    albums = filter.applyFilter(albums, filterDto);
-                }
-            }
+            albums = filters.stream()
+                    .filter(filter -> filter.isAcceptable(filterDto))
+                    .reduce(albums, (acc, filter) -> filter.applyFilter(acc, filterDto), (a, b) -> b);
         }
         return albums;
     }

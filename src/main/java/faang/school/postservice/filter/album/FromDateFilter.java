@@ -20,7 +20,11 @@ public class FromDateFilter implements AlbumFilter {
     @Override
     public Stream<Album> applyFilter(Stream<Album> albums, AlbumFilterDto albumFilterDto) {
         LocalDate fromDate = LocalDate.parse(albumFilterDto.getFromDate(), DateTimeFormatter.ISO_DATE);
-        return albums.filter(album -> album.getCreatedAt().toLocalDate().isAfter(ChronoLocalDate.from(fromDate))
-                                      || album.getCreatedAt().toLocalDate().isEqual(ChronoLocalDate.from(fromDate)));
+        return albums.filter(album -> isAfterOrEqual(album, fromDate));
+    }
+
+    private boolean isAfterOrEqual(Album album, LocalDate fromDate) {
+        LocalDate albumDate = album.getCreatedAt().toLocalDate();
+        return albumDate.isAfter(fromDate) || albumDate.isEqual(fromDate);
     }
 }

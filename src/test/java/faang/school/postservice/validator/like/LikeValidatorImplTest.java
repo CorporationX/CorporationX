@@ -6,8 +6,6 @@ import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.repository.CommentRepository;
-import faang.school.postservice.repository.PostRepository;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
@@ -21,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,10 +29,6 @@ import static org.mockito.Mockito.when;
 class LikeValidatorImplTest {
     @Mock
     private UserServiceClient userServiceClient;
-    @Mock
-    private CommentRepository commentRepository;
-    @Mock
-    private PostRepository postRepository;
     @InjectMocks
     private LikeValidatorImpl validator;
 
@@ -65,23 +58,9 @@ class LikeValidatorImplTest {
     }
 
     @Test
-    void validateCommentToLikeNotFoundComment() {
-        like.setComment(comment);
-
-        NotFoundException e = assertThrows(NotFoundException.class, () -> validator.validateCommentToLike(userId, comment));
-        assertEquals(
-                "comment with commentId:" + commentId + " not found",
-                e.getMessage()
-        );
-    }
-
-    @Test
     void validateCommentToLikeAlreadyLikedComment() {
-        like.setUserId(userId);
         comment.setLikes(List.of(like));
         like.setComment(comment);
-
-        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
         DataValidationException e = assertThrows(DataValidationException.class, () -> validator.validateCommentToLike(userId, comment));
         assertEquals(
@@ -94,28 +73,13 @@ class LikeValidatorImplTest {
     void validateCommentToLike() {
         like.setComment(comment);
 
-        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-
         assertDoesNotThrow(() -> validator.validateCommentToLike(userId, comment));
-    }
-
-    @Test
-    void validatePostToLikeNotFoundAndGetPost() {
-        like.setPost(post);
-
-        NotFoundException e = assertThrows(NotFoundException.class, () -> validator.validateAndGetPostToLike(userId, post));
-        assertEquals(
-                "post with postId:" + postId + " not found",
-                e.getMessage()
-        );
     }
 
     @Test
     void validatePostToLikeAlreadyLikedAndGetPost() {
         post.setLikes(List.of(like));
         like.setPost(post);
-
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
         DataValidationException e = assertThrows(DataValidationException.class, () -> validator.validateAndGetPostToLike(userId, post));
         assertEquals(
@@ -125,10 +89,8 @@ class LikeValidatorImplTest {
     }
 
     @Test
-    void validateAndGetPostToLike() {
+    void validatePostToLike() {
         like.setPost(post);
-
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
         assertDoesNotThrow(() -> validator.validateAndGetPostToLike(userId, post));
     }

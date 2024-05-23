@@ -1,32 +1,32 @@
 package faang.school.postservice.repository;
 
 import faang.school.postservice.model.Post;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface PostRepository extends CrudRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByAuthorId(long authorId);
 
     List<Post> findByProjectId(long projectId);
 
     @Query("""
-            SELECT p FROM Post p\
-            WHERE p.published = :published AND p.deleted = :deleted\
-            LEFT JOIN FETCH p.likes WHERE p.projectId = :projectId
+            SELECT p FROM Post p
+            LEFT JOIN FETCH p.likes
+            WHERE p.authorId = :authorId AND p.published = :published AND p.deleted = :deleted
             """)
-    List<Post> findByAuthorIdAndPublishedAndDeletedWithLikes(Long authorId, boolean published, boolean deleted);
+    List<Post> findByAuthorIdAndPublishedAndDeletedWithLikes(long authorId, boolean published, boolean deleted);
 
     @Query("""
-            SELECT p FROM Post p\
-            WHERE p.published = :published AND p.deleted = :deleted\
-            LEFT JOIN FETCH p.likes WHERE p.projectId = :projectId
+            SELECT p FROM Post p
+            LEFT JOIN FETCH p.likes
+            WHERE p.projectId = :projectId AND p.published = :published AND p.deleted = :deleted
             """)
-    List<Post> findByProjectIdAndPublishedAndDeletedWithLikes(Long projectId, boolean published, boolean deleted);
+    List<Post> findByProjectIdAndPublishedAndDeletedWithLikes(long projectId, boolean published, boolean deleted);
 
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.likes WHERE p.projectId = :projectId")
     List<Post> findByProjectIdWithLikes(long projectId);
@@ -36,4 +36,5 @@ public interface PostRepository extends CrudRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.published = false AND p.deleted = false AND p.scheduledAt <= CURRENT_TIMESTAMP")
     List<Post> findReadyToPublish();
+
 }

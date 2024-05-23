@@ -107,7 +107,7 @@ class PostServiceImplTest {
                 .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
                         .toList();
 
-        when(postRepository.findAllByAuthorIdAndPublishedAndDeleted(1L, false, false))
+        when(postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(1L, false, false))
                 .thenReturn(posts);
 
         List<PostDto> result = postServiceImpl.findPostDraftsByUserAuthorId(1L);
@@ -126,7 +126,7 @@ class PostServiceImplTest {
                 .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
                 .toList();
 
-        when(postRepository.findAllByProjectIdAndPublishedAndDeleted(1L, false, false))
+        when(postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(1L, false, false))
                 .thenReturn(posts);
 
         List<PostDto> result = postServiceImpl.findPostDraftsByProjectAuthorId(1L);
@@ -145,7 +145,7 @@ class PostServiceImplTest {
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
 
-        when(postRepository.findAllByAuthorIdAndPublishedAndDeleted(1L, true, false))
+        when(postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(1L, true, false))
                 .thenReturn(posts);
 
         List<PostDto> result = postServiceImpl.findPostPublicationsByUserAuthorId(1L);
@@ -164,7 +164,7 @@ class PostServiceImplTest {
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
 
-        when(postRepository.findAllByProjectIdAndPublishedAndDeleted(1L, true, false))
+        when(postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(1L, true, false))
                 .thenReturn(posts);
 
         List<PostDto> result = postServiceImpl.findPostPublicationsByProjectAuthorId(1L);

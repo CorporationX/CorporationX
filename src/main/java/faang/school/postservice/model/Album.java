@@ -70,6 +70,15 @@ public class Album {
     @Column(name = "selected_user_id", nullable = false)
     private List<Long> selectedUserIds = new ArrayList<>();
 
+    @Column(name = "visibility")
+    @Enumerated(EnumType.STRING)
+    private AlbumVisibility visibility;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "album_selected_users", joinColumns = @JoinColumn(name = "album_id"))
+    @Column(name = "selected_user_id", nullable = false)
+    private List<Long> selectedUserIds = new ArrayList<>();
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")

@@ -114,7 +114,8 @@ public class AlbumController {
     public List<AlbumDto> getAllAlbums(
             @ParameterObject @RequestBody(required = false) AlbumFilterDto filter) {
 
-        return albumService.getAllAlbums(filter);
+        long userId  = userContext.getUserId();
+        return albumService.getAllAlbums(userId, filter);
     }
 
     @Operation(summary = "Get album by ID")
@@ -126,7 +127,9 @@ public class AlbumController {
     @GetMapping("/album/{albumId}")
     @ResponseStatus(HttpStatus.OK)
     public AlbumDto getAlbumById(@PathVariable("albumId") long albumId) {
-        return albumService.getAlbumById(albumId);
+
+        long userId  = userContext.getUserId();
+        return albumService.getAlbumById(userId, albumId);
     }
 
     @Operation(summary = "Update an album")

@@ -10,12 +10,14 @@ import faang.school.postservice.repository.AlbumRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.album.filter.AlbumFilterService;
 import faang.school.postservice.validator.album.AlbumValidator;
+import faang.school.postservice.validator.user.UserValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,6 +49,9 @@ public class AlbumServiceImplTest {
     @Mock
     private AlbumFilterService albumFilterService;
 
+    @Mock
+    private UserValidator userValidator;
+
     @InjectMocks
     private AlbumServiceImpl albumService;
 
@@ -61,13 +67,16 @@ public class AlbumServiceImplTest {
 
         assertNotNull(result);
         verify(albumMapper, times(1)).toEntity(albumDto);
-        verify(albumValidator, times(1)).validateCreateAlbum(anyLong(), any(Album.class));
+        verify(userValidator, times(1)).validateUserExistence(anyLong());
+        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator, times(1)).validateAlbumTitleIsUnique(anyLong(), any());
         verify(albumRepository, times(1)).save(any(Album.class));
     }
 
     @Test
     void testAddPostToAlbum() {
         Album album = new Album();
+        album.setPosts(new ArrayList<>());
         Post post = new Post();
         AlbumDto albumDto = new AlbumDto();
 
@@ -80,7 +89,9 @@ public class AlbumServiceImplTest {
         assertNotNull(result);
         verify(albumRepository, times(1)).findById(anyLong());
         verify(postRepository, times(1)).findById(anyLong());
-        verify(albumValidator, times(1)).validateAddPostToAlbum(any(Album.class), anyLong(), anyLong());
+        verify(userValidator, times(1)).validateUserExistence(anyLong());
+        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator, times(1)).checkPostExistenceInAlbum(any(Album.class), anyLong());
         verify(albumRepository, times(1)).save(any(Album.class));
         verify(albumMapper, times(1)).toDto(any(Album.class));
     }
@@ -97,8 +108,9 @@ public class AlbumServiceImplTest {
 
         assertNotNull(result);
         verify(albumRepository, times(1)).findById(anyLong());
-        verify(albumValidator, times(1)).validateAddAlbumToFavorites(any(Album.class), anyLong());
-        verify(albumRepository, times(1)).addAlbumToFavorites(anyLong(), anyLong());
+        verify(userValidator, times(1)).validateUserExistence(anyLong());
+        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator, times(1)).validateAlbumExistence(any(Album.class), anyLong());
         verify(albumMapper, times(1)).toDto(any(Album.class));
     }
 
@@ -155,13 +167,15 @@ public class AlbumServiceImplTest {
         when(albumFilterService.applyFilters(any(), any(AlbumFilterDto.class)))
                 .thenReturn(albums.stream());
         when(albumMapper.toDto(any(Album.class))).thenReturn(albumDto);
+        when(albumValidator.validateAccess(any(Album.class), anyLong())).thenReturn(true);
 
-        List<AlbumDto> result = albumService.getAllAlbums(filter);
+        List<AlbumDto> result = albumService.getAllAlbums(1L, filter);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         verify(albumRepository, times(1)).findAll();
         verify(albumFilterService, times(1)).applyFilters(any(), any(AlbumFilterDto.class));
+        verify(albumValidator, times(1)).validateAccess(any(Album.class), eq(1L));
         verify(albumMapper, times(1)).toDto(any(Album.class));
     }
 
@@ -173,10 +187,12 @@ public class AlbumServiceImplTest {
         when(albumRepository.findById(anyLong())).thenReturn(Optional.of(album));
         when(albumMapper.toDto(any(Album.class))).thenReturn(albumDto);
 
-        AlbumDto result = albumService.getAlbumById(1L);
+        AlbumDto result = albumService.getAlbumById(2L, 1L);
 
         assertNotNull(result);
         verify(albumRepository, times(1)).findById(anyLong());
+        verify(userValidator, times(1)).validateUserExistence(anyLong());
+        verify(albumValidator, times(1)).validateAccess(any(Album.class), eq(2L));
         verify(albumMapper, times(1)).toDto(any(Album.class));
     }
 
@@ -193,7 +209,9 @@ public class AlbumServiceImplTest {
 
         assertNotNull(result);
         verify(albumRepository, times(1)).findById(anyLong());
-        verify(albumValidator, times(1)).validateUpdateAlbum(any(Album.class), anyLong(), any(AlbumDto.class));
+        verify(userValidator, times(1)).validateUserExistence(anyLong());
+        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator, times(1)).validateAlbumTitleIsUnique(anyLong(), any());
         verify(albumMapper, times(1)).toDto(any(Album.class));
         verify(albumMapper, times(1)).update(any(AlbumDto.class), any(Album.class));
         verify(albumRepository, times(1)).save(any(Album.class));
@@ -211,7 +229,8 @@ public class AlbumServiceImplTest {
 
         assertNotNull(result);
         verify(albumRepository, times(1)).findById(anyLong());
-        verify(albumValidator, times(1)).validateDeleteAlbum(any(Album.class), anyLong());
+        verify(userValidator, times(1)).validateUserExistence(anyLong());
+        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
         verify(albumRepository, times(1)).deleteById(anyLong());
         verify(albumMapper, times(1)).toDto(any(Album.class));
     }
@@ -228,7 +247,9 @@ public class AlbumServiceImplTest {
 
         assertNotNull(result);
         verify(albumRepository, times(1)).findById(anyLong());
-        verify(albumValidator, times(1)).validateRemoveAlbumFromFavorite(any(Album.class), anyLong());
+        verify(userValidator, times(1)).validateUserExistence(anyLong());
+        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator, times(1)).validateAlbumExistence(any(Album.class), anyLong());
         verify(albumRepository, times(1)).deleteAlbumFromFavorites(anyLong(), anyLong());
         verify(albumMapper, times(1)).toDto(any(Album.class));
     }
@@ -236,6 +257,7 @@ public class AlbumServiceImplTest {
     @Test
     void testRemovePostFromAlbum() {
         Album album = new Album();
+        album.setPosts(new ArrayList<>());
         AlbumDto albumDto = new AlbumDto();
 
         when(albumRepository.findById(anyLong())).thenReturn(Optional.of(album));
@@ -245,7 +267,9 @@ public class AlbumServiceImplTest {
 
         assertNotNull(result);
         verify(albumRepository, times(1)).findById(anyLong());
-        verify(albumValidator, times(1)).validateRemovePostFromAlbum(any(Album.class), anyLong(), anyLong());
+        verify(userValidator, times(1)).validateUserExistence(anyLong());
+        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator, times(1)).checkPostExistenceInAlbum(any(Album.class), anyLong());
         verify(albumRepository, times(1)).save(any(Album.class));
         verify(albumMapper, times(1)).toDto(any(Album.class));
     }

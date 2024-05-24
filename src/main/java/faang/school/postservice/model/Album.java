@@ -24,7 +24,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -50,7 +49,7 @@ public class Album {
 
     @ManyToMany
     @JoinTable(name = "post_album", joinColumns = @JoinColumn(name = "album_id"), inverseJoinColumns = @JoinColumn(name = "post_id"))
-    private List<Post> posts = new ArrayList<>();
+    private List<Post> posts;
 
     @Column(name = "visibility", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -59,7 +58,7 @@ public class Album {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "album_selected_users", joinColumns = @JoinColumn(name = "album_id"))
     @Column(name = "selected_user_id", nullable = false)
-    private List<Long> selectedUserIds = new ArrayList<>();
+    private List<Long> selectedUserIds;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

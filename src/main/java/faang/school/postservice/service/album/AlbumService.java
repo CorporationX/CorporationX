@@ -16,9 +16,9 @@ public interface AlbumService {
 
     List<AlbumDto> getAllUserFavoriteAlbums(long userId, AlbumFilterDto filters);
 
-    List<AlbumDto> getAllAlbums(AlbumFilterDto filters);
+    List<AlbumDto> getAllAlbums(long userId, AlbumFilterDto filters);
 
-    AlbumDto getAlbumById(long albumId);
+    AlbumDto getAlbumById(long userId, long albumId);
 
     AlbumDto updateAlbum(long albumId, long userId, AlbumDto albumDto);
 

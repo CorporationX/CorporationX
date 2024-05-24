@@ -45,9 +45,46 @@ payment-service:
 aws:
   accessKey: access_key
   secretKey: secret_key
+  bucket-name: backet_name
   region: bucket_region
 
 services:
   s3:
-    bucket-name: user_backet
+    bucket-name: user_bucket
     isMocked: true
+
+diceBear-picture-service:
+  styles:
+    adventurer,
+    adventurer-neutral,
+    avataaars,
+    avataaars-neutral,
+    big-ears,
+    big-ears-neutral,
+    big-smile,
+    bottts,
+    bottts-neutral,
+    croodles,
+    croodles-neutral,
+    fun-emoji,
+    icons,
+    identicon,
+    initials,
+    lorelei,
+    lorelei-neutral,
+    micah,
+    miniavs,
+    notionists,
+    notionists-neutral,
+    open-peeps,
+    personas,
+    pixel-art,
+    pixel-art-neutral,
+    shapes,
+    thumbs
+  diceBear-url: https://api.dicebear.com/8.x/
+  extensions:
+    original: .svg
+    decreased: _small.jpeg
+  file-width: 180
+  file-height: 180

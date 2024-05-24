@@ -15,18 +15,18 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     List<Post> findByProjectId(long projectId);
 
     @Query("""
-            SELECT p FROM Post p\
-            WHERE p.published = :published AND p.deleted = :deleted\
-            LEFT JOIN FETCH p.likes WHERE p.projectId = :projectId
+            SELECT p FROM Post p
+            LEFT JOIN FETCH p.likes
+            WHERE p.authorId = :authorId AND p.published = :published AND p.deleted = :deleted
             """)
-    List<Post> findByAuthorIdAndPublishedAndDeletedWithLikes(Long authorId, boolean published, boolean deleted);
+    List<Post> findByAuthorIdAndPublishedAndDeletedWithLikes(long authorId, boolean published, boolean deleted);
 
     @Query("""
-            SELECT p FROM Post p\
-            WHERE p.published = :published AND p.deleted = :deleted\
-            LEFT JOIN FETCH p.likes WHERE p.projectId = :projectId
+            SELECT p FROM Post p
+            LEFT JOIN FETCH p.likes
+            WHERE p.projectId = :projectId AND p.published = :published AND p.deleted = :deleted
             """)
-    List<Post> findByProjectIdAndPublishedAndDeletedWithLikes(Long projectId, boolean published, boolean deleted);
+    List<Post> findByProjectIdAndPublishedAndDeletedWithLikes(long projectId, boolean published, boolean deleted);
 
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.likes WHERE p.projectId = :projectId")
     List<Post> findByProjectIdWithLikes(long projectId);

@@ -52,25 +52,7 @@ public class Album {
     @JoinTable(name = "post_album", joinColumns = @JoinColumn(name = "album_id"), inverseJoinColumns = @JoinColumn(name = "post_id"))
     private List<Post> posts = new ArrayList<>();
 
-    @Column(name = "visibility")
-    @Enumerated(EnumType.STRING)
-    private AlbumVisibility visibility;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "album_selected_users", joinColumns = @JoinColumn(name = "album_id"))
-    @Column(name = "selected_user_id", nullable = false)
-    private List<Long> selectedUserIds = new ArrayList<>();
-
-    @Column(name = "visibility")
-    @Enumerated(EnumType.STRING)
-    private AlbumVisibility visibility;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "album_selected_users", joinColumns = @JoinColumn(name = "album_id"))
-    @Column(name = "selected_user_id", nullable = false)
-    private List<Long> selectedUserIds = new ArrayList<>();
-
-    @Column(name = "visibility")
+    @Column(name = "visibility", nullable = false)
     @Enumerated(EnumType.STRING)
     private AlbumVisibility visibility;
 

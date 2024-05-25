@@ -2,6 +2,8 @@ package faang.school.postservice.controller.Comment;
 
 import faang.school.postservice.config.context.UserContext;
 import faang.school.postservice.dto.comment.CommentDto;
+import faang.school.postservice.dto.comment.CommentToCreateDto;
+import faang.school.postservice.dto.comment.CommentToUpdateDto;
 import faang.school.postservice.service.comment.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,10 +39,10 @@ public class CommentController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = CommentDto.class))})
     })
-    @PostMapping("/new/post/{postId}")
+    @PostMapping("/post/{postId}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommentDto createComment(@PathVariable("postId") long postId,
-                                    @RequestBody @Valid CommentDto commentDto) {
+                                    @RequestBody @Valid CommentToCreateDto commentDto) {
         long userId = userContext.getUserId();
         return commentService.createComment(postId, userId, commentDto);
     }
@@ -51,7 +53,7 @@ public class CommentController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = CommentDto.class))})
     })
-    @GetMapping("/all/post/{postId}")
+    @GetMapping("/post/{postId}")
     @ResponseStatus(HttpStatus.OK)
     public List<CommentDto> getAllPostComments(@PathVariable("postId") long postId) {
         return commentService.getAllPostComments(postId);
@@ -66,7 +68,7 @@ public class CommentController {
     @PutMapping("/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public CommentDto updateComment(@PathVariable("commentId") long commentId,
-                                    @RequestBody @Valid CommentDto commentDto) {
+                                    @RequestBody @Valid CommentToUpdateDto commentDto) {
         long userId = userContext.getUserId();
         return commentService.updateComment(commentId, userId, commentDto);
     }

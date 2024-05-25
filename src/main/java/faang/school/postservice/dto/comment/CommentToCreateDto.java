@@ -16,16 +16,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class CommentDto {
+public class CommentToCreateDto {
 
+    @NotNull(message = "Content cannot be null")
+    @NotBlank(message = "Content cannot be blank")
+    @Size(max = 4096, message = "Content cannot exceed 4096 characters")
     private String content;
-    private long authorId;
-    private long likesCount;
     private long postId;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

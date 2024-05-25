@@ -1,6 +1,8 @@
 package faang.school.postservice.service.comment;
 
 import faang.school.postservice.dto.comment.CommentDto;
+import faang.school.postservice.dto.comment.CommentToCreateDto;
+import faang.school.postservice.dto.comment.CommentToUpdateDto;
 import faang.school.postservice.mapper.comment.CommentMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Post;
@@ -28,7 +30,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommonServiceMethods commonServiceMethods;
 
     @Override
-    public CommentDto createComment(long postId, long userId, CommentDto commentDto) {
+    public CommentDto createComment(long postId, long userId, CommentToCreateDto commentDto) {
 
         Post post = commonServiceMethods.findEntityById(postRepository, postId, "Post");
         Comment comment = commentMapper.toEntity(commentDto);
@@ -39,7 +41,7 @@ public class CommentServiceImpl implements CommentService {
 
         commentRepository.save(comment);
         log.info("Created comment on post {} authored by {}", postId, userId);
-        return commentDto;
+        return commentMapper.toDto(comment);
     }
 
     @Override
@@ -53,7 +55,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto updateComment(long commentId, long userId, CommentDto updatedCommentDto) {
+    public CommentDto updateComment(long commentId, long userId, CommentToUpdateDto updatedCommentDto) {
 
         Comment commentToUpdate = commonServiceMethods.findEntityById(commentRepository, commentId, "Comment");
 
@@ -61,7 +63,8 @@ public class CommentServiceImpl implements CommentService {
 
         commentMapper.update(updatedCommentDto, commentToUpdate);
         log.info("Updated comment {} on post {} authored by {}", commentId, commentToUpdate.getPost().getId(), userId);
-        return commentMapper.toDto(commentRepository.save(commentToUpdate));
+        commentRepository.save(commentToUpdate);
+        return commentMapper.toDto(commentToUpdate);
     }
 
     @Override

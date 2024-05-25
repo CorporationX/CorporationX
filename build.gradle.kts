@@ -32,6 +32,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    implementation("com.amazonaws:aws-java-sdk:1.12.726")
 
     /**
      * Utils & Logging

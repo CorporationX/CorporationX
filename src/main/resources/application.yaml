@@ -42,6 +42,8 @@ post:
   ad-remover:
     scheduler:
       cron: "0 0/1 * 1/1 * ?" # every minute
+    threads-count: 20
+    max-list-size: 100
 
 user-service:
   host: localhost

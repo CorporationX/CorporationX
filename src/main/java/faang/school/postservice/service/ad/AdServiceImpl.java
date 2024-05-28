@@ -17,7 +17,7 @@ public class AdServiceImpl implements AdService {
     private final AdRepository adRepository;
 
     @Override
-    @Async("addRemoverExecutorService")
+    @Async("adRemoverExecutorService")
     @Transactional
     public void deleteAds(List<Long> adIds) {
         adRepository.deleteAllById(adIds);

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.service.user.UserService;
 
 @Controller
@@ -15,9 +15,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/")
-    public UserDto createUser(@RequestBody UserDto userDto) {
+    public UserDTO createUser(@RequestBody UserDTO userDto) {
         userService.createUser(userDto);
-        return UserDto.builder()
+        return UserDTO.builder()
                 .id(userDto.getId())
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())

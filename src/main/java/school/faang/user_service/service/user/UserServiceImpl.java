@@ -2,9 +2,9 @@ package school.faang.user_service.service.user;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.mentorship.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.profile_picture.ProfilePictureService;
 
@@ -26,9 +26,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public UserDTO createUser(UserDTO userDto) {
         User user = userMapper.toEntity(userDto);
         profilePictureService.assignPictureToUser(user);
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toDTO(userRepository.save(user));
     }
 }

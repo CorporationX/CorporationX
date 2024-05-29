@@ -38,7 +38,7 @@ public class SubscriptionService {
                 .filter(user -> userMatchByFilterChecker.isUserMatchFiltration(user, filter))
                 .skip((long) (filter.getPage() - 1) * filter.getPageSize())
                 .limit(filter.getPageSize())
-                .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail()))
+                .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPassword()))
                 .collect(Collectors.toList());
     }
 
@@ -51,7 +51,7 @@ public class SubscriptionService {
                 .filter(user -> userMatchByFilterChecker.isUserMatchFiltration(user, filter))
                 .skip((long) (filter.getPage() - 1) * filter.getPageSize())
                 .limit(filter.getPageSize())
-                .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail()))
+                .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPassword()))
                 .collect(Collectors.toList());
     }
 

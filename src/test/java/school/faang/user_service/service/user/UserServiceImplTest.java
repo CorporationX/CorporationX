@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.mentorship.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.profile_picture.ProfilePictureService;
 
@@ -32,13 +32,13 @@ class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userService;
     private User user;
-    private UserDto userDto;
+    private UserDTO userDto;
 
     @BeforeEach
     public void setUp() {
         user = new User();
         user.setId(USER_ID);
-        userDto = new UserDto();
+        userDto = new UserDTO();
         userDto.setId(USER_ID);
     }
 
@@ -58,9 +58,9 @@ class UserServiceImplTest {
     @Test
     public void whenCreateUserThenGetUserDto() {
         when(userMapper.toEntity(any())).thenReturn(user);
-        when(userMapper.toDto(any())).thenReturn(userDto);
+        when(userMapper.toDTO(any())).thenReturn(userDto);
         when(userRepository.save(any())).thenReturn(user);
-        UserDto actual = userService.createUser(userDto);
+        UserDTO actual = userService.createUser(userDto);
         assertThat(actual).isEqualTo(userDto);
     }
 }

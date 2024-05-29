@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changeset/post_V003__album.sql
   - include:
       file: db/changelog/changeset/post_V004__resource.sql
+  - include:
+      file: db/changelog/changeset/post_V003__hashtag.sql

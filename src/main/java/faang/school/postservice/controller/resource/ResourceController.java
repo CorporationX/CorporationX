@@ -1,5 +1,6 @@
 package faang.school.postservice.controller.resource;
 
+import faang.school.postservice.config.context.UserContext;
 import faang.school.postservice.dto.resource.ResourceDto;
 import faang.school.postservice.service.resource.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ResourceController {
 
     private final ResourceService resourceService;
+    private final UserContext userContext;
 
     @Operation(summary = "Save resource")
     @PostMapping("upload/{postId}")
@@ -25,7 +27,7 @@ public class ResourceController {
             @PathVariable Long postId,
             @RequestPart List<MultipartFile> files
     ) {
-        return resourceService.create(postId, files);
+        return resourceService.create(postId, userContext.getUserId(), files);
     }
 
     @Operation(summary = "Download resource")
@@ -37,6 +39,6 @@ public class ResourceController {
     @Operation(summary = "Delete resource")
     @DeleteMapping("{key}")
     public void deleteFile(@PathVariable String key) {
-        resourceService.deleteFile(key);
+        resourceService.deleteFile(key, userContext.getUserId());
     }
 }

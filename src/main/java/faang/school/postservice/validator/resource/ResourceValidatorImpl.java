@@ -1,5 +1,6 @@
 package faang.school.postservice.validator.resource;
 
+import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.exception.DataValidationException;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.property.AmazonS3Properties;
@@ -15,7 +16,6 @@ public class ResourceValidatorImpl implements ResourceValidator {
     private final ResourceRepository resourceRepository;
     private final AmazonS3Properties amazonS3Properties;
 
-
     @Override
     @Transactional
     public void validateCountFilesPerPost(Long postId, int filesToAdd) {
@@ -29,6 +29,13 @@ public class ResourceValidatorImpl implements ResourceValidator {
     public void validateExistenceByKey(String key) {
         if (!resourceRepository.existsByKey(key)) {
             throw new NotFoundException(String.format("Resource with key $s not found", key));
+        }
+    }
+
+    @Override
+    public void validatePostAuthorAndResourceAuthor(Long postAuthorId, Long postProjectId, Long resourceUserId) {
+        if (!postAuthorId.equals(resourceUserId) && !postProjectId.equals(resourceUserId)) {
+            throw new NotFoundException("Mismatch postAuthorIdId and resourceUserId");
         }
     }
 }

@@ -44,9 +44,10 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     @Transactional
-    public List<ResourceDto> create(Long postId, List<MultipartFile> files) {
+    public List<ResourceDto> create(Long postId, Long userId, List<MultipartFile> files) {
 
         Post post = postService.findById(postId);
+        resourceValidator.validatePostAuthorAndResourceAuthor(post.getAuthorId(), post.getProjectId(), userId);
         resourceValidator.validateCountFilesPerPost(postId, files.size());
 
         try(ExecutorService executorService = Executors.newFixedThreadPool(files.size())) {
@@ -72,11 +73,13 @@ public class ResourceServiceImpl implements ResourceService {
                 savedResources.add(resourceRepository.save(resourceToSave));
             });
 
+            log.info("Successfully create resource");
             return savedResources.stream()
                     .map(resourceMapper::toDto)
                     .toList();
 
         } catch (AmazonS3Exception ex) {
+            log.error(ex.getMessage());
             throw new S3Exception(ex.getMessage());
         }
     }
@@ -89,9 +92,16 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     @Transactional
-    public void deleteFile(String key) {
+    public void deleteFile(String key, Long userId) {
+        Resource resourceToRemove = resourceRepository.findByKey(key);
+        Post post = resourceToRemove.getPost();
+
+        resourceValidator.validatePostAuthorAndResourceAuthor(post.getAuthorId(), post.getProjectId(), userId);
         resourceValidator.validateExistenceByKey(key);
+
         resourceRepository.deleteByKey(key);
         amazonS3Service.deleteFile(key);
+
+        log.error("Successfully delete file from resources");
     }
 }

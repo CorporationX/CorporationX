@@ -30,7 +30,9 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             amazonS3.putObject(amazonS3Properties.getBucketName(), key, file.getInputStream(), metadata);
+            log.info("Successfully upload file");
         } catch (IOException e) {
+            log.error("Cant upload file to s3 storage");
             throw new S3Exception("Cant upload file to s3 storage");
         }
 
@@ -45,6 +47,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
     @Override
     public void deleteFile(String key) {
         amazonS3.deleteObject(amazonS3Properties.getBucketName(), key);
+        log.info("Successfully delete file");
     }
 
     private String generateUniqueKey() {

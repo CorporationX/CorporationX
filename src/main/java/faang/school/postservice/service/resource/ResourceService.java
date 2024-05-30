@@ -11,9 +11,9 @@ public interface ResourceService {
 
     Resource findById(Long id);
 
-    List<ResourceDto> create(Long postId, List<MultipartFile> files);
+    List<ResourceDto> create(Long postId, Long userId, List<MultipartFile> files);
 
     InputStream downloadResource(String key);
 
-    void deleteFile(String key);
+    void deleteFile(String key, Long userId);
 }

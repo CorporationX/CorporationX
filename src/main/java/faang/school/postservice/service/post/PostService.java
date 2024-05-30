@@ -26,4 +26,6 @@ public interface PostService {
     List<PostDto> findPostPublicationsByUserAuthorId(Long id);
 
     List<PostDto> findPostPublicationsByProjectAuthorId(Long id);
+
+    void verifyPost(List<Post> posts);
 }

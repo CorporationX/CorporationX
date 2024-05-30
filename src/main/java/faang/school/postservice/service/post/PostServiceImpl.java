@@ -96,4 +96,9 @@ public class PostServiceImpl implements PostService {
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
     }
+
+    @Override
+    public void verifyPost(List<Post> posts) {
+        posts
+    }
 }

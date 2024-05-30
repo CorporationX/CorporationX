@@ -1,6 +1,8 @@
 package school.faang.user_service.service.user;
 
-import school.faang.user_service.dto.UserDTO;
+import school.faang.user_service.dto.UserDto;
+
+import java.util.List;
 
 public interface UserService {
     boolean existsById(long skillId);
@@ -8,4 +10,5 @@ public interface UserService {
     void deactivateUser(long userId);
     UserDTO findById(long userId);
     UserDTO update(UserDTO userDto);
+    List<UserDTO> findAll();
 }

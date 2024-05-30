@@ -16,6 +16,7 @@ public class UserDTO {
     private String username;
     private String email;
     private String password;
+    private List<Long> participatedEventIds;
     private List<Long> mentorIds;
     private List<Long> menteeIds;
     private List<Long> goalIds;

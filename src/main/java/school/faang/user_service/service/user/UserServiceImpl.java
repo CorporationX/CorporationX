@@ -15,6 +15,7 @@ import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.profile_picture.ProfilePictureService;
 
+import java.util.List;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,6 +48,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO findById(long userId) {
         return userMapper.toDTO(findUserById(userId));
+    }
+
+    @Override
+    public List<UserDto> findAll() {
+        List<User> users = userRepository.findAll();
+        return userMapper.toDtoList(users);
     }
 
     @Override

@@ -65,7 +65,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    public void whenUserExistsByIdThenNoException() {
+    public void whenUserExistsByIdThenReturnTrue() {
         when(userRepository.existsById(USER_ID)).thenReturn(true);
         assertThat(userService.existsById(USER_ID)).isTrue();
     }
@@ -92,6 +92,14 @@ class UserServiceImplTest {
         when(userMapper.toDTO(user)).thenReturn(userDto);
         UserDTO actual = userService.findById(USER_ID);
         assertThat(actual).isEqualTo(userDto);
+    }
+
+    Test
+    public void whenFindAllThenGetListOfUserDTO() {
+        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(userMapper.toDTOList(any())).thenReturn(List.of(userDto));
+        List<UserDTO> actual = userService.findAll();
+        assertThat(actual).isEqualTo(List.of(userDto));
     }
 
     @Test

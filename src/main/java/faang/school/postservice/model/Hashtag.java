@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "hashtag", indexes = {
-        @Index(name = "idx_hashtag_hashtag_unq", columnList = "hashtag", unique = true)
+        @Index(name = "idx_hashtag_hashtag", columnList = "hashtag")
 })
 public class Hashtag {
 

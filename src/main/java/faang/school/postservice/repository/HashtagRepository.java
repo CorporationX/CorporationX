@@ -7,5 +7,9 @@ import java.util.List;
 
 public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
 
-    List<Hashtag> findByHashtag(String hashtag);
+    void deleteByHashtagAndPostId(String hashtag, long postId);
+
+    List<Hashtag> findAllByHashtag(String hashtag);
+
+    List<Hashtag> findAllByPostId(long postId);
 }

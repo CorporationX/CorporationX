@@ -1,61 +1,87 @@
 package faang.school.postservice.service.hashtag;
 
-import faang.school.postservice.dto.hashtag.HashtagDto;
 import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.mapper.HashtagMapper;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Hashtag;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.HashtagRepository;
-import faang.school.postservice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class HashtagServiceImpl implements HashtagService {
 
     private final HashtagRepository hashtagRepository;
-    private final PostRepository postRepository;
-    private final HashtagMapper hashtagMapper;
     private final PostMapper postMapper;
 
-    @Override
-    public String[] getHashtags(String content) {
+    public Set<String> getHashtags(String content) {
+
         String[] words = content.split(" ");
-        return Arrays.stream(words).filter(word -> word.startsWith("#")).toArray(String[]::new);
+
+        return Arrays.stream(words)
+                .filter(word -> word.startsWith("#") && word.length() > 1)
+                .map(word -> word.substring(1))
+                .collect(Collectors.toSet());
     }
 
-    @Override
+    @Transactional(readOnly = true)
     public List<PostDto> getPostsByHashtag(String hashtag) {
-        return hashtagRepository.findByHashtag(hashtag).stream()
+
+        return hashtagRepository.findAllByHashtag(hashtag).stream()
                 .map(Hashtag::getPost)
                 .map(postMapper::toDto)
                 .toList();
     }
 
-    @Override
-    public List<HashtagDto> addHashTag(Post post) {
+    @Transactional
+    public void addHashtags(Post post) {
+        Set<String> hashtags = getHashtags(post.getContent());
+        hashtags.forEach(hashtag -> addHashtag(hashtag, post));
+    }
 
-        String[] hashtags = getHashtags(post.getContent());
-        List<HashtagDto> hashtagDtos = new ArrayList<>();
+    @Transactional
+    public void deleteHashtags(Post post) {
+        Set<String> hashtags = getHashtags(post.getContent());
+        hashtags.forEach(hashtag -> deleteHashtag(hashtag, post));
+    }
 
-        for (String hashtag : hashtags) {
+    @Transactional
+    public void updateHashtags(Post post) {
+        Set<String> hashtags = getHashtags(post.getContent());
+        List<Hashtag> entities = hashtagRepository.findAllByPostId(post.getId());
 
-            Hashtag entity = Hashtag.builder()
-                    .hashtag(hashtag)
-                    .post(post)
-                    .build();
+        entities.forEach(hashtag -> {
+            if (!hashtags.contains(hashtag.getHashtag())) {
+                deleteHashtag(hashtag.getHashtag(), post);
+            } else {
+                hashtags.remove(hashtag.getHashtag());
+            }
+        });
 
-            entity = hashtagRepository.save(entity);
+        hashtags.forEach(hashtag -> addHashtag(hashtag, post));
+    }
 
-            hashtagDtos.add(hashtagMapper.toDto(entity));
-        }
+    public void addHashtag(String hashtag, Post post) {
+        Hashtag entity = Hashtag.builder()
+                .hashtag(hashtag)
+                .post(post)
+                .build();
 
-        return hashtagDtos;
+        try {
+            hashtagRepository.save(entity);
+        } catch (DataIntegrityViolationException | JpaSystemException ignored) {}
+    }
+
+    public void deleteHashtag(String hashtag, Post post) {
+        hashtagRepository.deleteByHashtagAndPostId(hashtag, post.getId());
     }
 }

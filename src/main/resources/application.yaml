@@ -30,7 +30,7 @@ spring:
       max-file-size: 5MB
 
   profiles:
-    active: test
+    active: none
 
 server:
   port: 8081

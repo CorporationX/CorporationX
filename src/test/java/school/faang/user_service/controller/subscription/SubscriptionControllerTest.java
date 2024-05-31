@@ -84,7 +84,7 @@ class SubscriptionControllerTest {
     void testGetFollowers() {
 
         when(subscriptionService.getFollowers(anyLong(), any(UserFilterDTO.class)))
-                .thenReturn(List.of(new UserDTO(1L, "user1", "user1@example.com")));
+                .thenReturn(List.of(new UserDTO(1L, "user1", "user1@example.com","password")));
 
         SubscriptionController subscriptionController = new SubscriptionController(subscriptionService);
 
@@ -96,6 +96,7 @@ class SubscriptionControllerTest {
         assertEquals(1, result.size());
         assertEquals("user1", result.get(0).getUsername());
         assertEquals("user1@example.com", result.get(0).getEmail());
+        assertEquals("password", result.get(0).getPassword());
 
         verify(subscriptionService).getFollowers(456L, filter);
     }
@@ -104,7 +105,7 @@ class SubscriptionControllerTest {
     void testGetFollowing() {
 
         when(subscriptionService.getFollowing(anyLong(), any(UserFilterDTO.class)))
-                .thenReturn(List.of(new UserDTO(1L, "user1", "user1@example.com")));
+                .thenReturn(List.of(new UserDTO(1L, "user1", "user1@example.com", "password")));
 
         SubscriptionController subscriptionController = new SubscriptionController(subscriptionService);
 
@@ -116,6 +117,7 @@ class SubscriptionControllerTest {
         assertEquals(1, result.size());
         assertEquals("user1", result.get(0).getUsername());
         assertEquals("user1@example.com", result.get(0).getEmail());
+        assertEquals("password", result.get(0).getPassword());
 
         verify(subscriptionService).getFollowing(123L, filter);
     }

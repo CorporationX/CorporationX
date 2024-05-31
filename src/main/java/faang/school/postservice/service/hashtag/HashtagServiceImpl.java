@@ -59,11 +59,11 @@ public class HashtagServiceImpl implements HashtagService {
         Set<String> hashtags = getHashtags(post.getContent());
         List<Hashtag> entities = hashtagRepository.findAllByPostId(post.getId());
 
-        entities.forEach(hashtag -> {
-            if (!hashtags.contains(hashtag.getHashtag())) {
-                deleteHashtag(hashtag.getHashtag(), post);
+        entities.forEach(entity -> {
+            if (!hashtags.contains(entity.getHashtag())) {
+                deleteHashtag(entity.getHashtag(), post);
             } else {
-                hashtags.remove(hashtag.getHashtag());
+                hashtags.remove(entity.getHashtag());
             }
         });
 

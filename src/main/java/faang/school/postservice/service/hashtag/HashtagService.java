@@ -17,8 +17,4 @@ public interface HashtagService {
     void deleteHashtags(Post post);
 
     void updateHashtags(Post post);
-
-    void addHashtag(String hashtag, Post post);
-
-    void deleteHashtag(String hashtag, Post post);
 }

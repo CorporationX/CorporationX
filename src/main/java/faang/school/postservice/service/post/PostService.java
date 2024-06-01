@@ -19,6 +19,8 @@ public interface PostService {
 
     void deleteById(Long id);
 
+    List<PostDto> findAllByHashtag(String hashtag);
+
     List<PostDto> findPostDraftsByUserAuthorId(Long id);
 
     List<PostDto> findPostDraftsByProjectAuthorId(Long id);

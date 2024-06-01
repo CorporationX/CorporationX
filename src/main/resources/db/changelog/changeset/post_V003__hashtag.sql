@@ -7,4 +7,4 @@ CREATE TABLE hashtag (
     CONSTRAINT fk_hashtag_post FOREIGN KEY (post_id) REFERENCES post (id)
 );
 
-CREATE UNIQUE INDEX idx_hashtag_hashtag_unq ON hashtag (hashtag);
+CREATE INDEX idx_hashtag_hashtag ON hashtag (hashtag);

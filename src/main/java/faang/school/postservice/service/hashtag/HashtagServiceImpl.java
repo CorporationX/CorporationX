@@ -6,8 +6,6 @@ import faang.school.postservice.model.Hashtag;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.HashtagRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +21,7 @@ public class HashtagServiceImpl implements HashtagService {
     private final HashtagRepository hashtagRepository;
     private final PostMapper postMapper;
 
+    @Override
     public Set<String> getHashtags(String content) {
 
         String[] words = content.split(" ");
@@ -33,6 +32,7 @@ public class HashtagServiceImpl implements HashtagService {
                 .collect(Collectors.toSet());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<PostDto> getPostsByHashtag(String hashtag) {
 
@@ -42,18 +42,21 @@ public class HashtagServiceImpl implements HashtagService {
                 .toList();
     }
 
+    @Override
     @Transactional
     public void addHashtags(Post post) {
         Set<String> hashtags = getHashtags(post.getContent());
         hashtags.forEach(hashtag -> addHashtag(hashtag, post));
     }
 
+    @Override
     @Transactional
     public void deleteHashtags(Post post) {
         Set<String> hashtags = getHashtags(post.getContent());
         hashtags.forEach(hashtag -> deleteHashtag(hashtag, post));
     }
 
+    @Override
     @Transactional
     public void updateHashtags(Post post) {
         Set<String> hashtags = getHashtags(post.getContent());
@@ -70,18 +73,16 @@ public class HashtagServiceImpl implements HashtagService {
         hashtags.forEach(hashtag -> addHashtag(hashtag, post));
     }
 
-    public void addHashtag(String hashtag, Post post) {
+    private void addHashtag(String hashtag, Post post) {
         Hashtag entity = Hashtag.builder()
                 .hashtag(hashtag)
                 .post(post)
                 .build();
 
-        try {
-            hashtagRepository.save(entity);
-        } catch (DataIntegrityViolationException | JpaSystemException ignored) {}
+        hashtagRepository.save(entity);
     }
 
-    public void deleteHashtag(String hashtag, Post post) {
+    private void deleteHashtag(String hashtag, Post post) {
         hashtagRepository.deleteByHashtagAndPostId(hashtag, post.getId());
     }
 }

@@ -56,6 +56,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDto update(Long id, PostUpdateDto postUpdateDto) {
         Post post = findById(id);
         postValidator.validatePostContent(post.getContent());
@@ -68,12 +69,18 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         Post post = findById(id);
         post.setDeleted(true);
         postRepository.save(post);
 
         hashtagService.deleteHashtags(post);
+    }
+
+    @Override
+    public List<PostDto> findAllByHashtag(String hashtag) {
+        return hashtagService.getPostsByHashtag(hashtag);
     }
 
     @Override

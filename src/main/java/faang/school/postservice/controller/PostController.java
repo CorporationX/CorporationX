@@ -66,4 +66,9 @@ public class PostController {
     public List<PostDto> findAllPostPublicationByProjectId(@PathVariable Long projectId) {
         return postService.findPostPublicationsByProjectAuthorId(projectId);
     }
+
+    @GetMapping("hashtag/{hashtag}")
+    public List<PostDto> getAllByHashtag(@PathVariable String hashtag) {
+        return postService.findAllByHashtag(hashtag);
+    }
 }

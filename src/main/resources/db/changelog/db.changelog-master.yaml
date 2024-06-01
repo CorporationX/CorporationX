@@ -4,3 +4,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/post_V002__ad.sql
   - include:
+      file: db/changelog/changeset/post_V003__add_column_in_post_table.sql

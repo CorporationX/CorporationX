@@ -23,6 +23,7 @@ public class ScheduledExpiredAdRemover {
 
     @Scheduled(cron = "${post.ad-remover.scheduler.cron}")
     public void deleteExpiredAdsScheduled() {
+
         List<Long> adsToDelete = adRepository.findAllExpiredIds();
 
         if (adsToDelete.isEmpty()) {

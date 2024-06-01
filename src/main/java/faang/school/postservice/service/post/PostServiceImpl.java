@@ -1,5 +1,6 @@
 package faang.school.postservice.service.post;
 
+import faang.school.postservice.config.moderation.ModerationDictionary;
 import faang.school.postservice.dto.post.PostCreateDto;
 import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.dto.post.PostUpdateDto;
@@ -23,6 +24,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final PostValidator postValidator;
+    private final ModerationDictionary moderationDictionary;
 
     @Override
     public Post findById(Long id) {
@@ -99,6 +101,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void verifyPost(List<Post> posts) {
-        posts
+        for (Post post : posts) {
+            post.setVerified(!moderationDictionary.checkCurseWordsInPost(post.getContent()));
+            postRepository.save(post);
+        }
     }
 }

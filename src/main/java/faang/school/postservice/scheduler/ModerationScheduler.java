@@ -24,7 +24,6 @@ public class ModerationScheduler {
 
     @Scheduled(cron = "${post.moderator.scheduler.cron}")
     public void moderatePosts() {
-        // получаем все посты которые не были помечены  как верифаед
         List<Post> posts = postRepository.findAll();
 
         if (posts.isEmpty()) {
@@ -33,6 +32,6 @@ public class ModerationScheduler {
         }
 
         List<List<Post>> partitionedPostToVerify = ListUtils.partition(posts, maxListSize);
-        partitionedPostToVerify.forEach(postService::verifyPosts);
+        partitionedPostToVerify.forEach(postService::verifyPost);
     }
 }

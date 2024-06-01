@@ -1,35 +1,36 @@
 package faang.school.postservice.config.moderation;
 
-import jakarta.annotation.Resources;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.util.HashSet;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
+@Slf4j
 public class ModerationDictionary {
 
     public Set<String> curseWords;
-    @Value("${post.path-curse-words}")
-    private Resource curseWordsPath;
+    @Value("${post.moderator.path-curse-words}")
+    private Path curseWordsPath;
 
     public void WordSetBean() {
-        try {
-            curseWords = new HashSet<>();
-            BufferedReader reader = curseWordsPath.getContentAsString(new C);
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] elements = line.split(",");
-                for (String element : elements) {
-                    words.add(element);
-                }
-            }
-            reader.close();
+        try (Stream<String> lines = Files.lines(curseWordsPath)) {
+            curseWords = lines.map(String::trim)
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toSet());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("Curse dictionary didn't create", e);
         }
+    }
+
+    public boolean checkCurseWordsInPost(String text) {
+        String convertedText = text.toLowerCase();
+        return curseWords.stream().anyMatch(convertedText::contains);
     }
 }

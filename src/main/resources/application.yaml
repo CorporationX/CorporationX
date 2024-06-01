@@ -43,9 +43,9 @@ post:
     scheduler:
       cron: "0 0/1 * 1/1 * ?" # every minute
   moderator:
-    path-curse-words: "src/main/resources/curse-words.csv"
+    path-curse-words: "src/main/resources/curse-words.txt"
     scheduler:
-      cron: "0 0 * * *" # every midnight
+      cron: "0 0 * * ?" # every midnight
   max-list-size: 100
 
 user-service:

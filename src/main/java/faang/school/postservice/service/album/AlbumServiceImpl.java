@@ -10,6 +10,7 @@ import faang.school.postservice.repository.AlbumRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.album.filter.AlbumFilterService;
 import faang.school.postservice.validator.album.AlbumValidator;
+import faang.school.postservice.validator.user.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.repository.CrudRepository;
@@ -28,6 +29,7 @@ public class AlbumServiceImpl implements AlbumService {
     private final AlbumRepository albumRepository;
     private final PostRepository postRepository;
     private final AlbumFilterService albumFilterService;
+    private final UserValidator userValidator;
 
     @Override
     public AlbumDto createAlbum(long userId, AlbumDto albumDto) {
@@ -35,7 +37,9 @@ public class AlbumServiceImpl implements AlbumService {
         Album album = albumMapper.toEntity(albumDto);
         album.setAuthorId(userId);
 
-        albumValidator.validateCreateAlbum(userId, album);
+        userValidator.validateUserExistence(userId);
+        albumValidator.validateUserIsAuthor(album, userId);
+        albumValidator.validateAlbumTitleIsUnique(userId, album.getTitle());
 
         albumRepository.save(album);
         log.info("Saved album {} to user {}", album.getId(), userId);
@@ -48,7 +52,9 @@ public class AlbumServiceImpl implements AlbumService {
         Album album = findById(albumRepository, albumId, "Album");
         Post post = findById(postRepository, postId, "Post");
 
-        albumValidator.validateAddPostToAlbum(album, postId, userId);
+        userValidator.validateUserExistence(userId);
+        albumValidator.validateUserIsAuthor(album, userId);
+        albumValidator.checkPostExistenceInAlbum(album, postId);
 
         album.addPost(post);
         albumRepository.save(album);
@@ -62,7 +68,9 @@ public class AlbumServiceImpl implements AlbumService {
 
         Album album = findById(albumRepository, albumId, "Album");
 
-        albumValidator.validateAddAlbumToFavorites(album, userId);
+        userValidator.validateUserExistence(userId);
+        albumValidator.validateUserIsAuthor(album, userId);
+        albumValidator.validateAlbumExistence(album, userId);
 
         albumRepository.addAlbumToFavorites(albumId, userId);
         log.info("Added album {} to favorites for user {}", albumId, userId);
@@ -89,18 +97,23 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AlbumDto> getAllAlbums(AlbumFilterDto filter) {
+    public List<AlbumDto> getAllAlbums(long userId, AlbumFilterDto filter) {
 
         return albumFilterService.applyFilters(albumRepository.findAll().stream(), filter)
+                .filter(album -> albumValidator.validateAccess(album, userId))
                 .map(albumMapper::toDto)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public AlbumDto getAlbumById(long albumId) {
+    public AlbumDto getAlbumById(long userId, long albumId) {
 
         Album album = findById(albumRepository, albumId, "Album");
+
+        userValidator.validateUserExistence(userId);
+        albumValidator.validateAccess(album, userId);
+
         log.info("Got album by id {}", albumId);
         return albumMapper.toDto(album);
     }
@@ -110,7 +123,9 @@ public class AlbumServiceImpl implements AlbumService {
 
         Album albumToUpdate = findById(albumRepository, albumId, "Album");
 
-        albumValidator.validateUpdateAlbum(albumToUpdate, userId, updatedAlbumDto);
+        userValidator.validateUserExistence(userId);
+        albumValidator.validateUserIsAuthor(albumToUpdate, userId);
+        albumValidator.validateAlbumTitleIsUnique(userId, updatedAlbumDto.getTitle());
 
         albumMapper.update(updatedAlbumDto, albumToUpdate);
         log.info("Updated album {} for user {}", albumId, userId);
@@ -123,7 +138,8 @@ public class AlbumServiceImpl implements AlbumService {
         Album album = findById(albumRepository, albumId, "Album");
         AlbumDto albumToDelete = albumMapper.toDto(album);
 
-        albumValidator.validateDeleteAlbum(album, userId);
+        userValidator.validateUserExistence(userId);
+        albumValidator.validateUserIsAuthor(album, userId);
 
         albumRepository.deleteById(albumId);
         log.info("Deleted album {} for user {}", albumId, userId);
@@ -135,7 +151,9 @@ public class AlbumServiceImpl implements AlbumService {
 
         Album album = findById(albumRepository, albumId, "Album");
 
-        albumValidator.validateRemoveAlbumFromFavorite(album, userId);
+        userValidator.validateUserExistence(userId);
+        albumValidator.validateUserIsAuthor(album, userId);
+        albumValidator.validateAlbumExistence(album, userId);
 
         albumRepository.deleteAlbumFromFavorites(albumId, userId);
         log.info("Deleted album {} from favorites for user {}", albumId, userId);
@@ -147,7 +165,9 @@ public class AlbumServiceImpl implements AlbumService {
 
         Album album = findById(albumRepository, albumId, "Album");
 
-        albumValidator.validateRemovePostFromAlbum(album, postId, userId);
+        userValidator.validateUserExistence(userId);
+        albumValidator.validateUserIsAuthor(album, userId);
+        albumValidator.checkPostExistenceInAlbum(album, postId);
 
         album.removePost(postId);
         albumRepository.save(album);

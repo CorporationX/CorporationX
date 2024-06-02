@@ -1,5 +1,5 @@
 ALTER TABLE album
-ADD visibility varchar(50) NOT NULL;
+ADD visibility varchar(50) DEFAULT 'ALL_USERS' NOT NULL;
 
 CREATE TABLE album_selected_users (
     album_id BIGINT NOT NULL,

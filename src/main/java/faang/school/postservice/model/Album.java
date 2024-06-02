@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -53,6 +54,7 @@ public class Album {
 
     @Column(name = "visibility", nullable = false)
     @Enumerated(EnumType.STRING)
+    @ColumnDefault("ALL_USERS")
     private AlbumVisibility visibility;
 
     @ElementCollection(fetch = FetchType.EAGER)

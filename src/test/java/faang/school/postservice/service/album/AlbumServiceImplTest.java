@@ -66,11 +66,11 @@ public class AlbumServiceImplTest {
         AlbumDto result = albumService.createAlbum(1L, albumDto);
 
         assertNotNull(result);
-        verify(albumMapper, times(1)).toEntity(albumDto);
-        verify(userValidator, times(1)).validateUserExistence(anyLong());
-        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
-        verify(albumValidator, times(1)).validateAlbumTitleIsUnique(anyLong(), any());
-        verify(albumRepository, times(1)).save(any(Album.class));
+        verify(albumMapper).toEntity(albumDto);
+        verify(userValidator).validateUserExistence(anyLong());
+        verify(albumValidator).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator).validateAlbumTitleIsUnique(anyLong(), any());
+        verify(albumRepository).save(any(Album.class));
     }
 
     @Test
@@ -87,13 +87,13 @@ public class AlbumServiceImplTest {
         AlbumDto result = albumService.addPostToAlbum(1L, 1L, 1L);
 
         assertNotNull(result);
-        verify(albumRepository, times(1)).findById(anyLong());
-        verify(postRepository, times(1)).findById(anyLong());
-        verify(userValidator, times(1)).validateUserExistence(anyLong());
-        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
-        verify(albumValidator, times(1)).checkPostExistenceInAlbum(any(Album.class), anyLong());
-        verify(albumRepository, times(1)).save(any(Album.class));
-        verify(albumMapper, times(1)).toDto(any(Album.class));
+        verify(albumRepository).findById(anyLong());
+        verify(postRepository).findById(anyLong());
+        verify(userValidator).validateUserExistence(anyLong());
+        verify(albumValidator).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator).checkPostExistenceInAlbum(any(Album.class), anyLong());
+        verify(albumRepository).save(any(Album.class));
+        verify(albumMapper).toDto(any(Album.class));
     }
 
     @Test
@@ -107,11 +107,11 @@ public class AlbumServiceImplTest {
         AlbumDto result = albumService.addAlbumToFavorites(1L, 1L);
 
         assertNotNull(result);
-        verify(albumRepository, times(1)).findById(anyLong());
-        verify(userValidator, times(1)).validateUserExistence(anyLong());
-        verify(albumValidator, times(1)).validateUserIsAuthor(any(Album.class), anyLong());
-        verify(albumValidator, times(1)).validateAlbumExistence(any(Album.class), anyLong());
-        verify(albumMapper, times(1)).toDto(any(Album.class));
+        verify(albumRepository).findById(anyLong());
+        verify(userValidator).validateUserExistence(anyLong());
+        verify(albumValidator).validateUserIsAuthor(any(Album.class), anyLong());
+        verify(albumValidator).validateAlbumExistence(any(Album.class), anyLong());
+        verify(albumMapper).toDto(any(Album.class));
     }
 
     @Test

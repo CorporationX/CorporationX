@@ -1,3 +1,3 @@
 alter table post
-add verified bool,
-add verified_data timestamptz
+add is_verify varchar(64) not null default 'UNCHECKED',
+add verified_date timestamptz

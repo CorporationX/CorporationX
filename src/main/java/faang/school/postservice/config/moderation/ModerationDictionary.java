@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +31,7 @@ public class ModerationDictionary {
     }
 
     public boolean checkCurseWordsInPost(String text) {
-        String convertedText = text.toLowerCase();
-        return curseWords.stream().anyMatch(convertedText::contains);
+        String[] words = text.split("\\W+");
+        return Arrays.stream(words).anyMatch(curseWords::contains);
     }
 }

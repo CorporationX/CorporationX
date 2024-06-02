@@ -12,19 +12,20 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class ModerationScheduler {
 
-    @Value("${post.max-list-size}")
-    private int maxListSize;
+    @Value("${post.moderator.max-list-size}")
+    private Integer maxListSize;
+
     private final PostRepository postRepository;
     private final PostService postService;
 
     @Scheduled(cron = "${post.moderator.scheduler.cron}")
     public void moderatePosts() {
-        List<Post> posts = postRepository.findAll();
+        List<Post> posts = postRepository.findAllUncheckedPosts();
 
         if (posts.isEmpty()) {
             log.info("posts were empty");

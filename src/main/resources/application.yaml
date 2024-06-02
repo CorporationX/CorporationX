@@ -45,8 +45,9 @@ post:
   moderator:
     path-curse-words: "src/main/resources/curse-words.txt"
     scheduler:
-      cron: "0 0 * * ?" # every midnight
-  max-list-size: 100
+      cron: "0 0 * * * ?" # every midnight
+    threads-count: 20
+    max-list-size: 100
 
 user-service:
   host: localhost

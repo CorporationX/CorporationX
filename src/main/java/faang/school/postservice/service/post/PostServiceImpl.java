@@ -7,9 +7,11 @@ import faang.school.postservice.dto.post.PostUpdateDto;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
+import faang.school.postservice.model.PostVerifiedStatus;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,9 +102,17 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Async("moderateExecutorService")
     public void verifyPost(List<Post> posts) {
         for (Post post : posts) {
-            post.setVerified(!moderationDictionary.checkCurseWordsInPost(post.getContent()));
+
+            if (moderationDictionary.checkCurseWordsInPost(post.getContent())) {
+                post.setIsVerify(PostVerifiedStatus.NOT_VERIFIED);
+            } else {
+                post.setIsVerify(PostVerifiedStatus.VERIFIED);
+            }
+
+            post.setVerifiedDate(LocalDateTime.now());
             postRepository.save(post);
         }
     }

@@ -82,7 +82,7 @@ public class AlbumController {
     @GetMapping("/album/user")
     @ResponseStatus(HttpStatus.OK)
     public List<AlbumDto> getUserAlbums(
-            @ParameterObject @RequestBody(required = false) AlbumFilterDto filter) {
+            @ParameterObject @RequestBody(required = false) @Valid AlbumFilterDto filter) {
 
         long userId = userContext.getUserId();
         return albumService.getAllUserAlbums(userId, filter);
@@ -97,7 +97,7 @@ public class AlbumController {
     @GetMapping("/favorites")
     @ResponseStatus(HttpStatus.OK)
     public List<AlbumDto> getUserFavoriteAlbums(
-            @ParameterObject @RequestBody(required = false) AlbumFilterDto filter) {
+            @ParameterObject @RequestBody(required = false) @Valid AlbumFilterDto filter) {
 
         long userId = userContext.getUserId();
         return albumService.getAllUserFavoriteAlbums(userId, filter);
@@ -112,7 +112,7 @@ public class AlbumController {
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<AlbumDto> getAllAlbums(
-            @ParameterObject @RequestBody(required = false) AlbumFilterDto filter) {
+            @ParameterObject @RequestBody(required = false) @Valid AlbumFilterDto filter) {
 
         long userId  = userContext.getUserId();
         return albumService.getAllAlbums(userId, filter);

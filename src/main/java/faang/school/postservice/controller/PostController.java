@@ -5,6 +5,7 @@ import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.dto.post.PostUpdateDto;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.service.post.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class PostController {
     }
 
     @PostMapping
-    public PostDto create(@RequestBody PostCreateDto postCreateDto) {
+    public PostDto create(@RequestBody @Valid PostCreateDto postCreateDto) {
         return postService.create(postCreateDto);
     }
 
@@ -36,7 +37,7 @@ public class PostController {
     @PatchMapping("{postId}")
     public PostDto update(
             @PathVariable Long postId,
-            @RequestBody PostUpdateDto postUpdateDto
+            @RequestBody @Valid PostUpdateDto postUpdateDto
     ) {
         return postService.update(postId, postUpdateDto);
     }

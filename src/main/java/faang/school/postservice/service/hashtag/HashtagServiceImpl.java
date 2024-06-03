@@ -24,7 +24,7 @@ public class HashtagServiceImpl implements HashtagService {
     @Override
     public Set<String> getHashtags(String content) {
 
-        String[] words = content.split(" ");
+        String[] words = content.split("\\W+");
 
         return Arrays.stream(words)
                 .filter(word -> word.startsWith("#") && word.length() > 1)

@@ -8,4 +8,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/post_V004__resource.sql
   - include:
-      file: db/changelog/changeset/post_V003__hashtag.sql
+      file: db/changelog/changeset/post_V004__hashtag.sql

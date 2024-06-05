@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.subscription;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,11 +24,25 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionControllerTest {
+    private static final long USER_ID = 1L;
+
     @Mock
     private SubscriptionService subscriptionService;
 
     @InjectMocks
     private SubscriptionController subscriptionController;
+
+    private UserDTO userDTO;
+
+    @BeforeEach
+    void setUp() {
+        userDTO = UserDTO.builder()
+                .id(USER_ID)
+                .username("user1")
+                .email("user1@example.com")
+                .password("password")
+                .build();
+    }
 
     @Test
     @DisplayName("Проверка, что пользователь не может подписаться сам на себя")
@@ -84,7 +99,7 @@ class SubscriptionControllerTest {
     void testGetFollowers() {
 
         when(subscriptionService.getFollowers(anyLong(), any(UserFilterDTO.class)))
-                .thenReturn(List.of(new UserDTO(1L, "user1", "user1@example.com","password")));
+                .thenReturn(List.of(userDTO));
 
         SubscriptionController subscriptionController = new SubscriptionController(subscriptionService);
 
@@ -105,7 +120,7 @@ class SubscriptionControllerTest {
     void testGetFollowing() {
 
         when(subscriptionService.getFollowing(anyLong(), any(UserFilterDTO.class)))
-                .thenReturn(List.of(new UserDTO(1L, "user1", "user1@example.com", "password")));
+                .thenReturn(List.of(userDTO));
 
         SubscriptionController subscriptionController = new SubscriptionController(subscriptionService);
 

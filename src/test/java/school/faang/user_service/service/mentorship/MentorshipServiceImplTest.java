@@ -144,13 +144,15 @@ class MentorshipServiceImplTest {
     void testDeleteMenteeMenteeNotFoundThrowsException() {
         when(userRepository.findById(MENTOR_ID)).thenReturn(Optional.of(user));
         when(userRepository.findById(MENTEE_ID)).thenReturn(Optional.empty());
-        assertThrows(school.faang.user_service.exception.EntityNotFoundException.class, () -> mentorshipService.deleteMentee(MENTEE_ID, MENTOR_ID));
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentee(MENTEE_ID, MENTOR_ID));
     }
 
     @Test
     void testDeleteMenteeMentorNotFoundThrowsException() {
         when(userRepository.findById(MENTOR_ID)).thenReturn(Optional.empty());
-        assertThrows(school.faang.user_service.exception.EntityNotFoundException.class, () -> mentorshipService.deleteMentee(MENTEE_ID, MENTOR_ID));
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentee(MENTEE_ID, MENTOR_ID));
     }
 
     @Test
@@ -159,7 +161,8 @@ class MentorshipServiceImplTest {
         user.setMentees(new ArrayList<>());
         when(userRepository.findById(MENTOR_ID)).thenReturn(Optional.of(user));
         when(userRepository.findById(MENTEE_ID)).thenReturn(Optional.of(first));
-        assertThrows(school.faang.user_service.exception.EntityNotFoundException.class, () -> mentorshipService.deleteMentee(MENTEE_ID, MENTOR_ID));
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentee(MENTEE_ID, MENTOR_ID));
     }
 
     @Test
@@ -175,7 +178,8 @@ class MentorshipServiceImplTest {
     @Test
     void testDeleteMentorMentorNotFoundThrowsException() {
         when(userRepository.findById(MENTOR_ID)).thenReturn(Optional.empty());
-        assertThrows(school.faang.user_service.exception.EntityNotFoundException.class, () -> mentorshipService.deleteMentor(MENTEE_ID, MENTOR_ID));
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentor(MENTEE_ID, MENTOR_ID));
     }
 
     @Test
@@ -183,14 +187,16 @@ class MentorshipServiceImplTest {
         mentee.setMentors(new ArrayList<>());
         when(userRepository.findById(MENTEE_ID)).thenReturn(Optional.of(mentee));
         when(userRepository.findById(MENTOR_ID)).thenReturn(Optional.of(first));
-        assertThrows(school.faang.user_service.exception.EntityNotFoundException.class, () -> mentorshipService.deleteMentor(MENTEE_ID, MENTOR_ID));
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentor(MENTEE_ID, MENTOR_ID));
     }
 
     @Test
     void testDeleteMentorMenteeNotFoundThrowsException() {
         when(userRepository.findById(MENTEE_ID)).thenReturn(Optional.empty());
         when(userRepository.findById(MENTOR_ID)).thenReturn(Optional.of(first));
-        assertThrows(school.faang.user_service.exception.EntityNotFoundException.class, () -> mentorshipService.deleteMentor(MENTEE_ID, MENTOR_ID));
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentor(MENTEE_ID, MENTOR_ID));
     }
 
     @Test

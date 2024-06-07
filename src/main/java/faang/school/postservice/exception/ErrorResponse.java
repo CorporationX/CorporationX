@@ -19,8 +19,4 @@ public class ErrorResponse {
     private String url;
     private HttpStatus status;
     private String message;
-
-    public ErrorResponse(String message) {
-        this.message = message;
-    }
 }

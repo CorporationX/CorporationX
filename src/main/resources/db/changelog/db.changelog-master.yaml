@@ -4,4 +4,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/post_V002__ad.sql
   - include:
-      file: db/changelog/changeset/post_V003__add_is_checked_for_spelling.sql
+      file: db/changelog/changeset/post_V003__album.sql
+  - include:
+      file: db/changelog/changeset/post_V004__add_is_checked_for_spelling.sql

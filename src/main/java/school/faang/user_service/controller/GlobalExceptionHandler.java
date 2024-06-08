@@ -1,6 +1,7 @@
 package school.faang.user_service.controller;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorResponse;
 
 import java.util.Map;

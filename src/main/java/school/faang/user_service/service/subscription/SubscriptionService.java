@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
@@ -14,10 +15,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
-
     private final SubscriptionRepository subscriptionRepository;
-
     private final UserMatchByFilterChecker userMatchByFilterChecker;
+    private final UserMapper userMapper;
 
     public void followUser(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
@@ -38,7 +38,7 @@ public class SubscriptionService {
                 .filter(user -> userMatchByFilterChecker.isUserMatchFiltration(user, filter))
                 .skip((long) (filter.getPage() - 1) * filter.getPageSize())
                 .limit(filter.getPageSize())
-                .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPassword()))
+                .map(userMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -51,7 +51,7 @@ public class SubscriptionService {
                 .filter(user -> userMatchByFilterChecker.isUserMatchFiltration(user, filter))
                 .skip((long) (filter.getPage() - 1) * filter.getPageSize())
                 .limit(filter.getPageSize())
-                .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPassword()))
+                .map(userMapper::toDTO)
                 .collect(Collectors.toList());
     }
 

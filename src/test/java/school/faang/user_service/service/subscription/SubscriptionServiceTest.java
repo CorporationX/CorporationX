@@ -12,6 +12,7 @@ import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
@@ -36,6 +37,9 @@ class SubscriptionServiceTest {
 
     @Mock
     private UserMatchByFilterChecker userMatchByFilterChecker;
+
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
@@ -149,8 +153,23 @@ class SubscriptionServiceTest {
                 .email("user2@example.com")
                 .build();
 
+        UserDTO userDTO1 = UserDTO.builder()
+                .id(user1.getId())
+                .username(user1.getUsername())
+                .email(user1.getEmail())
+                .build();
+
+        UserDTO userDTO2 = UserDTO.builder()
+                .id(user2.getId())
+                .username(user2.getUsername())
+                .email(user2.getEmail())
+                .build();
+
+
         when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(user1, user2));
         when(userMatchByFilterChecker.isUserMatchFiltration(any(), any())).thenReturn(true);
+        when(userMapper.toDTO(user1)).thenReturn(userDTO1);
+        when(userMapper.toDTO(user2)).thenReturn(userDTO2);
 
         List<UserDTO> result = subscriptionService.getFollowers(followeeId, filter);
 
@@ -171,23 +190,24 @@ class SubscriptionServiceTest {
                 .email("user1@example.com")
                 .build();
 
+        UserDTO userDTO = UserDTO.builder()
+                .id(user1.getId())
+                .username(user1.getUsername())
+                .email(user1.getEmail())
+                .build();
+
         when(subscriptionRepository.findByFollowerId(anyLong())).thenReturn(Stream.of(user1));
         when(userMatchByFilterChecker.isUserMatchFiltration(any(User.class), any(UserFilterDTO.class))).thenReturn(true);
-
-
-        SubscriptionService subscriptionService = new SubscriptionService(subscriptionRepository, userMatchByFilterChecker);
-
+        when(userMapper.toDTO(user1)).thenReturn(userDTO);
 
         UserFilterDTO filter = new UserFilterDTO();
         filter.setPage(1);
         filter.setPageSize(10);
         List<UserDTO> result = subscriptionService.getFollowing(123L, filter);
 
-
         assertEquals(1, result.size());
         assertEquals("user1", result.get(0).getUsername());
         assertEquals("user1@example.com", result.get(0).getEmail());
-
 
         verify(subscriptionRepository).findByFollowerId(123L);
         verify(userMatchByFilterChecker).isUserMatchFiltration(any(User.class), any(UserFilterDTO.class));

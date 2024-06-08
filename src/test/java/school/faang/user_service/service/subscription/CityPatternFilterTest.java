@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.entity.User;
 
 @ExtendWith(MockitoExtension.class)
@@ -18,7 +18,7 @@ class CityPatternFilterTest {
     private User user;
 
     @Mock
-    private UserFilterDto filter;
+    private UserFilterDTO filter;
 
     @InjectMocks
     private CityPatternFilter cityPatternFilter;

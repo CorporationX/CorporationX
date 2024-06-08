@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;
 
@@ -69,5 +70,12 @@ class EventServiceImplTest {
         when(eventMapper.toDtoList(any())).thenReturn(List.of(eventDto));
         List<EventDto> actual = eventService.findAll();
         assertThat(actual).isEqualTo(List.of(eventDto));
+    }
+
+    @Test
+    public void whenDeleteByIdSuccessfully() {
+        when(eventRepository.existsById(EVENT_ID)).thenReturn(true);
+        eventService.deleteById(EVENT_ID);
+        verify(eventRepository).deleteById(EVENT_ID);
     }
 }

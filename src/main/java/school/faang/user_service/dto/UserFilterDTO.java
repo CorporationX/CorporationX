@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 @Data
 @NoArgsConstructor
-public class UserFilterDto {
+public class UserFilterDTO {
     private String usernamePattern;
     private String aboutPattern;
     private String emailPattern;

@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDTO;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
@@ -13,11 +14,11 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.service.country.CountryService;
 import school.faang.user_service.service.profile_picture.ProfilePictureService;
 
 import java.util.List;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -25,6 +26,7 @@ import java.util.NoSuchElementException;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ProfilePictureService profilePictureService;
+    private final CountryService countryService;
     private final GoalService goalService;
     private final EventService eventService;
     private final MentorshipService mentorshipService;
@@ -40,7 +42,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO createUser(UserDTO userDto) {
+        Country country = countryService.findEntityById(userDto.getCountryId());
+        List<Event> participateEvents = getParticipateEvents(userDto);
         User user = userMapper.toEntity(userDto);
+        user.setCountry(country);
+        user.setParticipatedEvents(participateEvents);
         profilePictureService.assignPictureToUser(user);
         return userMapper.toDTO(userRepository.save(user));
     }
@@ -51,9 +57,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findAll() {
+    public List<UserDTO> findAll() {
         List<User> users = userRepository.findAll();
-        return userMapper.toDtoList(users);
+        return userMapper.toDTOList(users);
     }
 
     @Override
@@ -94,5 +100,11 @@ public class UserServiceImpl implements UserService {
                 eventService.deleteById(event.getId());
             }
         }
+    }
+
+    private List<Event> getParticipateEvents(UserDTO userDto) {
+        return userDto.getParticipatedEventIds().stream()
+                .map(eventService::findEventById)
+                .toList();
     }
 }

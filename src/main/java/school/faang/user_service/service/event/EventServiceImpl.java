@@ -32,8 +32,21 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toDtoList(eventRepository.findAll());
     }
 
-    private Event findEventById(Long eventId) {
+    @Override
+    public void deleteById(long eventId) {
+        if (!existById(eventId)) {
+            throw new EntityNotFoundException(String.format("event with id=%d not found", eventId));
+        }
+        eventRepository.deleteById(eventId);
+    }
+
+    @Override
+    public Event findEventById(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("event with id = %d not found", eventId)));
+    }
+
+    private boolean existById(long eventId) {
+        return eventRepository.existsById(eventId);
     }
 }

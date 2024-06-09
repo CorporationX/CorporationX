@@ -6,11 +6,13 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.event.Event;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {GoalMapper.class})
 public interface UserMapper {
+    @Mapping(source = "participatedEvents", target = "participatedEventIds", qualifiedByName = "mapEventsToEventIds")
     @Mapping(source = "mentors", target = "mentorIds", qualifiedByName = "mapUsersToUserIds")
     @Mapping(source = "mentees", target = "menteeIds", qualifiedByName = "mapUsersToUserIds")
     UserDTO toDTO(User user);
@@ -36,6 +38,13 @@ public interface UserMapper {
                     user.setId(userId);
                     return user;
                 })
+                .toList();
+    }
+
+    @Named("mapEventsToEventIds")
+    default List<Long> mapEventsToEventIds(List<Event> participatedEvents) {
+        return participatedEvents.stream()
+                .map(Event::getId)
                 .toList();
     }
 }

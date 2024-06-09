@@ -17,6 +17,8 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.service.country.CountryService;
+import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.profile_picture.ProfilePictureService;
 
 import java.util.List;
@@ -31,6 +33,8 @@ import static org.assertj.core.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
     private static final long USER_ID = 1L;
+    private static final long COUNTRY_ID = 2L;
+    private static final long EVENT_ID = 3L;
 
     @Mock
     private UserRepository userRepository;
@@ -42,6 +46,8 @@ class UserServiceImplTest {
     private EventService eventService;
     @Mock
     private MentorshipService mentorshipService;
+    @Mock
+    private CountryService countryService;
     @Mock
     private UserMapper userMapper;
     @InjectMocks
@@ -55,6 +61,8 @@ class UserServiceImplTest {
         user.setId(USER_ID);
         userDto = new UserDTO();
         userDto.setId(USER_ID);
+        userDto.setCountryId(COUNTRY_ID);
+        userDto.setParticipatedEventIds(List.of(EVENT_ID));
     }
 
     @Test
@@ -65,7 +73,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    public void whenUserExistsByIdThenNoException() {
+    public void whenUserExistsByIdThenReturnTrue() {
         when(userRepository.existsById(USER_ID)).thenReturn(true);
         assertThat(userService.existsById(USER_ID)).isTrue();
     }
@@ -92,6 +100,14 @@ class UserServiceImplTest {
         when(userMapper.toDTO(user)).thenReturn(userDto);
         UserDTO actual = userService.findById(USER_ID);
         assertThat(actual).isEqualTo(userDto);
+    }
+
+    @Test
+    public void whenFindAllThenGetListOfUserDTO() {
+        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(userMapper.toDTOList(any())).thenReturn(List.of(userDto));
+        List<UserDTO> actual = userService.findAll();
+        assertThat(actual).isEqualTo(List.of(userDto));
     }
 
     @Test

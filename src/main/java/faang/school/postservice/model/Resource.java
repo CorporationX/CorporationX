@@ -44,7 +44,7 @@ public class Resource {
     @Column(name = "name", length = 150)
     private String name;
 
-    @Column(name = "type", length = 50)
+    @Column(name = "type", length = 150)
     private String type;
 
     @ManyToOne

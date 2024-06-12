@@ -1,6 +1,8 @@
 package faang.school.postservice.service.hashtag;
 
+import faang.school.postservice.dto.hashtag.HashtagDto;
 import faang.school.postservice.dto.post.PostDto;
+import faang.school.postservice.mapper.HashtagMapper;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Hashtag;
 import faang.school.postservice.model.Post;
@@ -27,9 +29,10 @@ class HashtagServiceImplTest {
 
     @Mock
     private HashtagRepository hashtagRepository;
-
     @Mock
     private PostMapper postMapper;
+    @Mock
+    private HashtagMapper hashtagMapper;
 
     @InjectMocks
     private HashtagServiceImpl hashtagService;
@@ -38,6 +41,7 @@ class HashtagServiceImplTest {
     private Post post;
     private Hashtag hashtag;
     private PostDto postDto;
+    private HashtagDto hashtagDto;
 
     @BeforeEach
     void init() {
@@ -55,6 +59,12 @@ class HashtagServiceImplTest {
                 .id(3L)
                 .hashtag(hashtag1)
                 .post(post)
+                .build();
+
+        hashtagDto = HashtagDto.builder()
+                .id(hashtag.getId())
+                .hashtag(hashtag1)
+                .postId(post.getId())
                 .build();
     }
 
@@ -74,12 +84,14 @@ class HashtagServiceImplTest {
     @Test
     void getHashtagsByPost() {
         when(hashtagRepository.findAllByPostId(post.getId())).thenReturn(List.of(hashtag));
+        when(hashtagMapper.toDto(hashtag)).thenReturn(hashtagDto);
 
-        List<Hashtag> actual = hashtagService.getHashtagsByPostId(post.getId());
-        assertIterableEquals(List.of(hashtag), actual);
+        List<HashtagDto> actual = hashtagService.getHashtagsByPostId(post.getId());
+        assertIterableEquals(List.of(hashtagDto), actual);
 
-        InOrder inOrder = inOrder(hashtagRepository);
+        InOrder inOrder = inOrder(hashtagRepository, hashtagMapper);
         inOrder.verify(hashtagRepository).findAllByPostId(post.getId());
+        inOrder.verify(hashtagMapper).toDto(hashtag);
     }
 
     @Test

@@ -1,6 +1,8 @@
 package faang.school.postservice.service.hashtag;
 
+import faang.school.postservice.dto.hashtag.HashtagDto;
 import faang.school.postservice.dto.post.PostDto;
+import faang.school.postservice.mapper.HashtagMapper;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Hashtag;
 import faang.school.postservice.model.Post;
@@ -17,6 +19,7 @@ import java.util.List;
 public class HashtagServiceImpl implements HashtagService {
 
     private final HashtagRepository hashtagRepository;
+    private final HashtagMapper hashtagMapper;
     private final PostMapper postMapper;
 
     @Override
@@ -32,8 +35,10 @@ public class HashtagServiceImpl implements HashtagService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Hashtag> getHashtagsByPostId(long postId) {
-        return hashtagRepository.findAllByPostId(postId);
+    public List<HashtagDto> getHashtagsByPostId(long postId) {
+        return hashtagRepository.findAllByPostId(postId).stream()
+                .map(hashtagMapper::toDto)
+                .toList();
     }
 
     @Override

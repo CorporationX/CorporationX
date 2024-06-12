@@ -1,7 +1,7 @@
 package faang.school.postservice.service.hashtag;
 
+import faang.school.postservice.dto.hashtag.HashtagDto;
 import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.model.Hashtag;
 import faang.school.postservice.model.Post;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class AsyncHashtagServiceImpl implements AsyncHashtagService {
     @Async("taskExecutor")
     public void updateHashtags(Post post) {
         Set<String> hashtags = getHashtags(post.getContent());
-        List<Hashtag> entities = hashtagService.getHashtagsByPostId(post.getId());
+        List<HashtagDto> entities = hashtagService.getHashtagsByPostId(post.getId());
 
         entities.forEach(entity -> {
             if (!hashtags.contains(entity.getHashtag())) {

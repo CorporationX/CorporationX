@@ -66,7 +66,7 @@ class ResourceServiceImplTest {
         when(amazonS3Service.uploadFile(file)).thenReturn(key);
         when(resourceRepository.save(any(Resource.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        List<ResourceDto> result = resourceServiceImpl.create(1L, List.of(file));
+        List<ResourceDto> result = resourceServiceImpl.create(1L, 1L, List.of(file));
         assertEquals(key, result.get(0).getKey());
     }
 
@@ -84,7 +84,18 @@ class ResourceServiceImplTest {
     @Test
     void successDeleteFile() {
         String key = "test";
-        resourceServiceImpl.deleteFile(key);
+        Post post = Post.builder()
+                .id(1L)
+                .authorId(1L)
+                .build();
+        Resource resource = Resource.builder()
+                .id(1L)
+                .post(post)
+                .build();
+
+        when(resourceRepository.findByKey(key)).thenReturn(resource);
+
+        resourceServiceImpl.deleteFile(key, 1L);
 
         verify(resourceValidator, times(1)).validateExistenceByKey(key);
         verify(resourceRepository, times(1)).deleteByKey(key);

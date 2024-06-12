@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +52,8 @@ public class ResourceServiceImpl implements ResourceService {
         resourceValidator.validatePostAuthorAndResourceAuthor(post.getAuthorId(), post.getProjectId(), userId);
         resourceValidator.validateCountFilesPerPost(postId, files.size());
 
-        try(ExecutorService executorService = Executors.newFixedThreadPool(files.size())) {
+        ExecutorService executorService = Executors.newFixedThreadPool(files.size());
+        try(Closeable ignored = executorService::shutdown) {
             List<CompletableFuture<Resource>> resources = new ArrayList<>();
             List<Resource> savedResources = new ArrayList<>();
 
@@ -78,7 +81,7 @@ public class ResourceServiceImpl implements ResourceService {
                     .map(resourceMapper::toDto)
                     .toList();
 
-        } catch (AmazonS3Exception ex) {
+        } catch (AmazonS3Exception | IOException ex) {
             log.error(ex.getMessage());
             throw new S3Exception(ex.getMessage());
         }

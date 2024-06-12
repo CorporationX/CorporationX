@@ -7,7 +7,7 @@ import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.PostRepository;
-import faang.school.postservice.service.hashtag.HashtagService;
+import faang.school.postservice.service.hashtag.AsyncHashtagService;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final PostValidator postValidator;
-    private final HashtagService hashtagService;
+    private final AsyncHashtagService hashtagService;
 
     @Override
     public Post findById(Long id) {
@@ -75,12 +75,12 @@ public class PostServiceImpl implements PostService {
         post.setDeleted(true);
         postRepository.save(post);
 
-        hashtagService.deleteHashtags(post);
+        hashtagService.removeHashtags(post);
     }
 
     @Override
     public List<PostDto> findAllByHashtag(String hashtag) {
-        return hashtagService.getPostsByHashtag(hashtag);
+        return hashtagService.getPostsByHashtag(hashtag).join();
     }
 
     @Override

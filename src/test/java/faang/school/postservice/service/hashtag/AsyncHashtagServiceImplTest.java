@@ -1,10 +1,8 @@
 package faang.school.postservice.service.hashtag;
 
 import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Hashtag;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.repository.HashtagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,23 +14,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class HashtagServiceImplTest {
+class AsyncHashtagServiceImplTest {
 
     @Mock
-    private HashtagRepository hashtagRepository;
-
-    @Mock
-    private PostMapper postMapper;
+    private HashtagService hashtagService;
 
     @InjectMocks
-    private HashtagServiceImpl hashtagService;
+    private AsyncHashtagServiceImpl asyncHashtagService;
 
     private final String hashtag1 = "hash";
     private Post post;
@@ -40,7 +35,7 @@ class HashtagServiceImplTest {
     private PostDto postDto;
 
     @BeforeEach
-    void init() {
+    void setUp() {
         post = Post.builder()
                 .id(1L)
                 .content("#hash #tag")
@@ -60,41 +55,41 @@ class HashtagServiceImplTest {
 
     @Test
     void getPostsByHashtag() {
-        when(hashtagRepository.findAllByHashtag(hashtag1)).thenReturn(List.of(hashtag));
-        when(postMapper.toDto(post)).thenReturn(postDto);
+        when(hashtagService.getPostsByHashtag(hashtag1)).thenReturn(List.of(postDto));
 
         List<PostDto> actual = hashtagService.getPostsByHashtag(hashtag1);
         assertIterableEquals(List.of(postDto), actual);
 
-        InOrder inOrder = inOrder(hashtagRepository, postMapper);
-        inOrder.verify(hashtagRepository).findAllByHashtag(hashtag1);
-        inOrder.verify(postMapper).toDto(post);
+        InOrder inOrder = inOrder(hashtagService);
+        inOrder.verify(hashtagService).getPostsByHashtag(hashtag1);
     }
 
     @Test
-    void getHashtagsByPost() {
-        when(hashtagRepository.findAllByPostId(post.getId())).thenReturn(List.of(hashtag));
+    void addHashtags() {
+        asyncHashtagService.addHashtags(post);
 
-        List<Hashtag> actual = hashtagService.getHashtagsByPostId(post.getId());
-        assertIterableEquals(List.of(hashtag), actual);
-
-        InOrder inOrder = inOrder(hashtagRepository);
-        inOrder.verify(hashtagRepository).findAllByPostId(post.getId());
+        InOrder inOrder = inOrder(hashtagService);
+        inOrder.verify(hashtagService, times(2)).addHashtag(anyString(), eq(post));
     }
 
     @Test
-    void addHashtag() {
-        hashtagService.addHashtag(hashtag1, post);
+    void removeHashtags() {
+        asyncHashtagService.removeHashtags(post);
 
-        InOrder inOrder = inOrder(hashtagRepository);
-        inOrder.verify(hashtagRepository).save(any());
+        InOrder inOrder = inOrder(hashtagService);
+        inOrder.verify(hashtagService, times(2)).deleteHashtag(anyString(), eq(post));
     }
 
     @Test
-    void deleteHashtag() {
-        hashtagService.deleteHashtag(hashtag1, post);
+    void updateHashtags() {
+        post.setContent("#new");
 
-        InOrder inOrder = inOrder(hashtagRepository);
-        inOrder.verify(hashtagRepository).deleteByHashtagAndPostId(anyString(), eq(post.getId()));
+        when(hashtagService.getHashtagsByPostId(post.getId())).thenReturn(List.of(hashtag));
+
+        asyncHashtagService.updateHashtags(post);
+
+        InOrder inOrder = inOrder(hashtagService);
+        inOrder.verify(hashtagService).deleteHashtag(anyString(), eq(post));
+        inOrder.verify(hashtagService).addHashtag(anyString(), eq(post));
     }
 }

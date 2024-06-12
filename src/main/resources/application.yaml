@@ -69,3 +69,8 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+async:
+  corePoolSize: 5
+  maxPoolSize: 10
+  queueCapacity: 100

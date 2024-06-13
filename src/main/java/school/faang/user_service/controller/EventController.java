@@ -2,7 +2,7 @@ package school.faang.user_service.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import school.faang.user_service.dto.EventDto;
+import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.List;

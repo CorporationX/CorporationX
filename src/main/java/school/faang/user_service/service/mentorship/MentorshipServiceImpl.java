@@ -8,24 +8,23 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.goal.GoalService;
-import school.faang.user_service.service.user.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class MentorshipServiceImpl implements MentorshipService {
-    private final UserService userService;
     private final GoalService goalService;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Override
     public List<UserDTO> getMentees(long mentorId) {
-        UserDTO mentor = userService.findById(mentorId);
+        UserDTO mentor = getUserDTOById(mentorId);
         return mentor.getMenteeIds().stream()
-                .map(userService::findById)
+                .map(this::getUserDTOById)
                 .toList();
     }
 
@@ -35,7 +34,7 @@ public class MentorshipServiceImpl implements MentorshipService {
         mentees.forEach(mentee -> {
             reassignMentor(mentee, mentorId);
             reassignMentorsOfGoals(mentee, mentorId);
-            userService.update(mentee);
+            updateMentee(mentee.getId());
         });
     }
 
@@ -69,6 +68,20 @@ public class MentorshipServiceImpl implements MentorshipService {
         userRepository.save(mentee);
     }
 
+    @Override
+    public void assignMentor(long menteeId, long mentorId) {
+        User mentee = getUserById(menteeId);
+        User mentor = getUserById(mentorId);
+        mentee.getMentors().add(mentor);
+        mentor.getMentees().add(mentee);
+        userRepository.save(mentee);
+        userRepository.save(mentor);
+    }
+
+    private UserDTO getUserDTOById(long userId) {
+        return userMapper.toDTO(getUserById(userId));
+    }
+
     private User getUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(userId + " не найден"));
@@ -91,5 +104,11 @@ public class MentorshipServiceImpl implements MentorshipService {
                 })
                 .toList();
         mentee.setGoalIds(goalIds);
+    }
+
+    private void updateMentee(long userId) {
+        User updatedUser = getUserById(userId);
+        updatedUser.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(updatedUser);
     }
 }

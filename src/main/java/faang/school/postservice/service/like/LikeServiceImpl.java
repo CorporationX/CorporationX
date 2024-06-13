@@ -1,11 +1,14 @@
 package faang.school.postservice.service.like;
 
 import faang.school.postservice.dto.like.LikeDto;
+import faang.school.postservice.event.LikeEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.LikeMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
+import faang.school.postservice.publisher.LikePostPublisher;
+import faang.school.postservice.publisher.MessagePublisher;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
@@ -15,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.function.Consumer;
 
 @Service
@@ -27,6 +31,7 @@ public class LikeServiceImpl implements LikeService {
     private final CommentRepository commentRepository;
     private final LikeMapper likeMapper;
     private final LikeValidatorImpl likeValidator;
+    private final MessagePublisher<LikeEvent> likePostPublisher;
 
     @Override
     @Transactional
@@ -43,6 +48,8 @@ public class LikeServiceImpl implements LikeService {
         Like like = likeMapper.toEntity(likeDto);
         post.getLikes().add(like);
         like = likeRepository.save(like);
+
+        likePostPublisher.publish(new LikeEvent(postId, post.getAuthorId(), userId, LocalDateTime.now()));
 
         log.info("Like with likeId = {} was added on post with postId = {} by user with userId = {}", like.getId(), postId, userId);
 

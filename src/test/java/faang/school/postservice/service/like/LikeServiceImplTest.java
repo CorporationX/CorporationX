@@ -1,10 +1,12 @@
 package faang.school.postservice.service.like;
 
 import faang.school.postservice.dto.like.LikeDto;
+import faang.school.postservice.event.LikeEvent;
 import faang.school.postservice.mapper.LikeMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
+import faang.school.postservice.publisher.MessagePublisher;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
@@ -41,6 +43,8 @@ class LikeServiceImplTest {
     private CommentRepository commentRepository;
     @Mock
     private LikeMapper mapper;
+    @Mock
+    private MessagePublisher<LikeEvent> likePostPublisher;
     @InjectMocks
     private LikeServiceImpl likeService;
 

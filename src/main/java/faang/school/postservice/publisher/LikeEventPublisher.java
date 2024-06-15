@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class LikePostPublisher implements MessagePublisher<LikeEvent> {
+public class LikeEventPublisher implements MessagePublisher<LikeEvent> {
 
     @Value("${spring.data.redis.channels.like_post_channel.name}")
     private String channelTopic;

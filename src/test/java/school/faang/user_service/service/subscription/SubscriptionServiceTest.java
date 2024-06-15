@@ -10,11 +10,14 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.dto.UserFilterDTO;
+import school.faang.user_service.dto.event.FollowerEvent;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -41,6 +44,9 @@ class SubscriptionServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private FollowerEventPublisher followerEventPublisher;
+
     @InjectMocks
     private SubscriptionService subscriptionService;
 
@@ -60,11 +66,15 @@ class SubscriptionServiceTest {
     @Test
     @DisplayName("Проверка, что подписка на пользователя работает, в service")
     void followUserSuccessServiceTest() {
+        FollowerEvent followerEvent = FollowerEvent.builder()
+                .followerId(10L)
+                .receiverId(20L)
+                .followingDate(LocalDateTime.now().withNano(0))
+                .build();
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(10, 20)).thenReturn(false);
-
         subscriptionService.followUser(10, 20);
-
         verify(subscriptionRepository).followUser(10, 20);
+        verify(followerEventPublisher).publish(followerEvent);
     }
 
     @Test

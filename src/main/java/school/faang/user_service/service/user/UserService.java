@@ -5,7 +5,7 @@ import school.faang.user_service.dto.UserDTO;
 import java.util.List;
 
 public interface UserService {
-    boolean existsById(long skillId);
+    boolean existsById(long userId);
     UserDTO createUser(UserDTO userDto);
     void deactivateUser(long userId);
     UserDTO findById(long userId);

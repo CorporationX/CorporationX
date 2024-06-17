@@ -6,7 +6,7 @@ import faang.school.postservice.dto.post.PostUpdateDto;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.PostRepository;
-import faang.school.postservice.service.hashtag.AsyncHashtagService;
+import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
 import faang.school.postservice.validator.post.PostValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

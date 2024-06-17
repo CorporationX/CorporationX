@@ -24,6 +24,9 @@ spring:
       channels:
         calculations_channel:
           name: calculations_channel
+      cache:
+        hashtag:
+          max_size: 1000
 
   servlet:
     multipart:

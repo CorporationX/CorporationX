@@ -1,4 +1,4 @@
-package faang.school.postservice.service.hashtag;
+package faang.school.postservice.service.hashtag.async;
 
 import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.model.Post;

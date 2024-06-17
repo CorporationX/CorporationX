@@ -1,8 +1,8 @@
 package faang.school.postservice.service.hashtag;
 
-import faang.school.postservice.dto.hashtag.HashtagDto;
 import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.model.Post;
+import faang.school.postservice.service.hashtag.async.AsyncHashtagServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,10 +29,8 @@ class AsyncHashtagServiceImplTest {
     @InjectMocks
     private AsyncHashtagServiceImpl asyncHashtagService;
 
-    private final String hashtag1 = "hash";
     private Post post;
     private PostDto postDto;
-    private HashtagDto hashtagDto;
 
     @BeforeEach
     void setUp() {
@@ -45,16 +43,12 @@ class AsyncHashtagServiceImplTest {
                 .id(2L)
                 .content("#hash #tag")
                 .build();
-
-        hashtagDto = HashtagDto.builder()
-                .id(3L)
-                .hashtag(hashtag1)
-                .postId(post.getId())
-                .build();
     }
 
     @Test
     void getPostsByHashtag() {
+        String hashtag1 = "hash";
+
         when(hashtagService.getPostsByHashtag(hashtag1)).thenReturn(List.of(postDto));
 
         List<PostDto> actual = hashtagService.getPostsByHashtag(hashtag1);
@@ -82,14 +76,9 @@ class AsyncHashtagServiceImplTest {
 
     @Test
     void updateHashtags() {
-        post.setContent("#new");
-
-        when(hashtagService.getHashtagsByPostId(post.getId())).thenReturn(List.of(hashtagDto));
-
         asyncHashtagService.updateHashtags(post);
 
         InOrder inOrder = inOrder(hashtagService);
-        inOrder.verify(hashtagService).deleteHashtag(anyString(), eq(post));
-        inOrder.verify(hashtagService).addHashtag(anyString(), eq(post));
+        inOrder.verify(hashtagService, times(2)).updateHashtag(anyString(), eq(post));
     }
 }

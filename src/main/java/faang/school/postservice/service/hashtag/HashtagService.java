@@ -1,17 +1,17 @@
 package faang.school.postservice.service.hashtag;
 
-import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.model.Post;
+import faang.school.postservice.dto.post.PostHashtagDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface HashtagService {
 
-    List<PostDto> getPostsByHashtag(String hashtag);
+    List<PostHashtagDto> getPageOfPostsByHashtag(String hashtag, Pageable pageable);
 
-    void addHashtag(String hashtag, Post post);
+    void addHashtag(String hashtag, PostHashtagDto post);
 
-    void deleteHashtag(String hashtag, Post post);
+    void deleteHashtag(String hashtag, PostHashtagDto post);
 
-    void updateHashtag(String hashtag, Post post);
+    void updateHashtag(String hashtag, PostHashtagDto post);
 }

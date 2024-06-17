@@ -1,8 +1,9 @@
 package faang.school.postservice.service.hashtag.cache;
 
-import faang.school.postservice.model.Post;
+import faang.school.postservice.dto.post.PostHashtagDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -15,37 +16,30 @@ public class HashtagCacheServiceImpl implements HashtagCacheService {
 
     @Value("${spring.data.redis.cache.hashtag.max_size}")
     private long maxCacheSize;
-    private final RedisTemplate<String, Post> redisTemplate;
-    private final ZSetOperations<String, Post> zSetOps;
+    private final RedisTemplate<String, PostHashtagDto> redisTemplate;
+    private final ZSetOperations<String, PostHashtagDto> zSetOps;
 
-    public HashtagCacheServiceImpl(RedisTemplate<String, Post> redisTemplate) {
+    public HashtagCacheServiceImpl(RedisTemplate<String, PostHashtagDto> redisTemplate) {
         this.redisTemplate = redisTemplate;
         zSetOps = redisTemplate.opsForZSet();
     }
 
     @Override
-    public Set<Post> getPostsByHashtag(String hashtag) {
+    public Set<PostHashtagDto> getPostsByHashtag(String hashtag, Pageable pageable) {
 
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(hashtag))) {
-            return zSetOps.reverseRange(hashtag, 0 , maxCacheSize);
-        }
+        int end = pageable.getPageNumber() * pageable.getPageSize();
 
-        return null;
-    }
-
-    public Set<Post> getPagePostsByHashtag(String hashtag, int offset) {
-
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(hashtag))) {
-            return zSetOps.reverseRange(hashtag, offset , 20);
+        if (end <= maxCacheSize && Boolean.TRUE.equals(redisTemplate.hasKey(hashtag))) {
+            return zSetOps.reverseRange(hashtag, pageable.getOffset(), pageable.getPageSize());
         }
 
         return null;
     }
 
     @Override
-    public void addPostToHashtag(String hashtag, Post post) {
+    public void addPostToHashtag(String hashtag, PostHashtagDto post) {
 
-        double score = post.getLikes().size();
+        double score = post.getLikeIds().size();
         zSetOps.add(hashtag, post, score);
 
         log.info("Added post {} to hashtag's #{} cache", post, hashtag);
@@ -59,7 +53,7 @@ public class HashtagCacheServiceImpl implements HashtagCacheService {
     }
 
     @Override
-    public void removePostFromHashtag(String hashtag, Post post) {
+    public void removePostFromHashtag(String hashtag, PostHashtagDto post) {
         zSetOps.remove(hashtag, post);
         log.info("Removed post {} from hashtag's #{} cache", post, hashtag);
     }

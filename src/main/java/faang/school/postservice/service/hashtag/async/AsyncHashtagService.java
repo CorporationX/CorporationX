@@ -1,18 +1,18 @@
 package faang.school.postservice.service.hashtag.async;
 
-import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.model.Post;
+import faang.school.postservice.dto.post.PostHashtagDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface AsyncHashtagService {
 
-    void addHashtags(Post post);
+    CompletableFuture<List<PostHashtagDto>> getPostsByHashtag(String hashtag, Pageable pageable);
 
-    void removeHashtags(Post post);
+    void addHashtags(PostHashtagDto post);
 
-    void updateHashtags(Post post);
+    void removeHashtags(PostHashtagDto post);
 
-    CompletableFuture<List<PostDto>> getPostsByHashtag(String hashtag);
+    void updateHashtags(PostHashtagDto post);
 }

@@ -1,15 +1,22 @@
 package faang.school.postservice.repository;
 
 import faang.school.postservice.model.Hashtag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
+import org.springframework.data.jpa.repository.Query;
 
 public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
 
     void deleteByHashtagAndPostId(String hashtag, long postId);
 
-    List<Hashtag> findAllByHashtag(String hashtag);
-
     boolean existsByHashtag(String hashtag);
+
+    @Query("""
+            SELECT h FROM Hashtag h
+            JOIN h.post p
+            GROUP BY h
+            ORDER BY COUNT(p.likes) DESC
+            """)
+    Page<Hashtag> findPageByHashtagAndSortedByLikes(String hashtag, Pageable pageable);
 }

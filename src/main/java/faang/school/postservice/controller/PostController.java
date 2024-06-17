@@ -7,6 +7,8 @@ import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.service.post.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,7 +70,10 @@ public class PostController {
     }
 
     @GetMapping("hashtag/{hashtag}")
-    public List<PostDto> getAllByHashtag(@PathVariable String hashtag) {
-        return postService.findAllByHashtag(hashtag);
+    public List<PostDto> getAllByHashtag(@PathVariable String hashtag,
+                                         @RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return postService.findAllByHashtag(hashtag, pageable);
     }
 }

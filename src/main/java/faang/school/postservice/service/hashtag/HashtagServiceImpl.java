@@ -1,21 +1,20 @@
 package faang.school.postservice.service.hashtag;
 
-import faang.school.postservice.dto.post.PostDto;
+import faang.school.postservice.dto.post.PostHashtagDto;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Hashtag;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.HashtagRepository;
-import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.hashtag.cache.HashtagCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -25,33 +24,33 @@ public class HashtagServiceImpl implements HashtagService {
     private final HashtagRepository hashtagRepository;
     private final PostMapper postMapper;
     private final HashtagCacheService hashtagCacheService;
-    private final PostRepository postRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostDto> getPostsByHashtag(String hashtag) {
+    public List<PostHashtagDto> getPageOfPostsByHashtag(String hashtag, Pageable pageable) {
 
-        return hashtagCacheService.getPostsByHashtag(hashtag).stream()
-                .map(postMapper::toDto)
-                .toList();
-    }
+        Set<PostHashtagDto> posts = hashtagCacheService.getPostsByHashtag(hashtag, pageable);
 
-    @Transactional(readOnly = true)
-    public List<PostDto> getPage(int offset) {
+        if (posts == null) {
+            Page<Hashtag> hashtags = hashtagRepository.findPageByHashtagAndSortedByLikes(hashtag, pageable);
 
-        Pageable pageable = PageRequest.of(offset, 20);
-        Page<Post> dataPage = postRepository.findAll(pageable);
+            return hashtags.stream()
+                    .map(Hashtag::getPost)
+                    .map(postMapper::toHashtagDto)
+                    .toList();
+        }
 
-        return dataPage.stream()
-                .map(postMapper::toDto)
+        return posts.stream()
                 .toList();
     }
 
     @Override
     @Transactional
-    public void addHashtag(String hashtag, Post post) {
+    public void addHashtag(String hashtag, PostHashtagDto post) {
 
-        hashtagRepository.save(build(hashtag, post));
+        Post postEntity = postMapper.toEntity(post);
+        Hashtag hashtagEntity = build(hashtag, postEntity);
+        hashtagRepository.save(hashtagEntity);
 
         log.info("Hashtag #{} added for post with postId={}", hashtag, post.getId());
 
@@ -60,7 +59,7 @@ public class HashtagServiceImpl implements HashtagService {
 
     @Override
     @Transactional
-    public void deleteHashtag(String hashtag, Post post) {
+    public void deleteHashtag(String hashtag, PostHashtagDto post) {
 
         hashtagRepository.deleteByHashtagAndPostId(hashtag, post.getId());
 
@@ -71,7 +70,7 @@ public class HashtagServiceImpl implements HashtagService {
 
     @Override
     @Transactional
-    public void updateHashtag(String hashtag, Post post) {
+    public void updateHashtag(String hashtag, PostHashtagDto post) {
 
         if (hashtagRepository.existsByHashtag(hashtag)) {
             deleteHashtag(hashtag, post);

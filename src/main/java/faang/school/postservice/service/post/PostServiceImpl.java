@@ -2,6 +2,7 @@ package faang.school.postservice.service.post;
 
 import faang.school.postservice.dto.post.PostCreateDto;
 import faang.school.postservice.dto.post.PostDto;
+import faang.school.postservice.dto.post.PostHashtagDto;
 import faang.school.postservice.dto.post.PostUpdateDto;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
@@ -10,6 +11,7 @@ import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +26,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final PostValidator postValidator;
-    private final AsyncHashtagService hashtagService;
+    private final AsyncHashtagService asyncHashtagService;
 
     @Override
     public Post findById(Long id) {
@@ -50,7 +52,8 @@ public class PostServiceImpl implements PostService {
         post.setPublishedAt(LocalDateTime.now());
         post = postRepository.save(post);
 
-        hashtagService.addHashtags(post);
+        PostHashtagDto postHashtagDto = postMapper.toHashtagDto(post);
+        asyncHashtagService.addHashtags(postHashtagDto);
 
         return postMapper.toDto(post);
     }
@@ -63,7 +66,8 @@ public class PostServiceImpl implements PostService {
         post.setContent(postUpdateDto.getContent());
         post = postRepository.save(post);
 
-        hashtagService.updateHashtags(post);
+        PostHashtagDto postHashtagDto = postMapper.toHashtagDto(post);
+        asyncHashtagService.updateHashtags(postHashtagDto);
 
         return postMapper.toDto(post);
     }
@@ -75,12 +79,15 @@ public class PostServiceImpl implements PostService {
         post.setDeleted(true);
         postRepository.save(post);
 
-        hashtagService.removeHashtags(post);
+        PostHashtagDto postHashtagDto = postMapper.toHashtagDto(post);
+        asyncHashtagService.removeHashtags(postHashtagDto);
     }
 
     @Override
-    public List<PostDto> findAllByHashtag(String hashtag) {
-        return hashtagService.getPostsByHashtag(hashtag).join();
+    public List<PostDto> findAllByHashtag(String hashtag, Pageable pageable) {
+        return asyncHashtagService.getPostsByHashtag(hashtag, pageable).join().stream()
+                .map(postMapper::toDto)
+                .toList();
     }
 
     @Override

@@ -27,7 +27,9 @@ public class HashtagCacheServiceImpl implements HashtagCacheService {
     @Override
     public Set<PostHashtagDto> getPostsByHashtag(String hashtag, Pageable pageable) {
 
-        int end = pageable.getPageNumber() * pageable.getPageSize();
+        int end = pageable.getPageNumber() == 0 ?
+                pageable.getPageSize() :
+                pageable.getPageNumber() * pageable.getPageSize();
 
         if (end <= maxCacheSize && Boolean.TRUE.equals(redisTemplate.hasKey(hashtag))) {
             return zSetOps.reverseRange(hashtag, pageable.getOffset(), pageable.getPageSize());

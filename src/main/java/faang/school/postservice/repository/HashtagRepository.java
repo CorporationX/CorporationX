@@ -15,8 +15,8 @@ public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
     @Query("""
             SELECT h FROM Hashtag h
             JOIN h.post p
-            GROUP BY h
-            ORDER BY COUNT(p.likes) DESC
+            WHERE h.hashtag = :hashtag
+            ORDER BY SIZE(p.likes) DESC
             """)
     Page<Hashtag> findPageByHashtagAndSortedByLikes(String hashtag, Pageable pageable);
 }

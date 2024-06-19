@@ -46,4 +46,11 @@ public class AsyncHashtagServiceImpl implements AsyncHashtagService {
         Set<String> hashtags = HashtagSpliterator.getHashtags(post.getContent());
         hashtags.forEach(hashtag -> hashtagService.updateHashtag(hashtag, post));
     }
+
+    @Override
+    @Async("taskExecutor")
+    public void updateScore(PostHashtagDto post) {
+        Set<String> hashtags = HashtagSpliterator.getHashtags(post.getContent());
+        hashtags.forEach(hashtag -> hashtagService.updateScore(hashtag, post));
+    }
 }

@@ -79,6 +79,12 @@ public class HashtagServiceImpl implements HashtagService {
         }
     }
 
+    @Override
+    @Transactional
+    public void updateScore(String hashtag, PostHashtagDto post) {
+        hashtagCacheService.updateScore(hashtag, post);
+    }
+
     private Hashtag build(String hashtag, Post post) {
         return Hashtag.builder()
                 .hashtag(hashtag)

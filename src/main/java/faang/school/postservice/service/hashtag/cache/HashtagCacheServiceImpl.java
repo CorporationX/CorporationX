@@ -59,4 +59,10 @@ public class HashtagCacheServiceImpl implements HashtagCacheService {
         zSetOps.remove(hashtag, post);
         log.info("Removed post {} from hashtag's #{} cache", post, hashtag);
     }
+
+    @Override
+    public void updateScore(String hashtag, PostHashtagDto post) {
+        zSetOps.add(hashtag, post, post.getLikeIds().size());
+        log.info("Updated post's score to {}: post={}", post.getLikeIds().size(), post);
+    }
 }

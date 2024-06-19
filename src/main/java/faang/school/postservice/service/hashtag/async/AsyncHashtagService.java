@@ -15,4 +15,6 @@ public interface AsyncHashtagService {
     void removeHashtags(PostHashtagDto post);
 
     void updateHashtags(PostHashtagDto post);
+
+    void updateScore(PostHashtagDto post);
 }

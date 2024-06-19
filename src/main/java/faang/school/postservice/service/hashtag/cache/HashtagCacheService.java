@@ -12,4 +12,6 @@ public interface HashtagCacheService {
     void addPostToHashtag(String hashtag, PostHashtagDto post);
 
     void removePostFromHashtag(String hashtag, PostHashtagDto post);
+
+    void updateScore(String hashtag, PostHashtagDto post);
 }

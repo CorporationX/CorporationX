@@ -9,14 +9,19 @@ import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
+import faang.school.postservice.service.moderation.ModerationDictionary;
 import faang.school.postservice.validator.comment.CommentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +33,8 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final CommonServiceMethods commonServiceMethods;
+    private final ModerationDictionary moderationDictionary;
+    private final ExecutorService commentModeratorExecutorService;
 
     @Override
     public CommentDto createComment(long postId, long userId, CommentToCreateDto commentDto) {
@@ -78,5 +85,23 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.deleteById(commentId);
         log.info("Deleted comment {} on post {} authored by {}", commentId, comment.getPost().getId(), userId);
         return commentToDelete;
+    }
+
+    public void moderateOffensiveContent() {
+        List<Comment> unverifiedComments = commentRepository.findByVerifiedIsNull();
+        int batchSize = 100;
+        for (int i = 0; i < unverifiedComments.size(); i += batchSize) {
+            List<Comment> batch = unverifiedComments.subList(i, Math.min(i + batchSize, unverifiedComments.size()));
+            CompletableFuture.runAsync(() -> moderateBatch(batch), commentModeratorExecutorService);
+        }
+    }
+
+    @Async("commentModeratorExecutorService")
+    public void moderateBatch(List<Comment> batch) {
+        batch.forEach(comment -> {
+            comment.setVerified(!moderationDictionary.containsBadWord(comment.getContent()));
+            comment.setVerifiedDate(LocalDateTime.now());
+            commentRepository.save(comment);
+        });
     }
 }

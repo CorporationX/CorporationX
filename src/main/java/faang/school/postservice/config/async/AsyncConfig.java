@@ -14,4 +14,9 @@ public class AsyncConfig {
     public ExecutorService adRemoverExecutorService(@Value("${post.ad-remover.threads-count}") int threadsCount) {
         return Executors.newFixedThreadPool(threadsCount);
     }
+
+    @Bean
+    public ExecutorService commentModeratorExecutorService(@Value("${moderation.threads-count}") int threadsCount) {
+        return Executors.newFixedThreadPool(threadsCount);
+    }
 }

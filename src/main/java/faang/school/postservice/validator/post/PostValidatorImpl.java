@@ -5,6 +5,7 @@ import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.exception.DataValidationException;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.model.Post;
+import faang.school.postservice.validator.user.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class PostValidatorImpl implements PostValidator {
 
     private final UserServiceClient userService;
+    private final UserValidator userValidator;
     private final ProjectServiceClient projectService;
 
     public void validateAuthor(Long userId, Long projectId) {
@@ -53,10 +55,10 @@ public class PostValidatorImpl implements PostValidator {
     }
 
     private void validateProject(Long projectId) {
-        try {
-            projectService.getProject(projectId);
-        } catch (Exception e) {
-            throw new NotFoundException(String.format("User with id %s not found", projectId));
-        }
+//        try {
+//            projectService.getProject(projectId);
+//        } catch (Exception e) {
+//            throw new NotFoundException(String.format("Project with id %s not found", projectId));
+//        }
     }
 }

@@ -69,7 +69,9 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findPostDraftsByUserAuthorId(Long id) {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, false, false).stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
+                .sorted(Comparator.comparing(PostDto::getCreatedAt)
+                        .thenComparing(PostDto::getId)
+                        .reversed())
                 .toList();
     }
 
@@ -77,7 +79,9 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findPostDraftsByProjectAuthorId(Long id) {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, false, false).stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
+                .sorted(Comparator.comparing(PostDto::getCreatedAt)
+                        .thenComparing(PostDto::getId)
+                        .reversed())
                 .toList();
     }
 
@@ -85,7 +89,9 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findPostPublicationsByUserAuthorId(Long id) {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
+                .sorted(Comparator.comparing(PostDto::getPublishedAt)
+                        .thenComparing(PostDto::getId)
+                        .reversed())
                 .toList();
     }
 
@@ -93,7 +99,9 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findPostPublicationsByProjectAuthorId(Long id) {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
+                .sorted(Comparator.comparing(PostDto::getPublishedAt)
+                        .thenComparing(PostDto::getId)
+                        .reversed())
                 .toList();
     }
 }

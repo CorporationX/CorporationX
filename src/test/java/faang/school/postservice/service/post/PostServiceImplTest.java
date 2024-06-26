@@ -102,10 +102,12 @@ class PostServiceImplTest {
     @Test
     void successFindPostDraftsByUserAuthorId() {
         List<Post> posts = getPosts();
-        List<PostDto> expectedResult = getPosts().stream()
+        List<PostDto> expectedResult = posts.stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
-                        .toList();
+                .sorted(Comparator.comparing(PostDto::getCreatedAt)
+                        .thenComparing(PostDto::getId)
+                        .reversed())
+                .toList();
 
         when(postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(1L, false, false))
                 .thenReturn(posts);
@@ -121,9 +123,11 @@ class PostServiceImplTest {
     @Test
     void successFindPostDraftsByProjectAuthorId() {
         List<Post> posts = getPosts();
-        List<PostDto> expectedResult = getPosts().stream()
+        List<PostDto> expectedResult = posts.stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
+                .sorted(Comparator.comparing(PostDto::getCreatedAt)
+                        .thenComparing(PostDto::getId)
+                        .reversed())
                 .toList();
 
         when(postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(1L, false, false))
@@ -142,7 +146,9 @@ class PostServiceImplTest {
         List<Post> posts = getPosts();
         List<PostDto> expectedResult = getPosts().stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
+                .sorted(Comparator.comparing(PostDto::getPublishedAt)
+                        .thenComparing(PostDto::getId)
+                        .reversed())
                 .toList();
 
         when(postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(1L, true, false))
@@ -161,7 +167,9 @@ class PostServiceImplTest {
         List<Post> posts = getPosts();
         List<PostDto> expectedResult = getPosts().stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
+                .sorted(Comparator.comparing(PostDto::getPublishedAt)
+                        .thenComparing(PostDto::getId)
+                        .reversed())
                 .toList();
 
         when(postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(1L, true, false))

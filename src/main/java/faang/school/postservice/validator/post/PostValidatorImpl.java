@@ -55,10 +55,10 @@ public class PostValidatorImpl implements PostValidator {
     }
 
     private void validateProject(Long projectId) {
-//        try {
-//            projectService.getProject(projectId);
-//        } catch (Exception e) {
-//            throw new NotFoundException(String.format("Project with id %s not found", projectId));
-//        }
+        try {
+            projectService.getProject(projectId);
+        } catch (Exception e) {
+            throw new NotFoundException(String.format("Project with id %s not found", projectId));
+        }
     }
 }

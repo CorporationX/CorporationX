@@ -9,9 +9,7 @@ import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
-import faang.school.postservice.service.moderation.ModerationDictionary;
 import faang.school.postservice.validator.comment.CommentValidator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,12 +19,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,26 +47,6 @@ class CommentServiceImplTest {
 
     @InjectMocks
     private CommentServiceImpl commentService;
-
-    @Mock
-    private ModerationDictionary moderationDictionary;
-
-    @Mock
-    private final ExecutorService commentModeratorExecutorService = Executors.newFixedThreadPool(30);
-
-
-    @BeforeEach
-    public void setUp() {
-        commentService = new CommentServiceImpl(
-                commentValidator,
-                commentMapper,
-                commentRepository,
-                postRepository,
-                commonServiceMethods,
-                moderationDictionary,
-                commentModeratorExecutorService
-        );
-    }
 
     @Test
     void createComment_success() {
@@ -171,41 +146,5 @@ class CommentServiceImplTest {
         verify(commentMapper, times(1)).toDto(comment);
 
         assertEquals(commentDto, result);
-    }
-
-    @Test
-    void moderateOffensiveContent() {
-        Comment comment1 = new Comment();
-        comment1.setContent("This is a test comment");
-        comment1.setCreatedAt(LocalDateTime.now());
-
-        Comment comment2 = new Comment();
-        comment2.setContent("This is another test comment");
-        comment2.setCreatedAt(LocalDateTime.now());
-
-        List<Comment> unverifiedComments = Arrays.asList(comment1, comment2);
-        when(commentRepository.findByVerifiedIsNull()).thenReturn(unverifiedComments);
-
-        commentService.moderateOffensiveContent();
-
-        verify(commentRepository, times(1)).findByVerifiedIsNull();
-    }
-
-    @Test
-    void moderateBatch() {
-        Comment comment1 = new Comment();
-        comment1.setContent("This is a test comment");
-        comment1.setCreatedAt(LocalDateTime.now());
-
-        Comment comment2 = new Comment();
-        comment2.setContent("This is another test comment");
-        comment2.setCreatedAt(LocalDateTime.now());
-
-        List<Comment> batch = Arrays.asList(comment1, comment2);
-        when(moderationDictionary.containsBadWord(anyString())).thenReturn(false);
-
-        commentService.moderateBatch(batch);
-
-        verify(commentRepository, times(2)).save(any(Comment.class));
     }
 }

@@ -86,9 +86,4 @@ public class CommentController {
         long userId = userContext.getUserId();
         return commentService.deleteComment(postId, commentId, userId);
     }
-
-    @GetMapping("/moderate")
-    public void moderateComment() {
-        commentService.moderateOffensiveContent();
-    }
 }

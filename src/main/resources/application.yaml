@@ -24,13 +24,16 @@ spring:
       channels:
         calculations_channel:
           name: calculations_channel
+      cache:
+        hashtag:
+          max_size: 1000
 
   servlet:
     multipart:
       max-file-size: 5MB
 
   profiles:
-    active: test
+    active: none
 
 server:
   port: 8081
@@ -69,3 +72,8 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+async:
+  corePoolSize: 5
+  maxPoolSize: 10
+  queueCapacity: 100

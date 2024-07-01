@@ -6,4 +6,4 @@ DROP TABLE post;
 DROP TABLE favorite_albums;
 DROP INDEX album_author_title_idx;
 DROP TABLE album;
-DROP TABLE resource;
+DROP TABLE post_resource;

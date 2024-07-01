@@ -9,3 +9,8 @@ databaseChangeLog:
       file: db/changelog/changeset/post_V004__resource.sql
   - include:
       file: db/changelog/changeset/post_V005__comment_alter.sql
+
+  - include:
+      file: db/changelog/changeset/post_V005_rename_resources.sql
+  - include:
+      file: db/changelog/changeset/post_V004__hashtag.sql

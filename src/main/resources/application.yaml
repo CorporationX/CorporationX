@@ -76,3 +76,6 @@ moderation:
     filepath: "classpath:bad-words.txt"
   threads-count: 30
   batch-size: 100
+
+api:
+  path: /api/v1

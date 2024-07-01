@@ -9,5 +9,3 @@ databaseChangeLog:
       file: db/changelog/changeset/post_V004__resource.sql
   - include:
       file: db/changelog/changeset/post_V005__comment_alter.sql
-  - include:
-      file: db/changelog/changeset/post_V006__insert_values.sql

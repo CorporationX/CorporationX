@@ -6,4 +6,12 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/post_V003__album.sql
   - include:
+      file: db/changelog/changeset/post_V004__resource.sql
+  - include:
+      file: db/changelog/changeset/post_V005_rename_resources.sql
+  - include:
+      file: db/changelog/changeset/post_V004__hashtag.sql
+  - include:
+      file: db/changelog/changeset/post_V007__add_column_in_post_table.sql
+  - include:
       file: db/changelog/changeset/post_V004__add_is_checked_for_spelling.sql

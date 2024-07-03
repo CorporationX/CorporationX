@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -35,6 +36,9 @@ public class Post {
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Like> likes;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<Hashtag> hashtags;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments;
@@ -71,6 +75,15 @@ public class Post {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "is_verify", length = 64, nullable = false)
+    @ColumnDefault("UNCHECKED")
+    @Enumerated(EnumType.STRING)
+    private VerificationStatus isVerify;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "verified_date")
+    private LocalDateTime verifiedDate;
 
     @Column(name = "is_checked_for_spelling", nullable = false)
     private boolean isCheckedForSpelling;

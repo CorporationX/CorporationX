@@ -24,18 +24,34 @@ spring:
       channels:
         calculations_channel:
           name: calculations_channel
+      cache:
+        hashtag:
+          max_size: 1000
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
 
   profiles:
     active: test
 
 server:
   port: 8081
-  servlet:
-    context-path: /api/v1
 
 logging:
   level:
     root: info
+
+services:
+  s3:
+    endpoint: http://127.0.0.1:9000/
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+    targetWidth: 1080
+    targetHeight: 566
+    maxFilesAmount: 10
+
 
 post:
   publisher:
@@ -44,6 +60,14 @@ post:
   ad-remover:
     scheduler:
       cron: "0 0/1 * 1/1 * ?" # every minute
+    threads-count: 20
+    max-list-size: 100
+  moderator:
+    path-curse-words: "src/main/resources/curse-words.txt"
+    scheduler:
+      cron: "0 0 * * * ?" # every midnight
+    threads-count: 20
+    max-list-size: 100
   correcter:
     scheduler:
       cron: "0 0 0 * * *"
@@ -57,6 +81,11 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+async:
+  corePoolSize: 5
+  maxPoolSize: 10
+  queueCapacity: 100
 
 spelling:
   url: https://speller.yandex.net/services/spellservice.json/checkText?text=

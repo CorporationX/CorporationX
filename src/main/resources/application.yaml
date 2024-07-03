@@ -26,6 +26,9 @@ spring:
           name: calculations_channel
         like_post_channel:
           name: like_channel
+      cache:
+        hashtag:
+          max_size: 1000
 
   servlet:
     multipart:
@@ -61,6 +64,12 @@ post:
       cron: "0 0/1 * 1/1 * ?" # every minute
     threads-count: 20
     max-list-size: 100
+  moderator:
+    path-curse-words: "src/main/resources/curse-words.txt"
+    scheduler:
+      cron: "0 0 * * * ?" # every midnight
+    threads-count: 20
+    max-list-size: 100
 
 user-service:
   host: localhost
@@ -71,3 +80,8 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+async:
+  corePoolSize: 5
+  maxPoolSize: 10
+  queueCapacity: 100

@@ -1,17 +1,20 @@
 package faang.school.postservice.service.post;
 
+import faang.school.postservice.config.moderation.ModerationDictionary;
 import faang.school.postservice.dto.post.PostCreateDto;
 import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.dto.post.PostUpdateDto;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.PostRepository;
+import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
 import faang.school.postservice.validator.post.PostValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -21,7 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +37,10 @@ class PostServiceImplTest {
     private PostMapper postMapper = Mappers.getMapper(PostMapper.class);
     @Mock
     private PostValidator postValidator;
+    @Mock
+    private ModerationDictionary moderationDictionary;
+    @Mock
+    private AsyncHashtagService hashtagService;
 
     @InjectMocks
     private PostServiceImpl postServiceImpl;
@@ -173,6 +181,16 @@ class PostServiceImplTest {
                 expectedResult.stream().map(PostDto::getId).sorted().toList(),
                 result.stream().map(PostDto::getId).sorted().toList()
         );
+    }
+
+    @Test
+    void testVerifiedPost(){
+        List<Post> posts = getPosts();
+        Mockito.when(moderationDictionary.checkCurseWordsInPost(posts.get(0).getContent())).thenReturn(true);
+
+        postServiceImpl.verifyPost(posts);
+
+        Mockito.verify(postRepository, times(1)).save(posts.get(0));
     }
 
     private List<Post> getPosts() {

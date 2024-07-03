@@ -1,5 +1,7 @@
 package faang.school.postservice.config.moderation;
 
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,11 +18,14 @@ import java.util.stream.Stream;
 @Slf4j
 public class ModerationDictionary {
 
-    public Set<String> curseWords;
+    @Getter
+    private Set<String> curseWords;
+
     @Value("${post.moderator.path-curse-words}")
     private Path curseWordsPath;
 
-    public void WordSetBean() {
+    @PostConstruct
+    public void init() {
         try (Stream<String> lines = Files.lines(curseWordsPath)) {
             curseWords = lines.map(String::trim)
                     .map(String::toLowerCase)

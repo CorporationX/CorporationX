@@ -1,6 +1,6 @@
 package faang.school.postservice.model;
 
-public enum PostVerifiedStatus {
+public enum VerificationStatus {
     UNCHECKED,
     VERIFIED,
     NOT_VERIFIED

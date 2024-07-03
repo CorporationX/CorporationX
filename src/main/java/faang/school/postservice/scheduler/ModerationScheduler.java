@@ -28,7 +28,7 @@ public class ModerationScheduler {
         List<Post> posts = postRepository.findAllUncheckedPosts();
 
         if (posts.isEmpty()) {
-            log.info("posts were empty");
+            log.info("There are no posts for moderation");
             return;
         }
 

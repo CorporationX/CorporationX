@@ -1,7 +1,7 @@
 package faang.school.postservice.scheduler;
 
 import faang.school.postservice.model.Post;
-import faang.school.postservice.model.PostVerifiedStatus;
+import faang.school.postservice.model.VerificationStatus;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.post.PostService;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ public class ModerationSchedulerTest {
         post.setId(1);
         post.setContent("Hello world");
         post.setProjectId(1L);
-        post.setIsVerify(PostVerifiedStatus.UNCHECKED);
+        post.setIsVerify(VerificationStatus.UNCHECKED);
 
         int maxListSize = 1;
         ReflectionTestUtils.setField(moderationScheduler, "maxListSize", maxListSize);

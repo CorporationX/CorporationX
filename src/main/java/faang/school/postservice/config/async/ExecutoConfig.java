@@ -8,10 +8,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
-public class ModerateConfig {
+public class ExecutoConfig {
 
     @Bean
-        public ExecutorService moderateExecutorService(@Value("${post.moderator.threads-count}") int threadsCount) {
+    public ExecutorService executorService(@Value("${post.moderator.threads-count}") int threadsCount) {
         return Executors.newFixedThreadPool(threadsCount);
     }
 }

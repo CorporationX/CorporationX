@@ -7,7 +7,7 @@ import faang.school.postservice.dto.post.PostUpdateDto;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.model.PostVerifiedStatus;
+import faang.school.postservice.model.VerificationStatus;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
@@ -102,14 +102,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Async("moderateExecutorService")
+    @Async("executorService")
     public void verifyPost(List<Post> posts) {
         for (Post post : posts) {
 
             if (moderationDictionary.checkCurseWordsInPost(post.getContent())) {
-                post.setIsVerify(PostVerifiedStatus.NOT_VERIFIED);
+                post.setIsVerify(VerificationStatus.NOT_VERIFIED);
             } else {
-                post.setIsVerify(PostVerifiedStatus.VERIFIED);
+                post.setIsVerify(VerificationStatus.VERIFIED);
             }
 
             post.setVerifiedDate(LocalDateTime.now());

@@ -76,7 +76,7 @@ public class Post {
     @Column(name = "is_verify", length = 64, nullable = false)
     @ColumnDefault("UNCHECKED")
     @Enumerated(EnumType.STRING)
-    private PostVerifiedStatus isVerify;
+    private VerificationStatus isVerify;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "verified_date")

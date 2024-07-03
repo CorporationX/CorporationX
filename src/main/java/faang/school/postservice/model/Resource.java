@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "resource")
+@Table(name = "post_resource")
 public class Resource {
 
     @Id
@@ -44,7 +44,7 @@ public class Resource {
     @Column(name = "name", length = 150)
     private String name;
 
-    @Column(name = "type", length = 50)
+    @Column(name = "type", length = 150)
     private String type;
 
     @ManyToOne

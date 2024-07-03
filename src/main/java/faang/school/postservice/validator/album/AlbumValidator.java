@@ -1,16 +1,15 @@
 package faang.school.postservice.validator.album;
 
-import faang.school.postservice.dto.album.AlbumDto;
+import faang.school.postservice.client.UserServiceClient;
+import faang.school.postservice.dto.user.UserDto;
 import faang.school.postservice.exception.DataValidationException;
 import faang.school.postservice.exception.NoAccessException;
-import faang.school.postservice.mapper.album.AlbumMapper;
 import faang.school.postservice.model.Album;
+import faang.school.postservice.model.AlbumVisibility;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.AlbumRepository;
-import faang.school.postservice.validator.user.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,86 +18,45 @@ import java.util.List;
 public class AlbumValidator {
 
     private final AlbumRepository albumRepository;
-    private final AlbumMapper albumMapper;
-    private final UserValidator userValidator;
+    private final UserServiceClient userServiceClient;
 
-    @Transactional
-    public void validateCreateAlbum(long userId, Album album) {
-        userValidator.validateUserExistence(userId);
-        validateAlbumTitleIsUnique(userId, album);
-    }
-
-    @Transactional
-    public void validateAddPostToAlbum(Album album, long postId, long userId) {
-        validateUserAndAccess(album, userId);
-        checkPostExistenceInAlbum(album, postId);
-    }
-
-    @Transactional
-    public void validateAddAlbumToFavorites(Album album, long userId) {
-        validateUserAndAccess(album, userId);
+    public void validateAlbumExistence(Album album, long userId) {
         boolean albumExists = checkAlbumExistenceInFavorites(album, userId);
         if (albumExists) {
             throw new DataValidationException(String.format("Album with id '%d' already in favorites", album.getId()));
         }
     }
 
-    @Transactional
-    public void validateUpdateAlbum(Album oldAlbum, long userId, AlbumDto updatedAlbumDto) {
-                validateUserAndAccess(oldAlbum, userId);
-        Album updatedAlbum = albumMapper.toEntity(updatedAlbumDto);
-
-        if(!oldAlbum.getTitle().equals(updatedAlbum.getTitle())){
-            validateAlbumTitleIsUnique(userId, updatedAlbum);
-        }
-    }
-
-    @Transactional
-    public void validateAlbumTitleIsUnique(long userId, Album album) {
+    public void validateAlbumTitleIsUnique(long userId, String title) {
         List<Album> albums = albumRepository.findByAuthorId(userId).toList();
         boolean isTitleNotUnique = albums.stream()
-                .anyMatch(existingAlbum -> existingAlbum.getTitle().equals(album.getTitle()));
+                .anyMatch(existingAlbum -> existingAlbum.getTitle().equals(title));
 
         if (isTitleNotUnique) {
             throw new DataValidationException(
-                    String.format("Album with this title '%s' already exists", album.getTitle()));
+                    String.format("Album with this title '%s' already exists", title));
         }
     }
 
-
-    @Transactional
-    public void validateDeleteAlbum(Album album, long userId) {
-        validateUserAndAccess(album, userId);
-    }
-
-    @Transactional
-    public void validateRemoveAlbumFromFavorite(Album album, long userId) {
-        validateUserAndAccess(album, userId);
-        boolean albumExists = checkAlbumExistenceInFavorites(album, userId);
-        if (!albumExists) {
-            throw new DataValidationException(String.format("Album with id '%d' already not in favorites", album.getId()));
+    public boolean validateAccess(Album album, long userId) {
+        if (album.getVisibility() == AlbumVisibility.ONLY_AUTHOR && userId != album.getAuthorId()) {
+            throw new NoAccessException("Only the author has access to the album with albumId = " + album.getId());
         }
-    }
-
-    @Transactional
-    public void validateRemovePostFromAlbum(Album album, long postId, long userId) {
-        validateUserAndAccess(album, userId);
-        checkPostExistenceInAlbum(album, postId);
-    }
-
-    @Transactional
-    public void validateUserAndAccess(Album album, long userId) {
-        userValidator.validateUserExistence(userId);
-        validateAccess(album, userId);
-    }
-
-    private void validateAccess(Album album, long userId) {
-        if (userId != album.getAuthorId()) {
-            throw new NoAccessException("Only the author has access to the album");
+        if (album.getVisibility() == AlbumVisibility.SELECTED_USERS && !album.getSelectedUserIds().contains(userId)) {
+            throw new NoAccessException("Only author's selected users has access to the album with albumId = " + album.getId());
         }
+        if (album.getVisibility() == AlbumVisibility.ONLY_SUBSCRIBERS) {
+            List<Long> authorSubscribersIds = userServiceClient.getFollowers(album.getAuthorId()).stream()
+                    .map(UserDto::getId)
+                    .toList();
+            if (!authorSubscribersIds.contains(userId)) {
+                throw new NoAccessException("Only subscribers has access to the album with albumId = " + album.getId());
+            }
+        }
+        return true;
     }
 
-    private void checkPostExistenceInAlbum(Album album, long postId) {
+    public void checkPostExistenceInAlbum(Album album, long postId) {
         List<Post> posts = album.getPosts();
         boolean isPostAlreadyExistInAlbum = posts.stream()
                 .anyMatch(post -> post.getId() == postId);
@@ -109,8 +67,13 @@ public class AlbumValidator {
         }
     }
 
-    @Transactional
     public boolean checkAlbumExistenceInFavorites(Album album, long userId) {
         return albumRepository.checkAlbumExistsInFavorites(album.getId(), userId);
+    }
+
+    public void validateUserIsAuthor(Album album, long userId) {
+        if (album.getAuthorId() != userId) {
+            throw new NoAccessException("Only the author can modify album with albumId = " + album.getId());
+        }
     }
 }

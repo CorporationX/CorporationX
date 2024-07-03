@@ -1,15 +1,30 @@
 package faang.school.postservice.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -35,7 +50,17 @@ public class Album {
 
     @ManyToMany
     @JoinTable(name = "post_album", joinColumns = @JoinColumn(name = "album_id"), inverseJoinColumns = @JoinColumn(name = "post_id"))
-    private List<Post> posts = new ArrayList<>();
+    private List<Post> posts;
+
+    @Column(name = "visibility", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("ALL_USERS")
+    private AlbumVisibility visibility;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "album_selected_users", joinColumns = @JoinColumn(name = "album_id"))
+    @Column(name = "selected_user_id", nullable = false)
+    private List<Long> selectedUserIds;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

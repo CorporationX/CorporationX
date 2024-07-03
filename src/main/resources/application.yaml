@@ -24,6 +24,8 @@ spring:
       channels:
         calculations_channel:
           name: calculations_channel
+        like_post_channel:
+          name: like_channel
       cache:
         hashtag:
           max_size: 1000

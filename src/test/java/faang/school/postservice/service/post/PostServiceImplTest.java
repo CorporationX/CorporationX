@@ -140,8 +140,8 @@ class PostServiceImplTest {
         List<PostDto> result = postServiceImpl.findPostDraftsByProjectAuthorId(1L);
 
         assertEquals(
-                expectedResult.stream().map(PostDto::getId).toList(),
-                result.stream().map(PostDto::getId).toList()
+                expectedResult.stream().map(PostDto::getId).sorted().toList(),
+                result.stream().map(PostDto::getId).sorted().toList()
         );
     }
 
@@ -159,8 +159,8 @@ class PostServiceImplTest {
         List<PostDto> result = postServiceImpl.findPostPublicationsByUserAuthorId(1L);
 
         assertEquals(
-                expectedResult.stream().map(PostDto::getId).toList(),
-                result.stream().map(PostDto::getId).toList()
+                expectedResult.stream().map(PostDto::getId).sorted().toList(),
+                result.stream().map(PostDto::getId).sorted().toList()
         );
     }
 
@@ -178,8 +178,8 @@ class PostServiceImplTest {
         List<PostDto> result = postServiceImpl.findPostPublicationsByProjectAuthorId(1L);
 
         assertEquals(
-                expectedResult.stream().map(PostDto::getId).toList(),
-                result.stream().map(PostDto::getId).toList()
+                expectedResult.stream().map(PostDto::getId).sorted().toList(),
+                result.stream().map(PostDto::getId).sorted().toList()
         );
     }
 

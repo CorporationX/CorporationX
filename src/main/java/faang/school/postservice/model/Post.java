@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -74,4 +75,13 @@ public class Post {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "is_verify", length = 64, nullable = false)
+    @ColumnDefault("UNCHECKED")
+    @Enumerated(EnumType.STRING)
+    private VerificationStatus isVerify;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "verified_date")
+    private LocalDateTime verifiedDate;
 }

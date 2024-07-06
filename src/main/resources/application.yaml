@@ -24,6 +24,8 @@ spring:
       channels:
         calculations_channel:
           name: calculations_channel
+        like_post_channel:
+          name: like_channel
       cache:
         hashtag:
           max_size: 1000
@@ -33,7 +35,7 @@ spring:
       max-file-size: 5MB
 
   profiles:
-    active: none
+    active: test
 
 server:
   port: 8081
@@ -60,6 +62,12 @@ post:
   ad-remover:
     scheduler:
       cron: "0 0 0 * * *"  # Каждый день в полночь
+    threads-count: 20
+    max-list-size: 100
+  moderator:
+    path-curse-words: "src/main/resources/curse-words.txt"
+    scheduler:
+      cron: "0 0 * * * ?" # every midnight
     threads-count: 20
     max-list-size: 100
 

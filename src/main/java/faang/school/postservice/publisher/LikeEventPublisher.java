@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-@Component
-@Slf4j
 @RequiredArgsConstructor
-public class LikeEventPublisher implements MessagePublisher<LikeEvent>{
+@Slf4j
+@Component
+public class LikeEventPublisher implements MessagePublisher<LikeEvent> {
 
     @Value("${spring.data.redis.channels.like_post_channel.name}")
     private String channelTopic;

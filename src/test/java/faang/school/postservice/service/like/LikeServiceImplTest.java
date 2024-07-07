@@ -1,10 +1,12 @@
 package faang.school.postservice.service.like;
 
 import faang.school.postservice.dto.like.LikeDto;
+import faang.school.postservice.event.LikeEvent;
 import faang.school.postservice.mapper.LikeMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
+import faang.school.postservice.publisher.MessagePublisher;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
@@ -12,6 +14,8 @@ import faang.school.postservice.validator.like.LikeValidatorImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -24,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -41,8 +46,12 @@ class LikeServiceImplTest {
     private CommentRepository commentRepository;
     @Mock
     private LikeMapper mapper;
+    @Mock
+    private MessagePublisher<LikeEvent> likePostPublisher;
     @InjectMocks
     private LikeServiceImpl likeService;
+    @Captor
+    private ArgumentCaptor<LikeEvent> captorForLikeEvent;
 
     private final long userId = 4L;
     private final long postId = 2L;
@@ -80,18 +89,25 @@ class LikeServiceImplTest {
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         when(likeRepository.save(like)).thenReturn(like);
         when(mapper.toDto(like)).thenReturn(likeDto);
+        doNothing().when(likePostPublisher).publish(any(LikeEvent.class));
 
         LikeDto actual = likeService.addLikeOnPost(userId, postId);
         assertEquals(likeDto, actual);
         assertFalse(post.getLikes().isEmpty());
 
-        InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository);
+        InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository, likePostPublisher);
         inOrder.verify(likeValidator, times(1)).validateUserExistence(userId);
         inOrder.verify(postRepository, times(1)).findById(postId);
         inOrder.verify(likeValidator, times(1)).validateAndGetPostToLike(userId, post);
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(likeRepository, times(1)).save(like);
+        inOrder.verify(likePostPublisher, times(1)).publish(captorForLikeEvent.capture());
         inOrder.verify(mapper, times(1)).toDto(like);
+
+        LikeEvent captured = captorForLikeEvent.getValue();
+        assertEquals(captured.getPostId(),postId);
+        assertEquals(captured.getUserId(),userId);
+        assertEquals(captured.getAuthorId(),post.getAuthorId());
     }
 
     @Test

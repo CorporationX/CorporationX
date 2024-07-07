@@ -1,4 +1,5 @@
 DROP TABLE post_album;
+DROP TABLE post_ad;
 DROP TABLE likes;
 DROP TABLE comment;
 DROP TABLE post;

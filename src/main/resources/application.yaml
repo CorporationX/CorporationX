@@ -61,7 +61,7 @@ post:
       cron: "0 0/1 * 1/1 * ?" # every minute
   ad-remover:
     scheduler:
-      cron: "0 0/1 * 1/1 * ?" # every minute
+      cron: "0 0 0 * * *"  # Каждый день в полночь
     threads-count: 20
     max-list-size: 100
   moderator:
@@ -85,3 +85,13 @@ async:
   corePoolSize: 5
   maxPoolSize: 10
   queueCapacity: 100
+
+moderation:
+  cron: "0 0 0 * * *"  # Каждый день в полночь
+  dictionary:
+    filepath: "classpath:bad-words.txt"
+  threads-count: 30
+  batch-size: 100
+
+api:
+  path: /api/v1

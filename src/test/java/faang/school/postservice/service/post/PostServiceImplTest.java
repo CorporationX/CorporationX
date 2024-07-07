@@ -113,7 +113,7 @@ class PostServiceImplTest {
         List<PostDto> expectedResult = getPosts().stream()
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
-                        .toList();
+                .toList();
 
         when(postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(1L, false, false))
                 .thenReturn(posts);

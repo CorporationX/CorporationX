@@ -38,9 +38,4 @@ public class RedisConfig {
     ChannelTopic likeTopic(@Value("${spring.data.redis.channels.like_post_channel.name}") String topicName) {
         return new ChannelTopic(topicName);
     }
-
-    @Bean
-    ChannelTopic likeTopic(@Value("${spring.data.redis.channels.like_post_channel.name}") String topicName) {
-        return new ChannelTopic(topicName);
-    }
 }

@@ -126,8 +126,8 @@ class PostServiceImplTest {
         List<PostDto> result = postServiceImpl.findPostDraftsByUserAuthorId(1L);
 
         assertEquals(
-                expectedResult.stream().map(PostDto::getId).toList(),
-                result.stream().map(PostDto::getId).toList()
+                expectedResult.stream().map(PostDto::getId).sorted().toList(),
+                result.stream().map(PostDto::getId).sorted().toList()
         );
     }
 

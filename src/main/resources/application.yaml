@@ -70,6 +70,9 @@ post:
       cron: "0 0 * * * ?" # every midnight
     threads-count: 20
     max-list-size: 100
+  correcter:
+    scheduler:
+      cron: "0 0 0 * * *"
 
 user-service:
   host: localhost
@@ -85,6 +88,10 @@ async:
   corePoolSize: 5
   maxPoolSize: 10
   queueCapacity: 100
+
+spelling:
+  url: https://speller.yandex.net/services/spellservice.json/checkText?text=
+  threads: 4
 
 moderation:
   cron: "0 0 0 * * *"  # Каждый день в полночь

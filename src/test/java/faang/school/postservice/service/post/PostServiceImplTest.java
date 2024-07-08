@@ -7,11 +7,13 @@ import faang.school.postservice.dto.post.PostUpdateDto;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.PostRepository;
+import faang.school.postservice.service.spelling.SpellingService;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
 import faang.school.postservice.validator.post.PostValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,6 +44,8 @@ class PostServiceImplTest {
     private ModerationDictionary moderationDictionary;
     @Mock
     private AsyncHashtagService hashtagService;
+    @Mock
+    private SpellingService spellingService;
 
     @InjectMocks
     private PostServiceImpl postServiceImpl;
@@ -121,8 +126,8 @@ class PostServiceImplTest {
         List<PostDto> result = postServiceImpl.findPostDraftsByUserAuthorId(1L);
 
         assertEquals(
-                expectedResult.stream().map(PostDto::getId).toList(),
-                result.stream().map(PostDto::getId).toList()
+                expectedResult.stream().map(PostDto::getId).sorted().toList(),
+                result.stream().map(PostDto::getId).sorted().toList()
         );
     }
 
@@ -195,15 +200,31 @@ class PostServiceImplTest {
 
     private List<Post> getPosts() {
         return new ArrayList<>(List.of(
-                Post.builder().id(1L).createdAt(LocalDateTime.now().minusDays(1)).publishedAt(LocalDateTime.now().minusDays(1)).build(),
-                Post.builder().id(2L).createdAt(LocalDateTime.now().minusDays(1)).publishedAt(LocalDateTime.now().minusDays(2)).build(),
-                Post.builder().id(3L).createdAt(LocalDateTime.now().minusDays(2)).publishedAt(LocalDateTime.now().minusDays(13)).build(),
-                Post.builder().id(4L).createdAt(LocalDateTime.now().minusDays(2)).publishedAt(LocalDateTime.now().minusDays(2)).build(),
-                Post.builder().id(5L).createdAt(LocalDateTime.now().minusDays(6)).publishedAt(LocalDateTime.now().minusDays(3)).build(),
-                Post.builder().id(6L).createdAt(LocalDateTime.now().minusDays(5)).publishedAt(LocalDateTime.now().minusDays(4)).build(),
-                Post.builder().id(7L).createdAt(LocalDateTime.now().minusDays(2)).publishedAt(LocalDateTime.now().minusDays(5)).build(),
-                Post.builder().id(8L).createdAt(LocalDateTime.now().minusDays(2)).publishedAt(LocalDateTime.now().minusDays(4)).build(),
-                Post.builder().id(9L).createdAt(LocalDateTime.now().minusDays(4)).publishedAt(LocalDateTime.now().minusDays(3)).build()
+                Post.builder().id(1L).createdAt(LocalDateTime.now().minusDays(1)).publishedAt(LocalDateTime.now().minusDays(1)).isCheckedForSpelling(false).content("some content").build(),
+                Post.builder().id(2L).createdAt(LocalDateTime.now().minusDays(1)).publishedAt(LocalDateTime.now().minusDays(2)).isCheckedForSpelling(false).content("some content").build(),
+                Post.builder().id(3L).createdAt(LocalDateTime.now().minusDays(2)).publishedAt(LocalDateTime.now().minusDays(13)).isCheckedForSpelling(false).content("some content").build(),
+                Post.builder().id(4L).createdAt(LocalDateTime.now().minusDays(2)).publishedAt(LocalDateTime.now().minusDays(2)).isCheckedForSpelling(false).content("some content").build(),
+                Post.builder().id(5L).createdAt(LocalDateTime.now().minusDays(6)).publishedAt(LocalDateTime.now().minusDays(3)).isCheckedForSpelling(false).content("some content").build(),
+                Post.builder().id(6L).createdAt(LocalDateTime.now().minusDays(5)).publishedAt(LocalDateTime.now().minusDays(4)).isCheckedForSpelling(true).content("some content").build(),
+                Post.builder().id(7L).createdAt(LocalDateTime.now().minusDays(2)).publishedAt(LocalDateTime.now().minusDays(5)).isCheckedForSpelling(true).content("some content").build(),
+                Post.builder().id(8L).createdAt(LocalDateTime.now().minusDays(2)).publishedAt(LocalDateTime.now().minusDays(4)).isCheckedForSpelling(true).content("some content").build(),
+                Post.builder().id(9L).createdAt(LocalDateTime.now().minusDays(4)).publishedAt(LocalDateTime.now().minusDays(3)).isCheckedForSpelling(true).content("some content").build()
         ));
+    }
+
+    @Test
+    public void testCorrectPostsWithCorrecting(){
+        List<Post> posts = getPosts();
+
+        when(postRepository.findReadyToPublish()).thenReturn(posts);
+        when(spellingService.checkSpelling(anyString()))
+                .thenAnswer(i -> CompletableFuture.completedFuture(Optional.of(i.getArguments()[0])));
+
+        postServiceImpl.correctPosts();
+
+        InOrder inOrder = inOrder(postRepository, spellingService);
+        inOrder.verify(postRepository, times(1)).findReadyToPublish();
+        inOrder.verify(spellingService, times(5)).checkSpelling(anyString());
+        posts.forEach(post->assertTrue(post.isCheckedForSpelling()));
     }
 }

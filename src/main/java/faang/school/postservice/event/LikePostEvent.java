@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @AllArgsConstructor
-public class LikeEvent implements Event{
+public class LikePostEvent implements Event{
     private Long postId;
     private Long authorId;
     private Long userId;

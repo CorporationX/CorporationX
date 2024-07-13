@@ -1,12 +1,12 @@
 package faang.school.postservice.service.like;
 
 import faang.school.postservice.dto.like.LikeDto;
-import faang.school.postservice.event.LikeEvent;
+import faang.school.postservice.event.LikePostEvent;
 import faang.school.postservice.mapper.LikeMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.publisher.LikeEventPublisher;
+import faang.school.postservice.publisher.LikePostPublisher;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
@@ -47,11 +47,11 @@ class LikeServiceImplTest {
     @Mock
     private LikeMapper mapper;
     @Mock
-    private LikeEventPublisher likePostPublisher;
+    private LikePostPublisher likePostPublisher;
     @InjectMocks
     private LikeServiceImpl likeService;
     @Captor
-    private ArgumentCaptor<LikeEvent> captorForLikeEvent;
+    private ArgumentCaptor<LikePostEvent> captorForLikeEvent;
 
     private final long userId = 4L;
     private final long postId = 2L;
@@ -89,7 +89,7 @@ class LikeServiceImplTest {
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         when(likeRepository.save(like)).thenReturn(like);
         when(mapper.toDto(like)).thenReturn(likeDto);
-        doNothing().when(likePostPublisher).publish(any(LikeEvent.class));
+        doNothing().when(likePostPublisher).publish(any(LikePostEvent.class));
 
         LikeDto actual = likeService.addLikeOnPost(userId, postId);
         assertEquals(likeDto, actual);
@@ -104,7 +104,7 @@ class LikeServiceImplTest {
         inOrder.verify(likePostPublisher, times(1)).publish(captorForLikeEvent.capture());
         inOrder.verify(mapper, times(1)).toDto(like);
 
-        LikeEvent captured = captorForLikeEvent.getValue();
+        LikePostEvent captured = captorForLikeEvent.getValue();
         assertEquals(captured.getPostId(),postId);
         assertEquals(captured.getUserId(),userId);
         assertEquals(captured.getAuthorId(),post.getAuthorId());

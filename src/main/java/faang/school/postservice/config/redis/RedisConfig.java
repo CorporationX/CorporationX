@@ -1,5 +1,6 @@
 package faang.school.postservice.config.redis;
 
+import faang.school.postservice.dto.post.PostHashtagDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +36,16 @@ public class RedisConfig {
     }
 
     @Bean
-    ChannelTopic likeTopic(@Value("${spring.data.redis.channels.like_post_channel.name}") String topicName) {
+    public RedisTemplate<String, PostHashtagDto> postHashtagRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, PostHashtagDto> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return redisTemplate;
+    }
+
+    @Bean
+    ChannelTopic likeTopic(@Value("${spring.data.channel.like_post_channel.name}") String topicName) {
         return new ChannelTopic(topicName);
     }
 }

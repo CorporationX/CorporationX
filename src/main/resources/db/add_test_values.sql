@@ -92,7 +92,7 @@ VALUES
     (6, 6),
     (6, 7);
 
-INSERT INTO resource (key, size, name, type, post_id)
+INSERT INTO post_resource (key, size, name, type, post_id)
 VALUES
     ('key1', 1024, 'Resource 1', 'Type 1', 1),
     ('key2', 2048, 'Resource 2', 'Type 2', 2),

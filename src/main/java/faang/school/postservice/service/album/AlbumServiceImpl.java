@@ -5,6 +5,7 @@ import faang.school.postservice.dto.album.AlbumFilterDto;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.album.AlbumMapper;
 import faang.school.postservice.model.Album;
+import faang.school.postservice.model.AlbumVisibility;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.repository.AlbumRepository;
 import faang.school.postservice.repository.PostRepository;
@@ -32,10 +33,12 @@ public class AlbumServiceImpl implements AlbumService {
     private final UserValidator userValidator;
 
     @Override
+    @Transactional
     public AlbumDto createAlbum(long userId, AlbumDto albumDto) {
 
         Album album = albumMapper.toEntity(albumDto);
         album.setAuthorId(userId);
+        album.setVisibility(AlbumVisibility.ONLY_AUTHOR);
 
         userValidator.validateUserExistence(userId);
         albumValidator.validateUserIsAuthor(album, userId);

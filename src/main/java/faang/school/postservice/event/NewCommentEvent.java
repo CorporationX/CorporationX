@@ -12,10 +12,9 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @AllArgsConstructor
-public class LikeEvent implements Event{
+public class NewCommentEvent implements Event{
     private Long postId;
     private Long authorId;
-    private Long userId;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime completedAt;

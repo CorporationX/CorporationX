@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class ModerationDictionary {
+public class ModerationDictionaryService {
 
     @Value("${moderation.dictionary.filepath}")
     private String filepath;
@@ -24,7 +24,7 @@ public class ModerationDictionary {
 
     private final ResourceLoader resourceLoader;
 
-    public ModerationDictionary(ResourceLoader resourceLoader) {
+    public ModerationDictionaryService(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
 

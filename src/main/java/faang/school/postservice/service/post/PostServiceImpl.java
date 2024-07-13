@@ -151,6 +151,8 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    String a = null;
+
     @Override
     public void correctPosts(){
         List<Post> unpublishedPosts = postRepository.findReadyToPublish();

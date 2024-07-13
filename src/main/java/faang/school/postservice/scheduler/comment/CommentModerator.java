@@ -2,15 +2,13 @@ package faang.school.postservice.scheduler.comment;
 
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.repository.CommentRepository;
-import faang.school.postservice.service.comment.CommentService;
-import faang.school.postservice.service.moderation.ModerationDictionary;
+import faang.school.postservice.service.moderation.ModerationDictionaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 @RequiredArgsConstructor
 public class CommentModerator {
 
-    private final ModerationDictionary moderationDictionary;
+    private final ModerationDictionaryService moderationDictionaryService;
     private final ExecutorService commentModeratorExecutorService;
     private final CommentRepository commentRepository;
     @Value("${moderation.batch-size}")
@@ -40,7 +38,7 @@ public class CommentModerator {
     @Async("commentModeratorExecutorService")
     public void moderateBatch(List<Comment> batch) {
         batch.forEach(comment -> {
-            comment.setVerified(!moderationDictionary.containsBadWord(comment.getContent()));
+            comment.setVerified(!moderationDictionaryService.containsBadWord(comment.getContent()));
             comment.setVerifiedDate(LocalDateTime.now());
             commentRepository.save(comment);
             log.info("Moderated comment {}", comment.getId());

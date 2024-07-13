@@ -21,14 +21,23 @@ spring:
     redis:
       port: 6379
       host: localhost
-      channels:
-        calculations_channel:
-          name: calculations_channel
-        like_post_channel:
-          name: like_channel
-      cache:
-        hashtag:
-          max_size: 1000
+
+    kafka:
+      port: 9092
+      host: localhost
+      group-id: account_service
+
+    cache:
+      hashtag:
+        max_size: 1000
+
+    channel:
+      calculations_channel:
+        name: calculations_channel
+      like_post_channel:
+        name: like_channel
+      new_comment:
+        name: new-comment_channel
 
   servlet:
     multipart:

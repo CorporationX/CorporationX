@@ -3,9 +3,11 @@ package faang.school.postservice.service.comment;
 import faang.school.postservice.dto.comment.CommentDto;
 import faang.school.postservice.dto.comment.CommentToCreateDto;
 import faang.school.postservice.dto.comment.CommentToUpdateDto;
+import faang.school.postservice.event.NewCommentEvent;
 import faang.school.postservice.mapper.comment.CommentMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Post;
+import faang.school.postservice.publisher.NewCommentPublisher;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +31,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final CommonServiceMethods commonServiceMethods;
+    private final NewCommentPublisher newCommentPublisher;
 
     @Override
     public CommentDto createComment(long postId, long userId, CommentToCreateDto commentDto) {
@@ -39,8 +43,11 @@ public class CommentServiceImpl implements CommentService {
 
         commentValidator.validateCreateComment(userId);
 
-        commentRepository.save(comment);
+        comment = commentRepository.save(comment);
         log.info("Created comment on post {} authored by {}", postId, userId);
+
+        newCommentPublisher.publish(new NewCommentEvent(comment.getId(), userId, LocalDateTime.now()));
+
         return commentMapper.toDto(comment);
     }
 

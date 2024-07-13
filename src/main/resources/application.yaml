@@ -35,7 +35,7 @@ spring:
       calculations_channel:
         name: calculations_channel
       like_post_channel:
-        name: like_channel
+        name: like-post_channel
       new_comment:
         name: new-comment_channel
       post_view:

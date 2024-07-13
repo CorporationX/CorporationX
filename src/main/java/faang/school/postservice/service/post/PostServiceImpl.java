@@ -6,11 +6,13 @@ import faang.school.postservice.dto.post.PostCreateDto;
 import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.dto.post.PostHashtagDto;
 import faang.school.postservice.dto.post.PostUpdateDto;
+import faang.school.postservice.event.NewPostEvent;
 import faang.school.postservice.event.PostViewEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.model.VerificationStatus;
+import faang.school.postservice.publisher.NewPostPublisher;
 import faang.school.postservice.publisher.PostViewPublisher;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
@@ -44,13 +46,14 @@ public class PostServiceImpl implements PostService {
     private final ModerationDictionary moderationDictionary;
     private final SpellingService spellingService;
     private final PostViewPublisher postViewPublisher;
+    private final NewPostPublisher newPostPublisher;
     private final UserContext userContext;
 
     @Override
     public Post findById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
-        publishProfileViewEvent(post);
+        publishPostViewEvent(post);
         return post;
     }
 
@@ -74,6 +77,8 @@ public class PostServiceImpl implements PostService {
 
         PostHashtagDto postHashtagDto = postMapper.toHashtagDto(post);
         asyncHashtagService.addHashtags(postHashtagDto);
+
+        publishNewPostEvent(post);
 
         return postMapper.toDto(post);
     }
@@ -129,7 +134,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> findPostPublicationsByUserAuthorId(Long id) {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
-                .peek(this::publishProfileViewEvent)
+                .peek(this::publishPostViewEvent)
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
@@ -138,7 +143,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> findPostPublicationsByProjectAuthorId(Long id) {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
-                .peek(this::publishProfileViewEvent)
+                .peek(this::publishPostViewEvent)
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
@@ -182,8 +187,13 @@ public class PostServiceImpl implements PostService {
         });
     }
 
-    private void publishProfileViewEvent(Post post) {
+    private void publishPostViewEvent(Post post) {
         PostViewEvent event = new PostViewEvent(post.getId(), post.getAuthorId(), userContext.getUserId(), LocalDateTime.now());
         postViewPublisher.publish(event);
+    }
+
+    private void publishNewPostEvent(Post post) {
+        NewPostEvent event = new NewPostEvent(post.getId(), post.getAuthorId(), LocalDateTime.now());
+        newPostPublisher.publish(event);
     }
 }

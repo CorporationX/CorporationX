@@ -11,8 +11,16 @@ public class KafkaTopicConfig {
     @Value("${spring.data.channel.new_comment.name}")
     private String newCommentTopicName;
 
+    @Value("${spring.data.channel.post_view.name}")
+    private String postViewTopicName;
+
     @Bean
     public NewTopic newCommentTopic() {
         return new NewTopic(newCommentTopicName, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic postViewTopic() {
+        return new NewTopic(postViewTopicName, 1, (short) 1);
     }
 }

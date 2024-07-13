@@ -1,22 +1,25 @@
 package faang.school.postservice.service.post;
 
+import faang.school.postservice.config.context.UserContext;
 import faang.school.postservice.config.moderation.ModerationDictionary;
 import faang.school.postservice.dto.post.PostCreateDto;
 import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.dto.post.PostHashtagDto;
 import faang.school.postservice.dto.post.PostUpdateDto;
+import faang.school.postservice.event.PostViewEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.model.VerificationStatus;
+import faang.school.postservice.publisher.PostViewPublisher;
 import faang.school.postservice.repository.PostRepository;
-import faang.school.postservice.service.spelling.SpellingService;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
+import faang.school.postservice.service.spelling.SpellingService;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,11 +43,15 @@ public class PostServiceImpl implements PostService {
     private final AsyncHashtagService asyncHashtagService;
     private final ModerationDictionary moderationDictionary;
     private final SpellingService spellingService;
+    private final PostViewPublisher postViewPublisher;
+    private final UserContext userContext;
 
     @Override
     public Post findById(Long id) {
-        return postRepository.findById(id)
+        Post post = postRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
+        publishProfileViewEvent(post);
+        return post;
     }
 
     @Override
@@ -122,6 +129,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> findPostPublicationsByUserAuthorId(Long id) {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
+                .peek(this::publishProfileViewEvent)
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
@@ -130,6 +138,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> findPostPublicationsByProjectAuthorId(Long id) {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
+                .peek(this::publishProfileViewEvent)
                 .map(postMapper::toDto)
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
@@ -151,8 +160,6 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    String a = null;
-
     @Override
     public void correctPosts(){
         List<Post> unpublishedPosts = postRepository.findReadyToPublish();
@@ -173,5 +180,10 @@ public class PostServiceImpl implements PostService {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void publishProfileViewEvent(Post post) {
+        PostViewEvent event = new PostViewEvent(post.getId(), post.getAuthorId(), userContext.getUserId(), LocalDateTime.now());
+        postViewPublisher.publish(event);
     }
 }

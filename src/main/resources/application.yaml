@@ -40,6 +40,8 @@ spring:
         name: new-comment_channel
       post_view:
         name: post-view_channel
+      new_post:
+        name: new-post_channel
 
   servlet:
     multipart:

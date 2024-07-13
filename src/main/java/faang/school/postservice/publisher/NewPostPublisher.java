@@ -2,6 +2,7 @@ package faang.school.postservice.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import faang.school.postservice.event.NewPostEvent;
 import faang.school.postservice.event.PostViewEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,23 +14,21 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PostViewPublisher implements MessagePublisher<PostViewEvent> {
+public class NewPostPublisher implements MessagePublisher<NewPostEvent> {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
-    private final NewTopic postViewTopic;
+    private final NewTopic newPostTopic;
 
 
     @Override
-    public void publish(PostViewEvent event) {
+    public void publish(NewPostEvent event) {
         try {
             String message = objectMapper.writeValueAsString(event);
-            if(!event.getAuthorId().equals(event.getViewerId())){
-                kafkaTemplate.send(postViewTopic.name(), message);
-                log.info("Published new post view event to Kafka - {}: {}", postViewTopic.name(), message);
-            }
+            kafkaTemplate.send(newPostTopic.name(), message);
+            log.info("Published new post event to Kafka - {}: {}", newPostTopic.name(), message);
         } catch (JsonProcessingException e) {
-            throw new SerializationException("Error serializing post view event", e);
+            throw new SerializationException("Error serializing new post event", e);
         }
     }
 }

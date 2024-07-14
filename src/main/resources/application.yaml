@@ -25,7 +25,7 @@ spring:
     kafka:
       port: 9092
       host: localhost
-      group-id: account_service
+      group-id: post_service
 
     cache:
       hashtag:
@@ -115,3 +115,10 @@ moderation:
 
 api:
   path: /api/v1
+
+feed:
+  feed-size: 500
+  batch-size: 25
+
+cache:
+  max-comments: 3

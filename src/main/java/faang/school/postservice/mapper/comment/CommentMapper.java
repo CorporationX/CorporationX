@@ -3,6 +3,7 @@ package faang.school.postservice.mapper.comment;
 import faang.school.postservice.dto.comment.CommentDto;
 import faang.school.postservice.dto.comment.CommentToCreateDto;
 import faang.school.postservice.dto.comment.CommentToUpdateDto;
+import faang.school.postservice.event.NewCommentEvent;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import org.mapstruct.Mapper;
@@ -30,4 +31,6 @@ public interface CommentMapper {
     default int getCountFromLikeList(List<Like> likes) {
         return likes != null ? likes.size() : 0;
     }
+
+    CommentDto toDto(NewCommentEvent newCommentEvent);
 }

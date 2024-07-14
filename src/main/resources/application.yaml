@@ -115,3 +115,10 @@ moderation:
 
 api:
   path: /api/v1
+
+feed:
+  feed-size: 500
+  batch-size: 25
+
+cache:
+  max-comments: 3

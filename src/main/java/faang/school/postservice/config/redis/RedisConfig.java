@@ -9,10 +9,12 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+@EnableRedisRepositories(basePackages = "faang.school.postservice.repository.redis")
 public class RedisConfig {
 
     @Value("${spring.data.redis.host}")
@@ -45,7 +47,7 @@ public class RedisConfig {
     }
 
     @Bean
-    ChannelTopic likeTopic(@Value("${spring.data.channel.like_post_channel.name}") String topicName) {
+    public ChannelTopic likeTopic(@Value("${spring.data.channel.like_post_channel.name}") String topicName) {
         return new ChannelTopic(topicName);
     }
 }

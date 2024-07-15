@@ -3,6 +3,7 @@ package faang.school.postservice.mapper;
 import faang.school.postservice.dto.post.PostCreateDto;
 import faang.school.postservice.dto.post.PostDto;
 import faang.school.postservice.dto.post.PostHashtagDto;
+import faang.school.postservice.event.PostViewEvent;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
 import org.mapstruct.Mapper;
@@ -48,4 +49,6 @@ public interface PostMapper {
     default Like getLikeFromId(Long id) {
         return Like.builder().id(id).build();
     }
+
+    PostDto toDto(PostViewEvent postViewEvent);
 }

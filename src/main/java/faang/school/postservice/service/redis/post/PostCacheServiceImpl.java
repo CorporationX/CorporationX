@@ -59,4 +59,17 @@ public class PostCacheServiceImpl implements PostCacheService {
     @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public void updatePostInCache(PostDto post) {
     }
+
+    @Override
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    public void addPostView(PostDto postDto) {
+        redisPostRepository.findById(postDto.getId()).ifPresent(redisPost -> {
+            redisPost.viewIncrement();
+            updateRedisPost(redisPost);
+        });
+    }
+
+    private void updateRedisPost(Object redisPost) {
+        redisTemplate.opsForValue().set(String.valueOf(redisPost.hashCode()), redisPost);
+    }
 }

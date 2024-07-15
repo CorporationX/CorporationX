@@ -12,8 +12,8 @@ import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.model.Post;
 import faang.school.postservice.model.VerificationStatus;
-import faang.school.postservice.publisher.NewPostPublisher;
-import faang.school.postservice.publisher.PostViewPublisher;
+import faang.school.postservice.producer.NewPostProducer;
+import faang.school.postservice.producer.PostViewProducer;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
 import faang.school.postservice.service.spelling.SpellingService;
@@ -45,8 +45,8 @@ public class PostServiceImpl implements PostService {
     private final AsyncHashtagService asyncHashtagService;
     private final ModerationDictionary moderationDictionary;
     private final SpellingService spellingService;
-    private final PostViewPublisher postViewPublisher;
-    private final NewPostPublisher newPostPublisher;
+    private final PostViewProducer postViewPublisher;
+    private final NewPostProducer newPostPublisher;
     private final UserContext userContext;
 
     @Override

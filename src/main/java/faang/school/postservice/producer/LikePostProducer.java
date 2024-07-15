@@ -1,9 +1,8 @@
-package faang.school.postservice.publisher;
+package faang.school.postservice.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.postservice.event.LikePostEvent;
-import faang.school.postservice.event.NewCommentEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -13,10 +12,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LikePostPublisher implements MessagePublisher<LikePostEvent> {
+public class LikePostProducer implements MessageProducer<LikePostEvent> {
 
     @Value("${spring.data.channel.like_post_channel.name}")
     private String channelTopic;
@@ -24,6 +26,7 @@ public class LikePostPublisher implements MessagePublisher<LikePostEvent> {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final NewTopic newCommentTopic;
+    private final Lock lock = new ReentrantLock();
 
 
     @Override

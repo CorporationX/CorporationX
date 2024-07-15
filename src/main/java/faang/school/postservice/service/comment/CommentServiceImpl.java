@@ -7,7 +7,7 @@ import faang.school.postservice.event.NewCommentEvent;
 import faang.school.postservice.mapper.comment.CommentMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.publisher.NewCommentPublisher;
+import faang.school.postservice.producer.NewCommentProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
@@ -31,7 +31,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final CommonServiceMethods commonServiceMethods;
-    private final NewCommentPublisher newCommentPublisher;
+    private final NewCommentProducer newCommentPublisher;
 
     @Override
     public CommentDto createComment(long postId, long userId, CommentToCreateDto commentDto) {

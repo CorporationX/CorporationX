@@ -1,12 +1,14 @@
-package faang.school.postservice.listener.kafka;
+package faang.school.postservice.consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.postservice.dto.comment.CommentDto;
+import faang.school.postservice.dto.like.LikeDto;
+import faang.school.postservice.event.LikePostEvent;
 import faang.school.postservice.event.NewCommentEvent;
 import faang.school.postservice.exception.ListenerException;
+import faang.school.postservice.mapper.LikeMapper;
 import faang.school.postservice.mapper.comment.CommentMapper;
-import faang.school.postservice.service.redis.comment.CommentCacheService;
+import faang.school.postservice.service.redis.like.LikeCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.SerializationException;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,27 +16,26 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class NewCommentListener {
+public class LikePostConsumer {
 
-    private final CommentCacheService commentService;
+    private final LikeCacheService likeCacheService;
     private final ObjectMapper objectMapper;
-    private final CommentMapper commentMapper;
+    private final LikeMapper likeMapper;
 
-    public NewCommentListener(CommentCacheService commentService, ObjectMapper objectMapper, CommentMapper commentMapper) {
-        this.commentService = commentService;
+    public LikePostConsumer(LikeCacheService likeCacheService, ObjectMapper objectMapper, LikeMapper likeMapper) {
+        this.likeCacheService = likeCacheService;
         this.objectMapper = objectMapper;
-        this.commentMapper = commentMapper;
+        this.likeMapper = likeMapper;
     }
 
-    @KafkaListener(topics = "${spring.data.channel.new_comment.name}", groupId = "${spring.data.kafka.group-id}")
+    @KafkaListener(topics = "${spring.data.channel.like_post_channel.name}", groupId = "${spring.data.kafka.group-id}")
     public void listen(String event) {
-
         try {
-            NewCommentEvent newCommentEvent = objectMapper.readValue(event, NewCommentEvent.class);
-            log.info("Received new newCommentEvent {}", event);
+            LikePostEvent likePostEvent = objectMapper.readValue(event, LikePostEvent.class);
+            log.info("Received new likePostEvent {}", event);
 
-            CommentDto dto = commentMapper.toDto(newCommentEvent);
-            commentService.addCommentToPost(dto);
+            LikeDto dto = likeMapper.toDto(likePostEvent);
+            likeCacheService.addLikeOnPost(dto);
         } catch (JsonProcessingException e) {
             log.error("Error processing event JSON: {}", event, e);
             throw new SerializationException(e);

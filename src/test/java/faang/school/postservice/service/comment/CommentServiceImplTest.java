@@ -6,7 +6,7 @@ import faang.school.postservice.dto.comment.CommentToUpdateDto;
 import faang.school.postservice.mapper.comment.CommentMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.publisher.NewCommentPublisher;
+import faang.school.postservice.producer.NewCommentProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
@@ -47,7 +47,7 @@ class CommentServiceImplTest {
     private CommonServiceMethods commonServiceMethods;
 
     @Mock
-    private NewCommentPublisher newCommentPublisher;
+    private NewCommentProducer newCommentPublisher;
 
     @InjectMocks
     private CommentServiceImpl commentService;

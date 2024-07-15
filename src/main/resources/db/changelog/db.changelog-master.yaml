@@ -9,7 +9,6 @@ databaseChangeLog:
       file: db/changelog/changeset/post_V004__resource.sql
   - include:
       file: db/changelog/changeset/post_V005__comment_alter.sql
-
   - include:
       file: db/changelog/changeset/post_V005_rename_resources.sql
   - include:
@@ -18,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changeset/post_V007__add_column_in_post_table.sql
   - include:
       file: db/changelog/changeset/post_V004__add_is_checked_for_spelling.sql
+  - include:
+      file: db/changelog/changeset/post_V008__post_add_views.sql

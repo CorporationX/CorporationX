@@ -25,7 +25,8 @@ public class RedisPost implements Serializable {
     private String content;
     private Long authorId;
     private Long projectId;
-    private Integer likes;
+    private Long likes;
+    private Long views;
     private List<RedisCommentDto> redisCommentDtos;
     private LocalDateTime publishedAt;
     private LocalDateTime updatedAt;
@@ -39,4 +40,6 @@ public class RedisPost implements Serializable {
     public synchronized void likeDecrement(){
         likes--;
     }
+
+    public synchronized void viewIncrement(){views++;}
 }

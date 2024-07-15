@@ -9,14 +9,13 @@ import org.springframework.retry.annotation.Retryable;
 public interface PostCacheService {
     void putPostAndAuthorInCache(PostDto post);
 
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     void addPostInFeed(KafkaPostDto kafkaPostDto);
 
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     void deletePostFromFeed(KafkaPostDto kafkaPostDto);
 
     void deletePostFromCache(PostDto post);
 
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     void updatePostInCache(PostDto post);
+
+    void addPostView(PostDto postDto);
 }

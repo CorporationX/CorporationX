@@ -37,6 +37,9 @@ public class Post {
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Like> likes;
 
+    @Column(name = "views")
+    private Long views;
+
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Hashtag> hashtags;
 

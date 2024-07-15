@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class PostDto {
-    private long id;
+    private Long id;
     private String content;
     private Long authorId;
     private Long projectId;
@@ -20,4 +20,5 @@ public class PostDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private int likesCount;
+    private Long viewsCount;
 }

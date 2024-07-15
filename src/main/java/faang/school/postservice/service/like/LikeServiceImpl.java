@@ -7,7 +7,7 @@ import faang.school.postservice.mapper.LikeMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.publisher.LikePostPublisher;
+import faang.school.postservice.producer.LikePostProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
@@ -30,7 +30,7 @@ public class LikeServiceImpl implements LikeService {
     private final CommentRepository commentRepository;
     private final LikeMapper likeMapper;
     private final LikeValidatorImpl likeValidator;
-    private final LikePostPublisher likePostPublisher;
+    private final LikePostProducer likePostProducer;
 
     @Override
     @Transactional
@@ -48,7 +48,7 @@ public class LikeServiceImpl implements LikeService {
         post.getLikes().add(like);
         like = likeRepository.save(like);
 
-        likePostPublisher.publish(new LikePostEvent(postId, post.getAuthorId(), userId, LocalDateTime.now()));
+        likePostProducer.publish(new LikePostEvent(postId, post.getAuthorId(), userId, LocalDateTime.now()));
 
         log.info("Like with likeId = {} was added on post with postId = {} by user with userId = {}", like.getId(), postId, userId);
 

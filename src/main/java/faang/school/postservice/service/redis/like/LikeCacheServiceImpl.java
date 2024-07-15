@@ -1,20 +1,18 @@
 package faang.school.postservice.service.redis.like;
 
-import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.dto.like.LikeDto;
-import faang.school.postservice.mapper.redis.RedisPostMapper;
-import faang.school.postservice.mapper.redis.RedisUserMapper;
-import faang.school.postservice.repository.redis.RedisFeedRepository;
+import faang.school.postservice.dto.redis.comment.RedisCommentDto;
+import faang.school.postservice.model.redis.RedisPost;
 import faang.school.postservice.repository.redis.RedisPostRepository;
-import faang.school.postservice.repository.redis.RedisUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,33 +20,76 @@ import org.springframework.stereotype.Service;
 public class LikeCacheServiceImpl implements LikeCacheService {
 
     private final RedisPostRepository redisPostRepository;
-    private final RedisPostMapper redisPostMapper;
-    private final RedisUserRepository redisUserRepository;
-    private final RedisUserMapper redisUserMapper;
-    private final RedisFeedRepository redisFeedRepository;
-    private final UserServiceClient userServiceClient;
-    private final RedisTemplate redisTemplate;
-
-    @Value("${feed.feed-size}")
-    private Integer postsFeedSize;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    @Retryable(
+            value = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     public void addLikeOnPost(LikeDto likeDto) {
+        redisPostRepository.findById(likeDto.getPostId()).ifPresent(redisPost -> {
+            redisPost.likeIncrement();
+            updateRedisPost(redisPost);
+        });
     }
 
     @Override
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    @Retryable(
+            value = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     public void deleteLikeFromPost(long postId) {
+        redisPostRepository.findById(postId).ifPresent(redisPost -> {
+            redisPost.likeDecrement();
+            updateRedisPost(redisPost);
+        });
     }
 
     @Override
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    @Retryable(
+            value = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     public void addLikeToComment(long postId, long commentId) {
+        redisPostRepository.findById(postId).ifPresent(redisPost -> {
+            List<RedisCommentDto> comments = getCommentsList(redisPost);
+
+            comments.stream()
+                    .filter(comment -> comment.getId() == commentId)
+                    .forEach(RedisCommentDto::likeIncrement);
+
+            updateRedisPost(redisPost);
+        });
     }
 
     @Override
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    @Retryable(
+            value = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     public void deleteLikeFromComment(long postId, long commentId) {
+        redisPostRepository.findById(postId).ifPresent(redisPost -> {
+            List<RedisCommentDto> comments = getCommentsList(redisPost);
+
+            comments.stream()
+                    .filter(comment -> comment.getId() == commentId)
+                    .forEach(RedisCommentDto::likeDecrement);
+
+            updateRedisPost(redisPost);
+        });
+    }
+
+    private void updateRedisPost(Object redisPost) {
+        redisTemplate.opsForValue().set(String.valueOf(redisPost.hashCode()), redisPost);
+    }
+
+    private List<RedisCommentDto> getCommentsList(RedisPost redisPost) {
+        List<RedisCommentDto> comments = redisPost.getRedisCommentDtos();
+        return comments != null ? comments : List.of();
     }
 }

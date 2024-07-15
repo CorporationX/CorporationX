@@ -1,8 +1,8 @@
-package faang.school.postservice.publisher;
+package faang.school.postservice.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.postservice.event.PostViewEvent;
+import faang.school.postservice.event.NewCommentEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -13,23 +13,21 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PostViewPublisher implements MessagePublisher<PostViewEvent> {
+public class NewCommentProducer implements MessageProducer<NewCommentEvent> {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
-    private final NewTopic postViewTopic;
+    private final NewTopic newCommentTopic;
 
 
     @Override
-    public void publish(PostViewEvent event) {
+    public void publish(NewCommentEvent event) {
         try {
             String message = objectMapper.writeValueAsString(event);
-            if(!event.getAuthorId().equals(event.getViewerId())){
-                kafkaTemplate.send(postViewTopic.name(), message);
-                log.info("Published new post view event to Kafka - {}: {}", postViewTopic.name(), message);
-            }
+            kafkaTemplate.send(newCommentTopic.name(), message);
+            log.info("Published new comment event to Kafka - {}: {}", newCommentTopic.name(), message);
         } catch (JsonProcessingException e) {
-            throw new SerializationException("Error serializing post view event", e);
+            throw new SerializationException("Error serializing new comment event", e);
         }
     }
 }

@@ -6,7 +6,7 @@ import faang.school.postservice.mapper.LikeMapper;
 import faang.school.postservice.model.Comment;
 import faang.school.postservice.model.Like;
 import faang.school.postservice.model.Post;
-import faang.school.postservice.publisher.LikePostPublisher;
+import faang.school.postservice.producer.LikePostProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
@@ -47,7 +47,7 @@ class LikeServiceImplTest {
     @Mock
     private LikeMapper mapper;
     @Mock
-    private LikePostPublisher likePostPublisher;
+    private LikePostProducer likePostProducer;
     @InjectMocks
     private LikeServiceImpl likeService;
     @Captor
@@ -89,19 +89,19 @@ class LikeServiceImplTest {
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         when(likeRepository.save(like)).thenReturn(like);
         when(mapper.toDto(like)).thenReturn(likeDto);
-        doNothing().when(likePostPublisher).publish(any(LikePostEvent.class));
+        doNothing().when(likePostProducer).publish(any(LikePostEvent.class));
 
         LikeDto actual = likeService.addLikeOnPost(userId, postId);
         assertEquals(likeDto, actual);
         assertFalse(post.getLikes().isEmpty());
 
-        InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository, likePostPublisher);
+        InOrder inOrder = inOrder(likeValidator, mapper, likeRepository, postRepository, likePostProducer);
         inOrder.verify(likeValidator, times(1)).validateUserExistence(userId);
         inOrder.verify(postRepository, times(1)).findById(postId);
         inOrder.verify(likeValidator, times(1)).validateAndGetPostToLike(userId, post);
         inOrder.verify(mapper, times(1)).toEntity(any(LikeDto.class));
         inOrder.verify(likeRepository, times(1)).save(like);
-        inOrder.verify(likePostPublisher, times(1)).publish(captorForLikeEvent.capture());
+        inOrder.verify(likePostProducer, times(1)).publish(captorForLikeEvent.capture());
         inOrder.verify(mapper, times(1)).toDto(like);
 
         LikePostEvent captured = captorForLikeEvent.getValue();

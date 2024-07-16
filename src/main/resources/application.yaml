@@ -98,9 +98,14 @@ payment-service:
   port: 9080
 
 async:
-  corePoolSize: 5
-  maxPoolSize: 10
-  queueCapacity: 100
+  task:
+    corePoolSize: 5
+    maxPoolSize: 10
+    queueCapacity: 100
+  post:
+    corePoolSize: 20
+    maxPoolSize: 50
+    queueCapacity: 100
 
 spelling:
   url: https://speller.yandex.net/services/spellservice.json/checkText?text=
@@ -122,3 +127,6 @@ feed:
 
 cache:
   max-comments: 3
+
+batch:
+  get-user-followers: 100

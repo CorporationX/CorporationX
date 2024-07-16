@@ -1,7 +1,7 @@
 package faang.school.postservice.controller.resource;
 
 import faang.school.postservice.config.context.UserContext;
-import faang.school.postservice.dto.resource.ResourceDto;
+import faang.school.postservice.entity.dto.resource.ResourceDto;
 import faang.school.postservice.service.resource.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

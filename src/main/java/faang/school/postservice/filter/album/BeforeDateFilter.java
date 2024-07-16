@@ -1,11 +1,10 @@
 package faang.school.postservice.filter.album;
 
-import faang.school.postservice.dto.album.AlbumFilterDto;
-import faang.school.postservice.model.Album;
+import faang.school.postservice.entity.dto.album.AlbumFilterDto;
+import faang.school.postservice.entity.model.Album;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 

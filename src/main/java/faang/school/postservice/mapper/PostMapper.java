@@ -1,11 +1,12 @@
 package faang.school.postservice.mapper;
 
-import faang.school.postservice.dto.post.PostCreateDto;
-import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.dto.post.PostHashtagDto;
+import faang.school.postservice.entity.dto.post.PostCreateDto;
+import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
+import faang.school.postservice.event.post.NewPostEvent;
 import faang.school.postservice.event.PostViewEvent;
-import faang.school.postservice.model.Like;
-import faang.school.postservice.model.Post;
+import faang.school.postservice.entity.model.Like;
+import faang.school.postservice.entity.model.Post;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -51,4 +52,6 @@ public interface PostMapper {
     }
 
     PostDto toDto(PostViewEvent postViewEvent);
+
+    PostDto toDto(NewPostEvent postViewEvent);
 }

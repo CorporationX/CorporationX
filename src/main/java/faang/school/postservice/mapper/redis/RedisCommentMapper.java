@@ -1,8 +1,8 @@
 package faang.school.postservice.mapper.redis;
 
-import faang.school.postservice.dto.comment.CommentDto;
-import faang.school.postservice.dto.redis.comment.RedisCommentDto;
-import faang.school.postservice.model.redis.RedisUser;
+import faang.school.postservice.entity.dto.comment.CommentDto;
+import faang.school.postservice.entity.model.redis.RedisComment;
+import faang.school.postservice.entity.model.redis.RedisUser;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -12,5 +12,5 @@ public interface RedisCommentMapper {
 
     RedisUser toEntity(CommentDto userDto);
 
-    RedisCommentDto toRedisDto(CommentDto comment);
+    RedisComment toRedisDto(CommentDto comment);
 }

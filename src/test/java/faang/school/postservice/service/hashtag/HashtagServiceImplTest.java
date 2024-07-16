@@ -1,8 +1,8 @@
 package faang.school.postservice.service.hashtag;
 
-import faang.school.postservice.dto.post.PostHashtagDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
 import faang.school.postservice.mapper.PostMapper;
-import faang.school.postservice.model.Post;
+import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.repository.HashtagRepository;
 import faang.school.postservice.service.hashtag.cache.HashtagCacheService;
 import org.junit.jupiter.api.BeforeEach;

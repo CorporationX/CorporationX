@@ -1,14 +1,17 @@
 package faang.school.postservice.service.redis.like;
 
-import faang.school.postservice.dto.like.LikeDto;
+import faang.school.postservice.event.like.DeleteCommentLikeEvent;
+import faang.school.postservice.event.like.DeletePostLikeEvent;
+import faang.school.postservice.event.like.LikeCommentEvent;
+import faang.school.postservice.event.like.LikePostEvent;
 
 public interface LikeCacheService {
 
-    void addLikeOnPost(LikeDto likeDto);
+    void addLikeOnPost(LikePostEvent event);
 
-    void deleteLikeFromPost(long postId);
+    void deleteLikeFromPost(DeletePostLikeEvent event);
 
-    void addLikeToComment(long postId, long commentId);
+    void addLikeToComment(LikeCommentEvent event);
 
-    void deleteLikeFromComment(long postId, long commentId);
+    void deleteLikeFromComment(DeleteCommentLikeEvent event);
 }

@@ -1,6 +1,6 @@
 package faang.school.postservice.service.hashtag.cache;
 
-import faang.school.postservice.dto.post.PostHashtagDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;

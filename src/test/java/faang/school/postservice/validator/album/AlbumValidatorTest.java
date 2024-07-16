@@ -1,12 +1,12 @@
 package faang.school.postservice.validator.album;
 
 import faang.school.postservice.client.UserServiceClient;
-import faang.school.postservice.dto.user.UserDto;
+import faang.school.postservice.entity.dto.user.UserDto;
 import faang.school.postservice.exception.DataValidationException;
 import faang.school.postservice.exception.NoAccessException;
-import faang.school.postservice.model.Album;
-import faang.school.postservice.model.AlbumVisibility;
-import faang.school.postservice.model.Post;
+import faang.school.postservice.entity.model.Album;
+import faang.school.postservice.entity.model.AlbumVisibility;
+import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.repository.AlbumRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

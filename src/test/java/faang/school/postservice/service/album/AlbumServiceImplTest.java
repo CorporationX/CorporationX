@@ -1,11 +1,11 @@
 package faang.school.postservice.service.album;
 
-import faang.school.postservice.dto.album.AlbumDto;
-import faang.school.postservice.dto.album.AlbumFilterDto;
+import faang.school.postservice.entity.dto.album.AlbumDto;
+import faang.school.postservice.entity.dto.album.AlbumFilterDto;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.album.AlbumMapper;
-import faang.school.postservice.model.Album;
-import faang.school.postservice.model.Post;
+import faang.school.postservice.entity.model.Album;
+import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.repository.AlbumRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.album.filter.AlbumFilterService;

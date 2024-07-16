@@ -1,12 +1,12 @@
 package faang.school.postservice.service.resource;
 
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import faang.school.postservice.dto.resource.ResourceDto;
+import faang.school.postservice.entity.dto.resource.ResourceDto;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.exception.S3Exception;
 import faang.school.postservice.mapper.resource.ResourceMapper;
-import faang.school.postservice.model.Post;
-import faang.school.postservice.model.Resource;
+import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.entity.model.Resource;
 import faang.school.postservice.repository.ResourceRepository;
 import faang.school.postservice.service.post.PostService;
 import faang.school.postservice.service.s3.AmazonS3Service;

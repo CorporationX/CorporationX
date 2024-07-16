@@ -1,6 +1,6 @@
 package faang.school.postservice.service.hashtag.async;
 
-import faang.school.postservice.dto.post.PostHashtagDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
 import faang.school.postservice.service.hashtag.HashtagService;
 import faang.school.postservice.util.HashtagSpliterator;
 import lombok.RequiredArgsConstructor;

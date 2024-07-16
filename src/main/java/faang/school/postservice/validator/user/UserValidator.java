@@ -1,9 +1,6 @@
 package faang.school.postservice.validator.user;
 
 import faang.school.postservice.client.UserServiceClient;
-import faang.school.postservice.dto.user.UserDto;
-import faang.school.postservice.exception.NotFoundException;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

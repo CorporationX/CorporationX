@@ -1,7 +1,7 @@
 package faang.school.postservice.filter.album;
 
-import faang.school.postservice.dto.album.AlbumFilterDto;
-import faang.school.postservice.model.Album;
+import faang.school.postservice.entity.dto.album.AlbumFilterDto;
+import faang.school.postservice.entity.model.Album;
 
 import java.util.stream.Stream;
 

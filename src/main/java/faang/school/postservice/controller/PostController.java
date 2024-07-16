@@ -1,8 +1,8 @@
 package faang.school.postservice.controller;
 
-import faang.school.postservice.dto.post.PostCreateDto;
-import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.dto.post.PostUpdateDto;
+import faang.school.postservice.entity.dto.post.PostCreateDto;
+import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.dto.post.PostUpdateDto;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.service.post.PostService;
 import jakarta.validation.Valid;

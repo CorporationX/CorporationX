@@ -1,21 +1,19 @@
 package faang.school.postservice.service.resource;
 
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import faang.school.postservice.dto.resource.ResourceDto;
+import faang.school.postservice.entity.dto.resource.ResourceDto;
 import faang.school.postservice.mapper.resource.ResourceMapper;
-import faang.school.postservice.model.Post;
-import faang.school.postservice.model.Resource;
+import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.entity.model.Resource;
 import faang.school.postservice.repository.ResourceRepository;
 import faang.school.postservice.service.post.PostService;
 import faang.school.postservice.service.s3.AmazonS3Service;
 import faang.school.postservice.validator.resource.ResourceValidator;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;

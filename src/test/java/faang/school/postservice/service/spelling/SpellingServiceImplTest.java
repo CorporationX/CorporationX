@@ -2,7 +2,7 @@ package faang.school.postservice.service.spelling;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.postservice.dto.json.SpellingCorrector;
+import faang.school.postservice.entity.dto.json.SpellingCorrector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

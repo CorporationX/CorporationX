@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
 public class NewPostEvent implements Event{
     private Long postId;
     private Long authorId;
+    private List<Long> authorFollowers;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime completedAt;
+    private LocalDateTime createdAt;
 }

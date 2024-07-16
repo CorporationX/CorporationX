@@ -2,20 +2,19 @@ package faang.school.postservice.service.post;
 
 import faang.school.postservice.config.context.UserContext;
 import faang.school.postservice.config.moderation.ModerationDictionary;
-import faang.school.postservice.dto.post.PostCreateDto;
-import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.dto.post.PostHashtagDto;
-import faang.school.postservice.dto.post.PostUpdateDto;
-import faang.school.postservice.event.NewPostEvent;
+import faang.school.postservice.entity.dto.post.PostCreateDto;
+import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
+import faang.school.postservice.entity.dto.post.PostUpdateDto;
 import faang.school.postservice.event.PostViewEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
-import faang.school.postservice.model.Post;
-import faang.school.postservice.model.VerificationStatus;
-import faang.school.postservice.producer.NewPostProducer;
-import faang.school.postservice.producer.PostViewProducer;
+import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.entity.model.VerificationStatus;
+import faang.school.postservice.kafka.producer.PostViewProducer;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
+import faang.school.postservice.service.kafka.KafkaPostService;
 import faang.school.postservice.service.spelling.SpellingService;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +45,7 @@ public class PostServiceImpl implements PostService {
     private final ModerationDictionary moderationDictionary;
     private final SpellingService spellingService;
     private final PostViewProducer postViewPublisher;
-    private final NewPostProducer newPostPublisher;
+    private final KafkaPostService kafkaPostService;
     private final UserContext userContext;
 
     @Override
@@ -78,9 +77,11 @@ public class PostServiceImpl implements PostService {
         PostHashtagDto postHashtagDto = postMapper.toHashtagDto(post);
         asyncHashtagService.addHashtags(postHashtagDto);
 
-        publishNewPostEvent(post);
+        PostDto dto  = postMapper.toDto(post);
 
-        return postMapper.toDto(post);
+        kafkaPostService.sendPostToPublisher(dto);
+
+        return dto;
     }
 
     @Override
@@ -190,10 +191,5 @@ public class PostServiceImpl implements PostService {
     private void publishPostViewEvent(Post post) {
         PostViewEvent event = new PostViewEvent(post.getId(), post.getAuthorId(), userContext.getUserId(), LocalDateTime.now());
         postViewPublisher.publish(event);
-    }
-
-    private void publishNewPostEvent(Post post) {
-        NewPostEvent event = new NewPostEvent(post.getId(), post.getAuthorId(), LocalDateTime.now());
-        newPostPublisher.publish(event);
     }
 }

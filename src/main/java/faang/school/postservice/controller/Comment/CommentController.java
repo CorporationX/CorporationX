@@ -1,9 +1,9 @@
 package faang.school.postservice.controller.Comment;
 
 import faang.school.postservice.config.context.UserContext;
-import faang.school.postservice.dto.comment.CommentDto;
-import faang.school.postservice.dto.comment.CommentToCreateDto;
-import faang.school.postservice.dto.comment.CommentToUpdateDto;
+import faang.school.postservice.entity.dto.comment.CommentDto;
+import faang.school.postservice.entity.dto.comment.CommentToCreateDto;
+import faang.school.postservice.entity.dto.comment.CommentToUpdateDto;
 import faang.school.postservice.service.comment.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

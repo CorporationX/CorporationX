@@ -1,7 +1,7 @@
 package faang.school.postservice.service.resource;
 
-import faang.school.postservice.dto.resource.ResourceDto;
-import faang.school.postservice.model.Resource;
+import faang.school.postservice.entity.dto.resource.ResourceDto;
+import faang.school.postservice.entity.model.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;

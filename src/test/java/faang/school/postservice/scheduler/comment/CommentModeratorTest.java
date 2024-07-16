@@ -1,6 +1,6 @@
 package faang.school.postservice.scheduler.comment;
 
-import faang.school.postservice.model.Comment;
+import faang.school.postservice.entity.model.Comment;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.service.moderation.ModerationDictionaryService;
 import org.junit.jupiter.api.Test;

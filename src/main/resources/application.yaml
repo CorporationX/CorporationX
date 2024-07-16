@@ -122,3 +122,6 @@ feed:
 
 cache:
   max-comments: 3
+
+batch:
+  get-user-followers: 100

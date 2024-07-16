@@ -1,7 +1,7 @@
 package faang.school.postservice.client;
 
-import faang.school.postservice.dto.payment.PaymentRequest;
-import faang.school.postservice.dto.payment.PaymentResponse;
+import faang.school.postservice.entity.dto.payment.PaymentRequest;
+import faang.school.postservice.entity.dto.payment.PaymentResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

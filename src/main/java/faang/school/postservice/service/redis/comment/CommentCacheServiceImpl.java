@@ -1,28 +1,23 @@
 package faang.school.postservice.service.redis.comment;
 
-import faang.school.postservice.client.UserServiceClient;
-import faang.school.postservice.dto.comment.CommentDto;
-import faang.school.postservice.dto.redis.comment.RedisCommentDto;
-import faang.school.postservice.mapper.redis.RedisCommentMapper;
-import faang.school.postservice.mapper.redis.RedisUserMapper;
-import faang.school.postservice.model.redis.RedisPost;
-import faang.school.postservice.model.redis.RedisUser;
-import faang.school.postservice.repository.CommentRepository;
-import faang.school.postservice.repository.redis.RedisFeedRepository;
+import faang.school.postservice.entity.dto.comment.CommentDto;
+import faang.school.postservice.entity.model.redis.RedisComment;
+import faang.school.postservice.entity.model.redis.RedisPost;
+import faang.school.postservice.entity.model.redis.RedisUser;
+import faang.school.postservice.repository.redis.RedisCommentRepository;
 import faang.school.postservice.repository.redis.RedisPostRepository;
 import faang.school.postservice.repository.redis.RedisUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 @Service
 @RequiredArgsConstructor
@@ -30,95 +25,84 @@ import java.util.List;
 public class CommentCacheServiceImpl implements CommentCacheService {
 
     private final RedisUserRepository redisUserRepository;
-    private final RedisUserMapper redisUserMapper;
-    private final RedisCommentMapper redisCommentMapper;
-    private final UserServiceClient userServiceClient;
-    private final RedisTemplate<Long, RedisCommentDto> redisTemplate;
     private final RedisPostRepository redisPostRepository;
+    private final RedisCommentRepository redisCommentRepository;
 
     @Value("${cache.max-comments}")
     private Integer maxCommentsInCache;
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
-    public void addCommentToPost(CommentDto comment) {
-        redisPostRepository.findById(comment.getPostId()).ifPresent(redisPost -> {
-            loadUserIntoCache(comment.getAuthorId());
-            List<RedisCommentDto> comments = getCommentsList(redisPost);
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public void addCommentToPost(CommentDto dto) {
+        RedisPost redisPost = redisPostRepository.getById(dto.getPostId());
+        RedisUser author = redisUserRepository.getById(dto.getAuthorId());
 
-            if (comments.size() >= maxCommentsInCache) {
-                comments.remove(0);
-            }
+        if (redisPost == null || author == null) {
+            log.error("Post or Author not found for given IDs.");
+            return;
+        }
 
-            RedisCommentDto dto = redisCommentMapper.toRedisDto(comment);
-            comments.add(dto);
-            redisPost.setRedisCommentDtos(comments);
-            redisTemplate.opsForSet().add(redisPost.getId(), dto);
-        });
+        SortedSet<Long> comments = redisPost.getRedisCommentsIds();
+        if (comments == null) {
+            comments = new TreeSet<>();
+        }
+
+        if (comments.size() >= maxCommentsInCache) {
+            comments.remove(comments.first());
+        }
+
+        RedisComment redisComment = RedisComment.builder()
+                .id(dto.getId())
+                .commentDto(dto)
+                .version(1L)
+                .build();
+
+        comments.add(redisComment.getId());
+        redisPost.setRedisCommentsIds(comments);
+
+        redisCommentRepository.save(redisComment.getId(), redisComment);
+        redisPostRepository.save(redisPost.getId(), redisPost);
+        redisUserRepository.save(author.getId(), author);
     }
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
-    public void updateCommentOnPost(CommentDto comment) {
-        redisPostRepository.findById(comment.getPostId()).ifPresent(redisPost -> {
-            List<RedisCommentDto> comments = getCommentsList(redisPost);
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public void updateCommentOnPost(CommentDto dto) {
+        RedisComment redisComment = redisCommentRepository.getById(dto.getId());
+        RedisUser author = redisUserRepository.getById(dto.getAuthorId());
 
-            comments.replaceAll(existingComment ->
-                    existingComment.getId() == comment.getId() ?
-                            redisCommentMapper.toRedisDto(comment) :
-                            existingComment
-            );
+        if (redisComment == null || author == null) {
+            log.error("Comment or Author not found for given IDs.");
+            return;
+        }
 
-            redisPost.setRedisCommentDtos(comments);
-            redisTemplate.opsForSet().add(redisPost.getId(), redisCommentMapper.toRedisDto(comment));
-        });
+        redisComment.setCommentDto(dto);
+        redisComment.incrementVersion();
+
+        redisCommentRepository.update(redisComment.getId(), redisComment);
+        redisUserRepository.save(author.getId(), author);
     }
 
     @Override
     @Transactional
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
-    public void deleteCommentFromPost(CommentDto commentDto) {
-        redisPostRepository.findById(commentDto.getPostId()).ifPresent(redisPost -> {
-            List<RedisCommentDto> comments = getCommentsList(redisPost);
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public void deleteCommentFromPost(CommentDto dto) {
+        RedisPost redisPost = redisPostRepository.getById(dto.getPostId());
+        RedisComment redisComment = redisCommentRepository.getById(dto.getId());
 
-            comments.removeIf(comment -> comment.getId() == commentDto.getId());
-            redisPost.setRedisCommentDtos(comments);
-            redisTemplate.opsForSet().add(redisPost.getId(), redisCommentMapper.toRedisDto(commentDto));
-        });
-    }
-
-    @Override
-    public List<RedisCommentDto> getCachedComments(List<CommentDto> comments) {
-        if (comments == null || comments.isEmpty()) {
-            return new ArrayList<>();
+        if (redisPost == null || redisComment == null) {
+            log.error("Post or Comment not found for given IDs.");
+            return;
         }
-        return comments.stream()
-                .skip(Math.max(0, comments.size() - maxCommentsInCache))
-                .map(redisCommentMapper::toRedisDto)
-                .toList();
-    }
 
-    private void loadUserIntoCache(long userId) {
-        redisUserRepository.findById(userId).orElseGet(() -> {
-            RedisUser user = redisUserMapper.toEntity(userServiceClient.getUser(userId));
-            return redisUserRepository.save(user);
-        });
-    }
+        SortedSet<Long> comments = redisPost.getRedisCommentsIds();
 
-    private List<RedisCommentDto> getCommentsList(RedisPost redisPost) {
-        List<RedisCommentDto> comments = redisPost.getRedisCommentDtos();
-        return comments != null ? comments : new ArrayList<>();
+        if (comments != null && comments.contains(dto.getId())) {
+            comments.remove(dto.getId());
+            redisPost.setRedisCommentsIds(comments);
+            redisPostRepository.save(redisPost.getId(), redisPost);
+        }
+
+        redisCommentRepository.remove(redisComment.getId());
     }
 }

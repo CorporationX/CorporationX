@@ -1,6 +1,6 @@
 package faang.school.postservice.service.hashtag.async;
 
-import faang.school.postservice.dto.post.PostHashtagDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

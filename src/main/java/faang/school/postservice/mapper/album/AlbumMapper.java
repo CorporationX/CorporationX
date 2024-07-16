@@ -1,8 +1,8 @@
 package faang.school.postservice.mapper.album;
 
-import faang.school.postservice.dto.album.AlbumDto;
-import faang.school.postservice.model.Album;
-import faang.school.postservice.model.Post;
+import faang.school.postservice.entity.dto.album.AlbumDto;
+import faang.school.postservice.entity.model.Album;
+import faang.school.postservice.entity.model.Post;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

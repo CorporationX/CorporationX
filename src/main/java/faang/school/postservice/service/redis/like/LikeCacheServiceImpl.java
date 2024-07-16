@@ -1,18 +1,19 @@
 package faang.school.postservice.service.redis.like;
 
-import faang.school.postservice.dto.like.LikeDto;
-import faang.school.postservice.dto.redis.comment.RedisCommentDto;
-import faang.school.postservice.model.redis.RedisPost;
+import faang.school.postservice.entity.dto.like.LikeDto;
+import faang.school.postservice.entity.model.redis.RedisComment;
+import faang.school.postservice.entity.model.redis.RedisPost;
+import faang.school.postservice.repository.PostRepository;
+import faang.school.postservice.repository.redis.RedisCommentRepository;
 import faang.school.postservice.repository.redis.RedisPostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.SortedSet;
 
 @Service
 @RequiredArgsConstructor
@@ -20,76 +21,74 @@ import java.util.List;
 public class LikeCacheServiceImpl implements LikeCacheService {
 
     private final RedisPostRepository redisPostRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final PostRepository postRepository;
+    private final RedisCommentRepository redisCommentRepository;
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void addLikeOnPost(LikeDto likeDto) {
-        redisPostRepository.findById(likeDto.getPostId()).ifPresent(redisPost -> {
-            redisPost.likeIncrement();
-            updateRedisPost(redisPost);
-        });
+        RedisPost redisPost = redisPostRepository.getById(likeDto.getPostId());
+        if (redisPost == null) {
+            log.error("Post not found for ID: {}", likeDto.getPostId());
+            return;
+        }
+
+        redisPost.getPostDto().incrementLikes();
+        redisPostRepository.save(redisPost.getId(), redisPost);
     }
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
-    public void deleteLikeFromPost(long postId) {
-        redisPostRepository.findById(postId).ifPresent(redisPost -> {
-            redisPost.likeDecrement();
-            updateRedisPost(redisPost);
-        });
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public void deleteLikeFromPost(LikeDto likeDto) {
+        RedisPost redisPost = redisPostRepository.getById(likeDto.getPostId());
+        if (redisPost == null) {
+            log.error("Post not found for ID: {}", likeDto.getPostId());
+            return;
+        }
+
+        redisPost.getPostDto().decrementLikes();
+        redisPostRepository.save(redisPost.getId(), redisPost);
     }
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void addLikeToComment(long postId, long commentId) {
-        redisPostRepository.findById(postId).ifPresent(redisPost -> {
-            List<RedisCommentDto> comments = getCommentsList(redisPost);
+        RedisPost redisPost = redisPostRepository.getById(postId);
+        if (redisPost == null) {
+            log.error("Post not found for ID: {}", postId);
+            return;
+        }
 
-            comments.stream()
-                    .filter(comment -> comment.getId() == commentId)
-                    .forEach(RedisCommentDto::likeIncrement);
-
-            updateRedisPost(redisPost);
-        });
+        SortedSet<Long> commentIds = redisPost.getRedisCommentsIds();
+        if (commentIds != null && commentIds.contains(commentId)) {
+            RedisComment redisComment = redisCommentRepository.getById(commentId);
+            if (redisComment != null) {
+                redisComment.likeIncrement();
+                redisCommentRepository.save(redisComment.getId(), redisComment);
+            } else {
+                log.error("Comment not found for ID: {}", commentId);
+            }
+        }
     }
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void deleteLikeFromComment(long postId, long commentId) {
-        redisPostRepository.findById(postId).ifPresent(redisPost -> {
-            List<RedisCommentDto> comments = getCommentsList(redisPost);
+        RedisPost redisPost = redisPostRepository.getById(postId);
+        if (redisPost == null) {
+            log.error("Post not found for ID: {}", postId);
+            return;
+        }
 
-            comments.stream()
-                    .filter(comment -> comment.getId() == commentId)
-                    .forEach(RedisCommentDto::likeDecrement);
-
-            updateRedisPost(redisPost);
-        });
-    }
-
-    private void updateRedisPost(Object redisPost) {
-        redisTemplate.opsForValue().set(String.valueOf(redisPost.hashCode()), redisPost);
-    }
-
-    private List<RedisCommentDto> getCommentsList(RedisPost redisPost) {
-        List<RedisCommentDto> comments = redisPost.getRedisCommentDtos();
-        return comments != null ? comments : List.of();
+        SortedSet<Long> commentIds = redisPost.getRedisCommentsIds();
+        if (commentIds != null && commentIds.contains(commentId)) {
+            RedisComment redisComment = redisCommentRepository.getById(commentId);
+            if (redisComment != null) {
+                redisComment.likeDecrement();
+                redisCommentRepository.save(redisComment.getId(), redisComment);
+            } else {
+                log.error("Comment not found for ID: {}", commentId);
+            }
+        }
     }
 }

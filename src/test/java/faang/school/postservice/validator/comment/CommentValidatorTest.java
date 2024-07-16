@@ -1,7 +1,7 @@
 package faang.school.postservice.validator.comment;
 
 import faang.school.postservice.exception.DataValidationException;
-import faang.school.postservice.model.Comment;
+import faang.school.postservice.entity.model.Comment;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.validator.user.UserValidator;
 import org.junit.jupiter.api.Test;

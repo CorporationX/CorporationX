@@ -1,13 +1,13 @@
 package faang.school.postservice.service.comment;
 
-import faang.school.postservice.dto.comment.CommentDto;
-import faang.school.postservice.dto.comment.CommentToCreateDto;
-import faang.school.postservice.dto.comment.CommentToUpdateDto;
+import faang.school.postservice.entity.dto.comment.CommentDto;
+import faang.school.postservice.entity.dto.comment.CommentToCreateDto;
+import faang.school.postservice.entity.dto.comment.CommentToUpdateDto;
 import faang.school.postservice.event.NewCommentEvent;
 import faang.school.postservice.mapper.comment.CommentMapper;
-import faang.school.postservice.model.Comment;
-import faang.school.postservice.model.Post;
-import faang.school.postservice.producer.NewCommentProducer;
+import faang.school.postservice.entity.model.Comment;
+import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.kafka.producer.NewCommentProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;

@@ -1,7 +1,9 @@
 package faang.school.postservice.mapper.redis;
 
-import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.model.redis.RedisUser;
+import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.entity.model.redis.RedisPost;
+import faang.school.postservice.entity.model.redis.RedisUser;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -10,4 +12,6 @@ import org.mapstruct.ReportingPolicy;
 public interface RedisPostMapper {
 
     RedisUser toEntity(PostDto userDto);
+
+    RedisPost toRedisPost(Post post);
 }

@@ -31,4 +31,9 @@ public class UserController {
     public void deactivateUser(@PathVariable(name = "id") long userId) {
         userService.deactivateUser(userId);
     }
+
+    @GetMapping("existsById/{userId}")
+    public Boolean existById(@PathVariable long userId) {
+        return userService.existsById(userId);
+    }
 }

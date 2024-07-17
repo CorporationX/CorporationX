@@ -44,7 +44,7 @@ public class LikeCacheServiceImpl implements LikeCacheService {
         redisPost.getRedisLikesIds().remove(event.getLikeDto().getId());
         redisPostRepository.save(redisPost.getId(), redisPost);
     }
-
+//
     @Override
     @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void addLikeToComment(LikeCommentEvent event) {

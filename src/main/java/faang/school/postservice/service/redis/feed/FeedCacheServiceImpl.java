@@ -1,16 +1,18 @@
 package faang.school.postservice.service.redis.feed;
 
+import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.dto.user.UserDto;
 import faang.school.postservice.entity.model.redis.RedisFeed;
 import faang.school.postservice.entity.model.redis.RedisPost;
 import faang.school.postservice.entity.model.redis.RedisUser;
+import faang.school.postservice.event.PostViewEvent;
 import faang.school.postservice.event.post.DeletePostEvent;
 import faang.school.postservice.event.post.NewPostEvent;
-import faang.school.postservice.event.PostViewEvent;
 import faang.school.postservice.repository.redis.RedisFeedRepository;
 import faang.school.postservice.repository.redis.RedisPostRepository;
 import faang.school.postservice.repository.redis.RedisUserRepository;
-import faang.school.postservice.validator.redis.RedisFeedValidator;
+import faang.school.postservice.service.post.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +25,6 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -33,6 +34,8 @@ public class FeedCacheServiceImpl implements FeedCacheService {
     private final RedisFeedRepository redisFeedRepository;
     private final RedisPostRepository redisPostRepository;
     private final RedisUserRepository redisUserRepository;
+    private final UserServiceClient userServiceClient;
+    private final PostService postService;
 
     @Value("${feed.feed-size}")
     private Integer postsFeedSize;
@@ -41,17 +44,17 @@ public class FeedCacheServiceImpl implements FeedCacheService {
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public SortedSet<PostDto> getNewsFeed(Long userId) {
         RedisFeed redisFeed = redisFeedRepository.getById(userId);
-
+        if (redisFeed == null) {
+            redisFeed = buildAndSaveNewRedisFeed(userId);
+        }
         SortedSet<Long> redisPostIds = redisFeed.getRedisPostsIds();
         SortedSet<PostDto> posts = new TreeSet<>(Comparator.comparing(PostDto::getId));
-
         redisPostIds.forEach(postId -> {
             RedisPost redisPost = redisPostRepository.getById(postId);
             if (redisPost != null) {
                 posts.add(redisPost.getPostDto());
             }
         });
-
         return posts;
     }
 
@@ -59,9 +62,15 @@ public class FeedCacheServiceImpl implements FeedCacheService {
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void addPostInFeed(NewPostEvent event) {
         RedisPost redisPost = redisPostRepository.getById(event.getPostDto().getId());
-        RedisUser redisUser = redisUserRepository.getById(event.getPostDto().getAuthorId(), event.getFollowersIds());
+        RedisUser redisUser = redisUserRepository.getById(event.getPostDto().getAuthorId());
 
-        redisUserRepository.save(redisUser.getId(), redisUser);
+        if (redisPost == null) {
+            redisPost = buildAndSaveNewRedisPost(event.getPostDto().getId());
+        }
+
+        if (redisUser == null) {
+            buildAndSaveNewRedisUser(event.getPostDto().getAuthorId());
+        }
 
         addPostToUserFeed(event.getPostDto().getAuthorId(), redisPost);
         addPostToFollowers(event.getFollowersIds(), redisPost);
@@ -82,45 +91,82 @@ public class FeedCacheServiceImpl implements FeedCacheService {
     @Override
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void addPostView(PostViewEvent event) {
-        RedisPost redisPost = redisPostRepository.getById(event.getPostId());
+        RedisPost redisPost = redisPostRepository.getById(event.getPostDto().getId());
 
-        if (redisPost != null) {
-            redisPost.getPostDto().incrementViews();
-            redisPost.incrementVersion();
-            redisPostRepository.save(redisPost.getId(), redisPost);
+        if (redisPost == null) {
+            redisPost = buildAndSaveNewRedisPost(event.getPostDto().getId());
         }
+
+        redisPost.getPostDto().incrementViews();
+        redisPost.incrementVersion();
+        redisPostRepository.save(redisPost.getId(), redisPost);
     }
 
     @Async("postRemoveOrAddExecutor")
-    protected CompletableFuture<Void> addPostToFollowers(SortedSet<Long> followersIds, RedisPost redisPost) {
+    public void addPostToFollowers(SortedSet<Long> followersIds, RedisPost redisPost) {
         followersIds.forEach(followerId -> addPostToUserFeed(followerId, redisPost));
-        return CompletableFuture.completedFuture(null);
     }
 
     @Async("postRemoveOrAddExecutor")
-    protected CompletableFuture<Void> removePostFromFollowers(SortedSet<Long> followersIds, RedisPost redisPost) {
+    public void removePostFromFollowers(SortedSet<Long> followersIds, RedisPost redisPost) {
         followersIds.forEach(followerId -> removePostFromUserFeed(followerId, redisPost));
-        return CompletableFuture.completedFuture(null);
     }
 
     private void addPostToUserFeed(Long userId, RedisPost redisPost) {
-        RedisFeed followerFeed = redisFeedRepository.getById(userId);
+        RedisFeed redisFeed = redisFeedRepository.getById(userId);
 
-        if (followerFeed.getRedisPostsIds().size() >= postsFeedSize) {
-            followerFeed.incrementVersion();
-            followerFeed.getRedisPostsIds().remove(followerFeed.getRedisPostsIds().last());
+        if (redisFeed == null) {
+            redisFeed = buildAndSaveNewRedisFeed(userId);
         }
-        followerFeed.getRedisPostsIds().add(redisPost.getId());
-        followerFeed.incrementVersion();
-        redisFeedRepository.save(followerFeed.getUserId(), followerFeed);
+
+        if (redisFeed.getRedisPostsIds().size() >= postsFeedSize) {
+            redisFeed.incrementVersion();
+            redisFeed.getRedisPostsIds().remove(redisFeed.getRedisPostsIds().last());
+        }
+
+        redisFeed.getRedisPostsIds().add(redisPost.getId());
+        redisFeed.incrementVersion();
+        redisFeedRepository.save(redisFeed.getUserId(), redisFeed);
     }
 
     private void removePostFromUserFeed(Long userId, RedisPost redisPost) {
-        RedisFeed followerFeed = redisFeedRepository.getById(userId);
-        if (followerFeed != null) {
-            followerFeed.getRedisPostsIds().remove(redisPost.getId());
-            followerFeed.incrementVersion();
-            redisFeedRepository.save(followerFeed.getUserId(), followerFeed);
+        RedisFeed redisFeed = redisFeedRepository.getById(userId);
+        if (redisFeed != null) {
+            redisFeed.getRedisPostsIds().remove(redisPost.getId());
+            redisFeed.incrementVersion();
+            redisFeedRepository.save(redisFeed.getUserId(), redisFeed);
         }
+    }
+
+    private RedisPost buildAndSaveNewRedisPost(Long postId) {
+        PostDto postDto = postService.getById(postId);
+        RedisPost redisPost = RedisPost.builder()
+                .id(postId)
+                .postDto(postDto)
+                .redisCommentsIds(new TreeSet<>())
+                .viewerIds(new TreeSet<>())
+                .version(1L)
+                .build();
+        redisPostRepository.save(redisPost.getId(), redisPost);
+        return redisPost;
+    }
+
+    private void buildAndSaveNewRedisUser(Long userId) {
+        UserDto userDto = userServiceClient.getUser(userId);
+        RedisUser.builder()
+                .id(userId)
+                .userDto(userDto)
+                .version(1L)
+                .build();
+    }
+
+    private RedisFeed buildAndSaveNewRedisFeed(Long userId) {
+        RedisFeed redisFeed = RedisFeed.builder()
+                .userId(userId)
+                .redisPostsIds(new TreeSet<>())
+                .version(1L)
+                .build();
+        redisFeedRepository.save(redisFeed.getUserId(), redisFeed);
+        return redisFeed;
     }
 }

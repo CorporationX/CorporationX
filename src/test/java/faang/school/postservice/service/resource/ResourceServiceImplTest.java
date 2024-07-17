@@ -60,7 +60,7 @@ class ResourceServiceImplTest {
         Post post = Post.builder().id(1L).build();
         String key = UUID.randomUUID().toString();
 
-        when(postService.findById(1L)).thenReturn(post);
+        when(postService.findPostByIdInDB(1L)).thenReturn(post);
         when(amazonS3Service.uploadFile(file)).thenReturn(key);
         when(resourceRepository.save(any(Resource.class))).thenAnswer(i -> i.getArguments()[0]);
 

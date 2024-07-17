@@ -26,8 +26,6 @@ public class RedisPost implements Serializable {
 
     SortedSet<Long> redisCommentsIds;
 
-    SortedSet<Long> redisLikesIds;
-
     SortedSet<Long> viewerIds;
 
     @Version

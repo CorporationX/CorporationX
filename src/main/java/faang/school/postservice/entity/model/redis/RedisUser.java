@@ -24,8 +24,6 @@ public class RedisUser implements Serializable {
 
     private UserDto userDto;
 
-    private SortedSet<Long> followersIds;
-
     @Version
     private Long version;
 

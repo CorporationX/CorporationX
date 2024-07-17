@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 @Service
 @RequiredArgsConstructor
@@ -23,17 +26,18 @@ public class KafkaPostService {
     @Value("${batch.get-user-followers}")
     private int batchSize;
 
-    @Retryable(retryFor = FeignException.class, maxAttempts = 5)
+    @Retryable(value = FeignException.class, maxAttempts = 5)
     public void sendPostToPublisher(PostDto dto) {
         List<Long> followers = userServiceClient.getFollowerIdsByAuthorId(dto.getAuthorId());
-        ListUtils.partition(followers, batchSize).forEach(followersPartition -> {
-                    NewPostEvent event = NewPostEvent.builder()
-                            .postId(dto.getId())
-                            .authorId(dto.getAuthorId())
-                            .authorFollowers(followersPartition)
-                            .build();
-                    newPostProducer.publish(event);
-                }
-        );
+        SortedSet<Long> sortedFollowers = new TreeSet<>(followers);
+
+        ListUtils.partition(new ArrayList<>(sortedFollowers), batchSize).forEach(followersPartition -> {
+            SortedSet<Long> sortedPartition = new TreeSet<>(followersPartition);
+            NewPostEvent event = NewPostEvent.builder()
+                    .postDto(dto)
+                    .followersIds(sortedPartition)
+                    .build();
+            newPostProducer.publish(event);
+        });
     }
 }

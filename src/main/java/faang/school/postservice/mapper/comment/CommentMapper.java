@@ -20,17 +20,17 @@ public interface CommentMapper {
     @Mapping(source = "postId", target = "post.id")
     Comment toEntity(CommentToCreateDto commentDto);
 
-    @Mapping(source = "likes", target = "likesCount", qualifiedByName = "getCountFromLikeList")
+//    @Mapping(source = "likes", target = "likesCount", qualifiedByName = "getCountFromLikeList")
     @Mapping(source = "post.id", target = "postId")
     CommentDto toDto(Comment comment);
 
     @Mapping(target = "id", ignore = true)
     void update(CommentToUpdateDto commentDto, @MappingTarget Comment comment);
 
-    @Named("getCountFromLikeList")
-    default int getCountFromLikeList(List<Like> likes) {
-        return likes != null ? likes.size() : 0;
-    }
+//    @Named("getCountFromLikeList")
+//    default int getCountFromLikeList(List<Like> likes) {
+//        return likes != null ? likes.size() : 0;
+//    }
 
     CommentDto toDto(NewCommentEvent newCommentEvent);
 }

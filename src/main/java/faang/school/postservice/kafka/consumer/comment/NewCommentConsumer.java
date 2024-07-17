@@ -32,9 +32,7 @@ public class NewCommentConsumer {
         try {
             NewCommentEvent newCommentEvent = objectMapper.readValue(event, NewCommentEvent.class);
             log.info("Received new newCommentEvent {}", event);
-
-            CommentDto dto = commentMapper.toDto(newCommentEvent);
-            commentService.addCommentToPost(dto);
+            commentService.addCommentToPost(newCommentEvent);
         } catch (JsonProcessingException e) {
             log.error("Error processing event JSON: {}", event, e);
             throw new SerializationException(e);

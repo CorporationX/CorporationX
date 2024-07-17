@@ -1,12 +1,15 @@
 package faang.school.postservice.service.resource;
 
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import faang.school.postservice.entity.dto.post.PostDto;
 import faang.school.postservice.entity.dto.resource.ResourceDto;
-import faang.school.postservice.exception.NotFoundException;
-import faang.school.postservice.exception.S3Exception;
-import faang.school.postservice.mapper.resource.ResourceMapper;
 import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.entity.model.Resource;
+import faang.school.postservice.exception.NotFoundException;
+import faang.school.postservice.exception.S3Exception;
+import faang.school.postservice.mapper.PostMapper;
+import faang.school.postservice.mapper.PostMapperImpl;
+import faang.school.postservice.mapper.resource.ResourceMapper;
 import faang.school.postservice.repository.ResourceRepository;
 import faang.school.postservice.service.post.PostService;
 import faang.school.postservice.service.s3.AmazonS3Service;
@@ -36,6 +39,7 @@ public class ResourceServiceImpl implements ResourceService {
     private final ResourceValidator resourceValidator;
     private final AmazonS3Service amazonS3Service;
     private final PostService postService;
+    private final PostMapper postMapper;
 
     @Override
     @Transactional
@@ -48,7 +52,8 @@ public class ResourceServiceImpl implements ResourceService {
     @Transactional
     public List<ResourceDto> create(Long postId, Long userId, List<MultipartFile> files) {
 
-        Post post = postService.findById(postId);
+        PostDto dto = postService.getById(postId);
+        Post post = postMapper.toEntity(dto);
         resourceValidator.validatePostAuthorAndResourceAuthor(post.getAuthorId(), post.getProjectId(), userId);
         resourceValidator.validateCountFilesPerPost(postId, files.size());
 

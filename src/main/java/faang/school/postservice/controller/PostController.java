@@ -3,7 +3,6 @@ package faang.school.postservice.controller;
 import faang.school.postservice.entity.dto.post.PostCreateDto;
 import faang.school.postservice.entity.dto.post.PostDto;
 import faang.school.postservice.entity.dto.post.PostUpdateDto;
-import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.service.post.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +18,10 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final PostMapper postMapper;
 
     @GetMapping("{postId}")
-    public PostDto findById(@PathVariable Long postId) {
-        return postMapper.toDto(postService.findById(postId));
+    public PostDto getById(@PathVariable Long postId) {
+        return postService.getById(postId);
     }
 
     @PostMapping

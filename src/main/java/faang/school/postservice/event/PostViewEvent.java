@@ -1,8 +1,6 @@
 package faang.school.postservice.event;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import faang.school.postservice.entity.dto.post.PostDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class PostViewEvent implements Event{
-    private Long postId;
-    private Long authorId;
+    private PostDto postDto;
     private Long viewerId;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime completedAt;
+    private LocalDateTime createdAt;
 }

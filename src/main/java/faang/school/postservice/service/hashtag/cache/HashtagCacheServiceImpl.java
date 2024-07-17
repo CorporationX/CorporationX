@@ -41,7 +41,7 @@ public class HashtagCacheServiceImpl implements HashtagCacheService {
     @Override
     public void addPostToHashtag(String hashtag, PostHashtagDto post) {
 
-        double score = post.getLikeIds().size();
+        double score = post.getLikesIds().size();
         zSetOps.add(hashtag, post, score);
 
         log.info("Added post {} to hashtag's #{} cache", post, hashtag);
@@ -62,7 +62,7 @@ public class HashtagCacheServiceImpl implements HashtagCacheService {
 
     @Override
     public void updateScore(String hashtag, PostHashtagDto post) {
-        zSetOps.add(hashtag, post, post.getLikeIds().size());
-        log.info("Updated post's score to {}: post={}", post.getLikeIds().size(), post);
+        zSetOps.add(hashtag, post, post.getLikesIds().size());
+        log.info("Updated post's score to {}: post={}", post.getLikesIds().size(), post);
     }
 }

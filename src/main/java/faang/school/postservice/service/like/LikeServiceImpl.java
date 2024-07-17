@@ -48,11 +48,12 @@ public class LikeServiceImpl implements LikeService {
         post.getLikes().add(like);
         like = likeRepository.save(like);
 
-        likePostProducer.publish(new LikePostEvent(postId, post.getAuthorId(), userId, LocalDateTime.now()));
+        LikeDto dto = likeMapper.toDto(like);
+        likePostProducer.publish(new LikePostEvent(dto));
 
         log.info("Like with likeId = {} was added on post with postId = {} by user with userId = {}", like.getId(), postId, userId);
 
-        return likeMapper.toDto(like);
+        return dto;
     }
 
     @Override

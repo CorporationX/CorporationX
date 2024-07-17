@@ -49,18 +49,12 @@ public class PostServiceImpl implements PostService {
     private final UserContext userContext;
 
     @Override
-    public Post findById(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
-        publishPostViewEvent(post);
-        return post;
-    }
-
-    @Override
     public PostDto getById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
-        return postMapper.toDto(post);
+        PostDto dto = postMapper.toDto(post);
+        publishPostViewEvent(dto);
+        return dto;
     }
 
     @Override
@@ -75,7 +69,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostDto publish(Long id) {
-        Post post = findById(id);
+        Post post = findPostByIdInDB(id);
         postValidator.validatePublicationPost(post);
         post.setPublished(true);
         post.setPublishedAt(LocalDateTime.now());
@@ -84,7 +78,7 @@ public class PostServiceImpl implements PostService {
         PostHashtagDto postHashtagDto = postMapper.toHashtagDto(post);
         asyncHashtagService.addHashtags(postHashtagDto);
 
-        PostDto dto  = postMapper.toDto(post);
+        PostDto dto = postMapper.toDto(post);
 
         kafkaPostService.sendPostToPublisher(dto);
 
@@ -94,7 +88,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostDto update(Long id, PostUpdateDto postUpdateDto) {
-        Post post = findById(id);
+        Post post = findPostByIdInDB(id);
         postValidator.validatePostContent(post.getContent());
         post.setContent(postUpdateDto.getContent());
         post = postRepository.save(post);
@@ -108,7 +102,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        Post post = findById(id);
+        Post post = findPostByIdInDB(id);
         post.setDeleted(true);
         postRepository.save(post);
 
@@ -142,8 +136,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> findPostPublicationsByUserAuthorId(Long id) {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
-                .peek(this::publishPostViewEvent)
                 .map(postMapper::toDto)
+                .peek(this::publishPostViewEvent)
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
     }
@@ -151,8 +145,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> findPostPublicationsByProjectAuthorId(Long id) {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
-                .peek(this::publishPostViewEvent)
                 .map(postMapper::toDto)
+                .peek(this::publishPostViewEvent)
                 .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
                 .toList();
     }
@@ -174,29 +168,34 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void correctPosts(){
+    public void correctPosts() {
         List<Post> unpublishedPosts = postRepository.findReadyToPublish();
         Map<Post, CompletableFuture<Optional<String>>> correctedContents = new HashMap<>();
         unpublishedPosts.stream()
                 .filter(post -> !post.isCheckedForSpelling())
-                .forEach(post->correctedContents.put(post, spellingService.checkSpelling(post.getContent())));
+                .forEach(post -> correctedContents.put(post, spellingService.checkSpelling(post.getContent())));
 
-        correctedContents.forEach((post, correctedContent)->{
+        correctedContents.forEach((post, correctedContent) -> {
             try {
                 correctedContent.get().ifPresent((content) -> {
                     post.setContent(content);
                     post.setCheckedForSpelling(true);
                 });
-            }
-            catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 log.error("Error when updating a post with an id: {}", post.getId(), e);
                 throw new RuntimeException(e);
             }
         });
     }
 
-    private void publishPostViewEvent(Post post) {
-        PostViewEvent event = new PostViewEvent(post.getId(), post.getAuthorId(), userContext.getUserId(), LocalDateTime.now());
+    private void publishPostViewEvent(PostDto dto) {
+        PostViewEvent event = new PostViewEvent(dto, userContext.getUserId(), LocalDateTime.now());
         postViewPublisher.publish(event);
+    }
+
+    private Post findPostByIdInDB(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
+        return post;
     }
 }

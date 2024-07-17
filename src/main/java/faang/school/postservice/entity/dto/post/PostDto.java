@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -14,6 +15,7 @@ public class PostDto {
     private String content;
     private Long authorId;
     private Long projectId;
+    private List<Long> likesIds;
     private boolean published;
     private LocalDateTime publishedAt;
     private boolean deleted;

@@ -43,5 +43,5 @@ public class PostHashtagDto implements Serializable {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime updatedAt;
 
-    private List<Long> likeIds;
+    private List<Long> likesIds;
 }

@@ -4,6 +4,7 @@ import faang.school.postservice.entity.dto.comment.CommentDto;
 import faang.school.postservice.entity.dto.comment.CommentToCreateDto;
 import faang.school.postservice.entity.dto.comment.CommentToUpdateDto;
 import faang.school.postservice.event.comment.NewCommentEvent;
+import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.comment.CommentMapper;
 import faang.school.postservice.entity.model.Comment;
 import faang.school.postservice.entity.model.Post;
@@ -46,15 +47,10 @@ public class CommentServiceImpl implements CommentService {
         comment = commentRepository.save(comment);
         log.info("Created comment on post {} authored by {}", postId, userId);
 
-        newCommentPublisher.publish(new NewCommentEvent(
-                comment.getId(),
-                userId,
-                comment.getContent(),
-                0L,
-                LocalDateTime.now(),
-                LocalDateTime.now()));
+        CommentDto dto = commentMapper.toDto(comment);
+        newCommentPublisher.publish(new NewCommentEvent(dto));
 
-        return commentMapper.toDto(comment);
+        return dto;
     }
 
     @Override
@@ -91,5 +87,12 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.deleteById(commentId);
         log.info("Deleted comment {} on post {} authored by {}", commentId, comment.getPost().getId(), userId);
         return commentToDelete;
+    }
+
+    @Override
+    public CommentDto getById(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(String.format("Comment with id %d not found", commentId)));
+        return commentMapper.toDto(comment);
     }
 }

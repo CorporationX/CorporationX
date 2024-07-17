@@ -4,7 +4,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
-
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -22,10 +21,10 @@ spring:
       port: 6379
       host: localhost
       channels:
-        follower_channel:
-          name: follower_channel
-        profile_view_channel:
-            name: profile_view_channel
+        mentorship-channel:
+          name: mentorship_channel
+        follower-event-channel:
+          name: follower_event
 
 server:
   port: 8080
@@ -45,9 +44,46 @@ payment-service:
 aws:
   accessKey: access_key
   secretKey: secret_key
+  bucket-name: backet_name
   region: bucket_region
 
 services:
   s3:
-    bucket-name: user_backet
+    bucket-name: user_bucket
     isMocked: true
+
+diceBear-picture-service:
+  styles:
+    adventurer,
+    adventurer-neutral,
+    avataaars,
+    avataaars-neutral,
+    big-ears,
+    big-ears-neutral,
+    big-smile,
+    bottts,
+    bottts-neutral,
+    croodles,
+    croodles-neutral,
+    fun-emoji,
+    icons,
+    identicon,
+    initials,
+    lorelei,
+    lorelei-neutral,
+    micah,
+    miniavs,
+    notionists,
+    notionists-neutral,
+    open-peeps,
+    personas,
+    pixel-art,
+    pixel-art-neutral,
+    shapes,
+    thumbs
+  diceBear-url: https://api.dicebear.com/8.x/
+  extensions:
+    original: .svg
+    decreased: _small.jpeg
+  file-width: 180
+  file-height: 180

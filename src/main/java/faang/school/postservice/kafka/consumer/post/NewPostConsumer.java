@@ -17,12 +17,10 @@ public class NewPostConsumer {
 
     private final FeedCacheService feedCacheService;
     private final ObjectMapper objectMapper;
-    private final PostMapper postMapper;
 
-    public NewPostConsumer(FeedCacheService feedCacheService, ObjectMapper objectMapper, PostMapper postMapper) {
+    public NewPostConsumer(FeedCacheService feedCacheService, ObjectMapper objectMapper) {
         this.feedCacheService = feedCacheService;
         this.objectMapper = objectMapper;
-        this.postMapper = postMapper;
     }
 
     @KafkaListener(topics = "${spring.data.channel.new_post.name}", groupId = "${spring.data.kafka.group-id}")
@@ -30,7 +28,6 @@ public class NewPostConsumer {
         try {
             NewPostEvent postViewEvent = objectMapper.readValue(event, NewPostEvent.class);
             log.info("Received new NewPostEvent {}", event);
-
             feedCacheService.addPostInFeed(postViewEvent);
         } catch (JsonProcessingException e) {
             log.error("Error processing event JSON: {}", event, e);

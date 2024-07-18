@@ -12,7 +12,6 @@ import java.util.SortedSet;
 @Builder
 @AllArgsConstructor
 public class NewPostEvent implements Event {
-
     private PostDto postDto;
     private SortedSet<Long> followersIds;
 }

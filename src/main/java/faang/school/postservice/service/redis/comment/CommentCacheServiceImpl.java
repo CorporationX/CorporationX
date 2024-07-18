@@ -10,6 +10,8 @@ import faang.school.postservice.event.comment.UpdateCommentEvent;
 import faang.school.postservice.repository.redis.RedisCommentRepository;
 import faang.school.postservice.repository.redis.RedisPostRepository;
 import faang.school.postservice.service.comment.CommentService;
+import faang.school.postservice.service.post.PostService;
+import faang.school.postservice.service.redis.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +30,7 @@ public class CommentCacheServiceImpl implements CommentCacheService {
 
     private final RedisPostRepository redisPostRepository;
     private final RedisCommentRepository redisCommentRepository;
-    private final CommentService commentService;
+    private final Builder builder;
 
     @Value("${cache.max-comments}")
     private Integer maxCommentsInCache;
@@ -37,24 +39,32 @@ public class CommentCacheServiceImpl implements CommentCacheService {
     @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void addCommentToPost(NewCommentEvent event) {
         RedisPost redisPost = redisPostRepository.getById(event.getCommentDto().getPostId());
+
+        if (redisPost == null) {
+            redisPost = builder.buildAndSaveNewRedisPost(event.getCommentDto().getPostId());
+        }
+
         if (redisPost.getRedisCommentsIds().size() >= maxCommentsInCache) {
             redisPost.getRedisCommentsIds().remove(redisPost.getRedisCommentsIds().first());
         }
 
         redisPost.getRedisCommentsIds().add(event.getCommentDto().getId());
         redisPostRepository.save(redisPost.getId(), redisPost);
+        log.info("Added new comment {} to post {}", event.getCommentDto().getId(), event.getCommentDto().getPostId());
     }
 
     @Override
     @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void updateCommentOnPost(UpdateCommentEvent event) {
         RedisComment redisComment = redisCommentRepository.getById(event.getCommentDto().getId());
+
         if (redisComment == null) {
-            redisComment = buildAndSaveNewRedisComment(event.getCommentDto().getId());
+            redisComment = builder.buildAndSaveNewRedisComment(event.getCommentDto().getId());
         }
 
         redisComment.setCommentDto(event.getCommentDto());
         redisCommentRepository.save(redisComment.getId(), redisComment);
+        log.info("Updated comment {} on post {}", event.getCommentDto().getId(), event.getCommentDto().getPostId());
     }
 
     @Override
@@ -65,17 +75,6 @@ public class CommentCacheServiceImpl implements CommentCacheService {
 
         redisPost.getRedisCommentsIds().remove(event.getCommentDto().getId());
         redisPostRepository.save(redisPost.getId(), redisPost);
-    }
-
-    private RedisComment buildAndSaveNewRedisComment(Long commentId) {
-        CommentDto dto = commentService.getById(commentId);
-        RedisComment newComment = RedisComment.builder()
-                .id(commentId)
-                .commentDto(dto)
-                .redisLikesIds(new TreeSet<>())
-                .version(1L)
-                .build();
-        redisCommentRepository.save(newComment.getId(), newComment);
-        return newComment;
+        log.info("Deleted comment {} from post {}", event.getCommentDto().getId(), event.getCommentDto().getPostId());
     }
 }

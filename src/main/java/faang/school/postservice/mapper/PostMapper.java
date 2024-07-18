@@ -4,15 +4,10 @@ import faang.school.postservice.entity.dto.post.PostCreateDto;
 import faang.school.postservice.entity.dto.post.PostDto;
 import faang.school.postservice.entity.dto.post.PostHashtagDto;
 import faang.school.postservice.event.post.NewPostEvent;
-import faang.school.postservice.event.PostViewEvent;
-import faang.school.postservice.entity.model.Like;
+import faang.school.postservice.event.post.PostViewEvent;
 import faang.school.postservice.entity.model.Post;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PostMapper {

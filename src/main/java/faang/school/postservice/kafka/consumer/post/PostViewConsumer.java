@@ -2,7 +2,7 @@ package faang.school.postservice.kafka.consumer.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.postservice.event.PostViewEvent;
+import faang.school.postservice.event.post.PostViewEvent;
 import faang.school.postservice.exception.ListenerException;
 import faang.school.postservice.service.redis.feed.FeedCacheService;
 import lombok.extern.slf4j.Slf4j;

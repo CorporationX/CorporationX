@@ -18,12 +18,10 @@ public class NewCommentConsumer {
 
     private final CommentCacheService commentService;
     private final ObjectMapper objectMapper;
-    private final CommentMapper commentMapper;
 
-    public NewCommentConsumer(CommentCacheService commentService, ObjectMapper objectMapper, CommentMapper commentMapper) {
+    public NewCommentConsumer(CommentCacheService commentService, ObjectMapper objectMapper) {
         this.commentService = commentService;
         this.objectMapper = objectMapper;
-        this.commentMapper = commentMapper;
     }
 
     @KafkaListener(topics = "${spring.data.channel.new_comment.name}", groupId = "${spring.data.kafka.group-id}")

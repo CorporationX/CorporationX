@@ -17,10 +17,10 @@ public class PostDto {
     private Long projectId;
     private List<Long> likesIds;
     private boolean published;
-    private LocalDateTime publishedAt;
+//    private LocalDateTime publishedAt; //TODO
     private boolean deleted;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+//    private LocalDateTime createdAt;
+//    private LocalDateTime updatedAt;
     private Long views;
 
     public void incrementViews() {

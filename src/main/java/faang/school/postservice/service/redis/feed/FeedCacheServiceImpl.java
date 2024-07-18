@@ -6,7 +6,7 @@ import faang.school.postservice.entity.dto.user.UserDto;
 import faang.school.postservice.entity.model.redis.RedisFeed;
 import faang.school.postservice.entity.model.redis.RedisPost;
 import faang.school.postservice.entity.model.redis.RedisUser;
-import faang.school.postservice.event.PostViewEvent;
+import faang.school.postservice.event.post.PostViewEvent;
 import faang.school.postservice.event.post.DeletePostEvent;
 import faang.school.postservice.event.post.NewPostEvent;
 import faang.school.postservice.repository.redis.RedisFeedRepository;
@@ -55,6 +55,8 @@ public class FeedCacheServiceImpl implements FeedCacheService {
                 posts.add(redisPost.getPostDto());
             }
         });
+
+        log.info("Got news feed for user {}", userId);
         return posts;
     }
 
@@ -74,6 +76,8 @@ public class FeedCacheServiceImpl implements FeedCacheService {
 
         addPostToUserFeed(event.getPostDto().getAuthorId(), redisPost);
         addPostToFollowers(event.getFollowersIds(), redisPost);
+        log.info("Added post {} to user {} feed and their followers feeds", redisPost.getId(),
+                redisPost.getPostDto().getAuthorId());
     }
 
     @Override
@@ -83,8 +87,11 @@ public class FeedCacheServiceImpl implements FeedCacheService {
 
         if (redisPost != null) {
             redisPost.incrementVersion();
+
             removePostFromUserFeed(event.getPostDto().getAuthorId(), redisPost);
             removePostFromFollowers(event.getFollowersIds(), redisPost);
+            log.info("Removed post {} from user {} feed and their followers feeds", redisPost.getId(),
+                    redisPost.getPostDto().getAuthorId());
         }
     }
 
@@ -100,6 +107,7 @@ public class FeedCacheServiceImpl implements FeedCacheService {
         redisPost.getPostDto().incrementViews();
         redisPost.incrementVersion();
         redisPostRepository.save(redisPost.getId(), redisPost);
+        log.info("Added view to post {}", redisPost.getId());
     }
 
     @Async("postRemoveOrAddExecutor")

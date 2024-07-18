@@ -5,11 +5,13 @@ import faang.school.postservice.event.Event;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.SortedSet;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class NewCommentEvent implements Event {
     private CommentDto commentDto;

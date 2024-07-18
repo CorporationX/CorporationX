@@ -3,7 +3,7 @@ package faang.school.postservice.service.redis.feed;
 import faang.school.postservice.entity.dto.post.PostDto;
 import faang.school.postservice.event.post.DeletePostEvent;
 import faang.school.postservice.event.post.NewPostEvent;
-import faang.school.postservice.event.PostViewEvent;
+import faang.school.postservice.event.post.PostViewEvent;
 
 import java.util.SortedSet;
 

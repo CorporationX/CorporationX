@@ -10,6 +10,7 @@ import faang.school.postservice.event.comment.UpdateCommentEvent;
 import faang.school.postservice.repository.redis.RedisCommentRepository;
 import faang.school.postservice.repository.redis.RedisPostRepository;
 import faang.school.postservice.service.comment.CommentService;
+import faang.school.postservice.service.post.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ public class CommentCacheServiceImpl implements CommentCacheService {
 
     private final RedisPostRepository redisPostRepository;
     private final RedisCommentRepository redisCommentRepository;
+    private final PostService postService;
     private final CommentService commentService;
 
     @Value("${cache.max-comments}")
@@ -37,12 +39,17 @@ public class CommentCacheServiceImpl implements CommentCacheService {
     @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void addCommentToPost(NewCommentEvent event) {
         RedisPost redisPost = redisPostRepository.getById(event.getCommentDto().getPostId());
+        if (redisPost == null) {
+            redisPost = buildAndSaveNewRedisPost(event.getCommentDto().getPostId());
+        }
+
         if (redisPost.getRedisCommentsIds().size() >= maxCommentsInCache) {
             redisPost.getRedisCommentsIds().remove(redisPost.getRedisCommentsIds().first());
         }
 
         redisPost.getRedisCommentsIds().add(event.getCommentDto().getId());
         redisPostRepository.save(redisPost.getId(), redisPost);
+        log.info("Added new comment {} to post {}", event.getCommentDto().getId(), event.getCommentDto().getPostId());
     }
 
     @Override
@@ -55,6 +62,7 @@ public class CommentCacheServiceImpl implements CommentCacheService {
 
         redisComment.setCommentDto(event.getCommentDto());
         redisCommentRepository.save(redisComment.getId(), redisComment);
+        log.info("Updated comment {} on post {}", event.getCommentDto().getId(), event.getCommentDto().getPostId());
     }
 
     @Override
@@ -65,6 +73,7 @@ public class CommentCacheServiceImpl implements CommentCacheService {
 
         redisPost.getRedisCommentsIds().remove(event.getCommentDto().getId());
         redisPostRepository.save(redisPost.getId(), redisPost);
+        log.info("Deleted comment {} from post {}", event.getCommentDto().getId(), event.getCommentDto().getPostId());
     }
 
     private RedisComment buildAndSaveNewRedisComment(Long commentId) {
@@ -77,5 +86,18 @@ public class CommentCacheServiceImpl implements CommentCacheService {
                 .build();
         redisCommentRepository.save(newComment.getId(), newComment);
         return newComment;
+    }
+
+    private RedisPost buildAndSaveNewRedisPost(Long postId) {
+        PostDto postDto = postService.getById(postId);
+        RedisPost redisPost = RedisPost.builder()
+                .id(postId)
+                .postDto(postDto)
+                .redisCommentsIds(new TreeSet<>())
+                .viewerIds(new TreeSet<>())
+                .version(1L)
+                .build();
+        redisPostRepository.save(redisPost.getId(), redisPost);
+        return redisPost;
     }
 }

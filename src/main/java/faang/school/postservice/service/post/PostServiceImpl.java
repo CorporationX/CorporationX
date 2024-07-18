@@ -6,7 +6,7 @@ import faang.school.postservice.entity.dto.post.PostCreateDto;
 import faang.school.postservice.entity.dto.post.PostDto;
 import faang.school.postservice.entity.dto.post.PostHashtagDto;
 import faang.school.postservice.entity.dto.post.PostUpdateDto;
-import faang.school.postservice.event.PostViewEvent;
+import faang.school.postservice.event.post.PostViewEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.entity.model.Post;
@@ -53,7 +53,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
         PostDto dto = postMapper.toDto(post);
-        publishPostViewEvent(dto);
+//        publishPostViewEvent(dto); //TODO
         return dto;
     }
 
@@ -121,7 +121,7 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findPostDraftsByUserAuthorId(Long id) {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, false, false).stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
+//                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed()) TODO
                 .toList();
     }
 
@@ -129,7 +129,7 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findPostDraftsByProjectAuthorId(Long id) {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, false, false).stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
+//                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed()) TODO
                 .toList();
     }
 
@@ -138,7 +138,7 @@ public class PostServiceImpl implements PostService {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
                 .map(postMapper::toDto)
                 .peek(this::publishPostViewEvent)
-                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
+//                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed()) TODO
                 .toList();
     }
 
@@ -147,7 +147,7 @@ public class PostServiceImpl implements PostService {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
                 .map(postMapper::toDto)
                 .peek(this::publishPostViewEvent)
-                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
+//                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed()) TODO
                 .toList();
     }
 

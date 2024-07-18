@@ -6,30 +6,38 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
 public class AsyncConfig {
 
-    @Value("${async.corePoolSize}")
-    private int corePoolSize;
-
-    @Value("${async.maxPoolSize}")
-    private int maxPoolSize;
-
-    @Value("${async.queueCapacity}")
-    private int queueCapacity;
-
     @Bean(name = "taskExecutor")
-    public Executor taskExecutor() {
+    public Executor taskExecutor(
+            @Value("${async.task.corePoolSize}") int corePoolSize,
+            @Value("${async.task.maxPoolSize}") int maxPoolSize,
+            @Value("${async.task.queueCapacity}") int queueCapacity) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(corePoolSize);
         executor.setMaxPoolSize(maxPoolSize);
         executor.setQueueCapacity(queueCapacity);
-        executor.setThreadNamePrefix("AsyncThread-");
+        executor.setThreadNamePrefix("AsyncTaskThread-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "postRemoveOrAddExecutor")
+    public Executor postRemoveExecutor(
+            @Value("${async.post.corePoolSize}") int corePoolSize,
+            @Value("${async.post.maxPoolSize}") int maxPoolSize,
+            @Value("${async.post.queueCapacity}") int queueCapacity) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("PostRemoveOrAddThread-");
         executor.initialize();
         return executor;
     }

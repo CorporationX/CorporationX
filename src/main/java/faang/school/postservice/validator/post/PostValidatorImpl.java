@@ -4,7 +4,7 @@ import faang.school.postservice.client.ProjectServiceClient;
 import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.exception.DataValidationException;
 import faang.school.postservice.exception.NotFoundException;
-import faang.school.postservice.model.Post;
+import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.validator.user.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

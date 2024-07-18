@@ -1,7 +1,7 @@
 package faang.school.postservice.service.spelling;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.postservice.dto.json.SpellingCorrector;
+import faang.school.postservice.entity.dto.json.SpellingCorrector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

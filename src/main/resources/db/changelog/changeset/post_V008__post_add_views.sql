@@ -1,2 +1,0 @@
-ALTER TABLE IF EXISTS post
-    ADD COLUMN views BIGINT;

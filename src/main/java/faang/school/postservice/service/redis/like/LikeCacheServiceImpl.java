@@ -1,18 +1,20 @@
 package faang.school.postservice.service.redis.like;
 
-import faang.school.postservice.dto.like.LikeDto;
-import faang.school.postservice.dto.redis.comment.RedisCommentDto;
-import faang.school.postservice.model.redis.RedisPost;
+import faang.school.postservice.entity.model.redis.RedisComment;
+import faang.school.postservice.entity.model.redis.RedisPost;
+import faang.school.postservice.event.like.DeleteCommentLikeEvent;
+import faang.school.postservice.event.like.DeletePostLikeEvent;
+import faang.school.postservice.event.like.LikeCommentEvent;
+import faang.school.postservice.event.like.LikePostEvent;
+import faang.school.postservice.repository.redis.RedisCommentRepository;
 import faang.school.postservice.repository.redis.RedisPostRepository;
+import faang.school.postservice.service.redis.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,76 +22,70 @@ import java.util.List;
 public class LikeCacheServiceImpl implements LikeCacheService {
 
     private final RedisPostRepository redisPostRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisCommentRepository redisCommentRepository;
+    private final Builder builder;
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
-    public void addLikeOnPost(LikeDto likeDto) {
-        redisPostRepository.findById(likeDto.getPostId()).ifPresent(redisPost -> {
-            redisPost.likeIncrement();
-            updateRedisPost(redisPost);
-        });
-    }
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public void addLikeOnPost(LikePostEvent event) {
+        RedisPost redisPost = redisPostRepository.getById(event.getLikeDto().getPostId());
 
-    @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
-    public void deleteLikeFromPost(long postId) {
-        redisPostRepository.findById(postId).ifPresent(redisPost -> {
-            redisPost.likeDecrement();
-            updateRedisPost(redisPost);
-        });
+        if (redisPost == null) {
+            redisPost = builder.buildAndSaveNewRedisPost(event.getLikeDto().getPostId());
+        }
+
+        redisPost.getPostDto().getLikesIds().add(event.getLikeDto().getId());
+        redisPostRepository.save(redisPost.getId(), redisPost);
+
+        log.info("Added like {} to post {}", event.getLikeDto().getId(),
+                event.getLikeDto().getPostId());
     }
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
-    public void addLikeToComment(long postId, long commentId) {
-        redisPostRepository.findById(postId).ifPresent(redisPost -> {
-            List<RedisCommentDto> comments = getCommentsList(redisPost);
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public void deleteLikeFromPost(DeletePostLikeEvent event) {
+        RedisPost redisPost = redisPostRepository.getById(event.getLikeDto().getPostId());
 
-            comments.stream()
-                    .filter(comment -> comment.getId() == commentId)
-                    .forEach(RedisCommentDto::likeIncrement);
+        if (redisPost == null) {
+            redisPost = builder.buildAndSaveNewRedisPost(event.getLikeDto().getPostId());
+        }
 
-            updateRedisPost(redisPost);
-        });
+        redisPost.getPostDto().getLikesIds().remove(event.getLikeDto().getId());
+        redisPostRepository.save(redisPost.getId(), redisPost);
+
+        log.info("Deleted like {} from post {}", event.getLikeDto().getId(),
+                event.getLikeDto().getPostId());
     }
 
     @Override
-    @Retryable(
-            value = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
-    public void deleteLikeFromComment(long postId, long commentId) {
-        redisPostRepository.findById(postId).ifPresent(redisPost -> {
-            List<RedisCommentDto> comments = getCommentsList(redisPost);
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public void addLikeToComment(LikeCommentEvent event) {
+        RedisComment redisComment = redisCommentRepository.getById(event.getLikeDto().getCommentId());
 
-            comments.stream()
-                    .filter(comment -> comment.getId() == commentId)
-                    .forEach(RedisCommentDto::likeDecrement);
+        if (redisComment == null) {
+            redisComment = builder.buildAndSaveNewRedisComment(event.getLikeDto().getCommentId());
+        }
 
-            updateRedisPost(redisPost);
-        });
+        redisComment.getRedisLikesIds().add(event.getLikeDto().getId());
+        redisCommentRepository.save(redisComment.getId(), redisComment);
+
+        log.info("Added like {} to comment {}", event.getLikeDto().getId(),
+                event.getLikeDto().getCommentId());
     }
 
-    private void updateRedisPost(Object redisPost) {
-        redisTemplate.opsForValue().set(String.valueOf(redisPost.hashCode()), redisPost);
-    }
+    @Override
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public void deleteLikeFromComment(DeleteCommentLikeEvent event) {
+        RedisComment redisComment = redisCommentRepository.getById(event.getLikeDto().getCommentId());
 
-    private List<RedisCommentDto> getCommentsList(RedisPost redisPost) {
-        List<RedisCommentDto> comments = redisPost.getRedisCommentDtos();
-        return comments != null ? comments : List.of();
+        if (redisComment == null) {
+            redisComment = builder.buildAndSaveNewRedisComment(event.getLikeDto().getCommentId());
+        }
+
+        redisComment.getRedisLikesIds().remove(event.getLikeDto().getId());
+        redisCommentRepository.save(redisComment.getId(), redisComment);
+
+        log.info("Deleted like {} from comment {}", event.getLikeDto().getId(),
+                event.getLikeDto().getCommentId());
     }
 }

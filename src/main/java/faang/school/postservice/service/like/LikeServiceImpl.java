@@ -1,13 +1,13 @@
 package faang.school.postservice.service.like;
 
-import faang.school.postservice.dto.like.LikeDto;
-import faang.school.postservice.event.LikePostEvent;
+import faang.school.postservice.entity.dto.like.LikeDto;
+import faang.school.postservice.event.like.LikePostEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.LikeMapper;
-import faang.school.postservice.model.Comment;
-import faang.school.postservice.model.Like;
-import faang.school.postservice.model.Post;
-import faang.school.postservice.producer.LikePostProducer;
+import faang.school.postservice.entity.model.Comment;
+import faang.school.postservice.entity.model.Like;
+import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.kafka.producer.LikePostProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;
@@ -48,11 +48,12 @@ public class LikeServiceImpl implements LikeService {
         post.getLikes().add(like);
         like = likeRepository.save(like);
 
-        likePostProducer.publish(new LikePostEvent(postId, post.getAuthorId(), userId, LocalDateTime.now()));
+        LikeDto dto = likeMapper.toDto(like);
+        likePostProducer.publish(new LikePostEvent(dto));
 
         log.info("Like with likeId = {} was added on post with postId = {} by user with userId = {}", like.getId(), postId, userId);
 
-        return likeMapper.toDto(like);
+        return dto;
     }
 
     @Override

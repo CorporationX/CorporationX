@@ -1,6 +1,6 @@
 package faang.school.postservice.validator.post;
 
-import faang.school.postservice.model.Post;
+import faang.school.postservice.entity.model.Post;
 
 public interface PostValidator {
 

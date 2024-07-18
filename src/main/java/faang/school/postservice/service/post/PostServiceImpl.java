@@ -2,20 +2,19 @@ package faang.school.postservice.service.post;
 
 import faang.school.postservice.config.context.UserContext;
 import faang.school.postservice.config.moderation.ModerationDictionary;
-import faang.school.postservice.dto.post.PostCreateDto;
-import faang.school.postservice.dto.post.PostDto;
-import faang.school.postservice.dto.post.PostHashtagDto;
-import faang.school.postservice.dto.post.PostUpdateDto;
-import faang.school.postservice.event.NewPostEvent;
-import faang.school.postservice.event.PostViewEvent;
+import faang.school.postservice.entity.dto.post.PostCreateDto;
+import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
+import faang.school.postservice.entity.dto.post.PostUpdateDto;
+import faang.school.postservice.event.post.PostViewEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.PostMapper;
-import faang.school.postservice.model.Post;
-import faang.school.postservice.model.VerificationStatus;
-import faang.school.postservice.producer.NewPostProducer;
-import faang.school.postservice.producer.PostViewProducer;
+import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.entity.model.VerificationStatus;
+import faang.school.postservice.kafka.producer.PostViewProducer;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
+import faang.school.postservice.service.kafka.KafkaPostService;
 import faang.school.postservice.service.spelling.SpellingService;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
@@ -46,15 +45,16 @@ public class PostServiceImpl implements PostService {
     private final ModerationDictionary moderationDictionary;
     private final SpellingService spellingService;
     private final PostViewProducer postViewPublisher;
-    private final NewPostProducer newPostPublisher;
+    private final KafkaPostService kafkaPostService;
     private final UserContext userContext;
 
     @Override
-    public Post findById(Long id) {
+    public PostDto getById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
-        publishPostViewEvent(post);
-        return post;
+        PostDto dto = postMapper.toDto(post);
+//        publishPostViewEvent(dto); //TODO
+        return dto;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostDto publish(Long id) {
-        Post post = findById(id);
+        Post post = findPostByIdInDB(id);
         postValidator.validatePublicationPost(post);
         post.setPublished(true);
         post.setPublishedAt(LocalDateTime.now());
@@ -78,15 +78,17 @@ public class PostServiceImpl implements PostService {
         PostHashtagDto postHashtagDto = postMapper.toHashtagDto(post);
         asyncHashtagService.addHashtags(postHashtagDto);
 
-        publishNewPostEvent(post);
+        PostDto dto = postMapper.toDto(post);
 
-        return postMapper.toDto(post);
+        kafkaPostService.sendPostToPublisher(dto);
+
+        return dto;
     }
 
     @Override
     @Transactional
     public PostDto update(Long id, PostUpdateDto postUpdateDto) {
-        Post post = findById(id);
+        Post post = findPostByIdInDB(id);
         postValidator.validatePostContent(post.getContent());
         post.setContent(postUpdateDto.getContent());
         post = postRepository.save(post);
@@ -100,7 +102,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        Post post = findById(id);
+        Post post = findPostByIdInDB(id);
         post.setDeleted(true);
         postRepository.save(post);
 
@@ -119,7 +121,7 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findPostDraftsByUserAuthorId(Long id) {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, false, false).stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
+//                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed()) TODO
                 .toList();
     }
 
@@ -127,25 +129,25 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> findPostDraftsByProjectAuthorId(Long id) {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, false, false).stream()
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed())
+//                .sorted(Comparator.comparing(PostDto::getCreatedAt).reversed()) TODO
                 .toList();
     }
 
     @Override
     public List<PostDto> findPostPublicationsByUserAuthorId(Long id) {
         return postRepository.findByAuthorIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
-                .peek(this::publishPostViewEvent)
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
+                .peek(this::publishPostViewEvent)
+//                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed()) TODO
                 .toList();
     }
 
     @Override
     public List<PostDto> findPostPublicationsByProjectAuthorId(Long id) {
         return postRepository.findByProjectIdAndPublishedAndDeletedWithLikes(id, true, false).stream()
-                .peek(this::publishPostViewEvent)
                 .map(postMapper::toDto)
-                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed())
+                .peek(this::publishPostViewEvent)
+//                .sorted(Comparator.comparing(PostDto::getPublishedAt).reversed()) TODO
                 .toList();
     }
 
@@ -166,34 +168,34 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void correctPosts(){
+    public void correctPosts() {
         List<Post> unpublishedPosts = postRepository.findReadyToPublish();
         Map<Post, CompletableFuture<Optional<String>>> correctedContents = new HashMap<>();
         unpublishedPosts.stream()
                 .filter(post -> !post.isCheckedForSpelling())
-                .forEach(post->correctedContents.put(post, spellingService.checkSpelling(post.getContent())));
+                .forEach(post -> correctedContents.put(post, spellingService.checkSpelling(post.getContent())));
 
-        correctedContents.forEach((post, correctedContent)->{
+        correctedContents.forEach((post, correctedContent) -> {
             try {
                 correctedContent.get().ifPresent((content) -> {
                     post.setContent(content);
                     post.setCheckedForSpelling(true);
                 });
-            }
-            catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 log.error("Error when updating a post with an id: {}", post.getId(), e);
                 throw new RuntimeException(e);
             }
         });
     }
 
-    private void publishPostViewEvent(Post post) {
-        PostViewEvent event = new PostViewEvent(post.getId(), post.getAuthorId(), userContext.getUserId(), LocalDateTime.now());
+    private void publishPostViewEvent(PostDto dto) {
+        PostViewEvent event = new PostViewEvent(dto, userContext.getUserId(), LocalDateTime.now());
         postViewPublisher.publish(event);
     }
 
-    private void publishNewPostEvent(Post post) {
-        NewPostEvent event = new NewPostEvent(post.getId(), post.getAuthorId(), LocalDateTime.now());
-        newPostPublisher.publish(event);
+    private Post findPostByIdInDB(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
+        return post;
     }
 }

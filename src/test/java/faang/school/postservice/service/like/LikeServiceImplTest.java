@@ -1,12 +1,12 @@
 package faang.school.postservice.service.like;
 
-import faang.school.postservice.dto.like.LikeDto;
-import faang.school.postservice.event.LikePostEvent;
+import faang.school.postservice.entity.dto.like.LikeDto;
+import faang.school.postservice.event.like.LikePostEvent;
 import faang.school.postservice.mapper.LikeMapper;
-import faang.school.postservice.model.Comment;
-import faang.school.postservice.model.Like;
-import faang.school.postservice.model.Post;
-import faang.school.postservice.producer.LikePostProducer;
+import faang.school.postservice.entity.model.Comment;
+import faang.school.postservice.entity.model.Like;
+import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.kafka.producer.LikePostProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.LikeRepository;
 import faang.school.postservice.repository.PostRepository;

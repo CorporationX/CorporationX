@@ -1,17 +1,14 @@
 package faang.school.postservice.service.redis.comment;
 
-import faang.school.postservice.dto.comment.CommentDto;
-import faang.school.postservice.dto.redis.comment.RedisCommentDto;
-
-import java.util.List;
+import faang.school.postservice.event.comment.DeleteCommentEvent;
+import faang.school.postservice.event.comment.NewCommentEvent;
+import faang.school.postservice.event.comment.UpdateCommentEvent;
 
 public interface CommentCacheService {
 
-    void addCommentToPost(CommentDto comment);
+    void addCommentToPost(NewCommentEvent event);
 
-    void updateCommentOnPost(CommentDto comment);
+    void updateCommentOnPost(UpdateCommentEvent event);
 
-    void deleteCommentFromPost(CommentDto commentDto);
-
-    List<RedisCommentDto> getCachedComments(List<CommentDto> comments);
+    void deleteCommentFromPost(DeleteCommentEvent event);
 }

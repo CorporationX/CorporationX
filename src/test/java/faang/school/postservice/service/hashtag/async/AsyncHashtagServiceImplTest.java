@@ -1,6 +1,6 @@
 package faang.school.postservice.service.hashtag.async;
 
-import faang.school.postservice.dto.post.PostHashtagDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
 import faang.school.postservice.service.hashtag.HashtagService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

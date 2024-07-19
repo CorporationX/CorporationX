@@ -4,8 +4,17 @@ import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.entity.dto.comment.CommentDto;
 import faang.school.postservice.entity.dto.post.PostDto;
 import faang.school.postservice.entity.dto.user.UserDto;
-import faang.school.postservice.entity.model.redis.*;
-import faang.school.postservice.repository.redis.*;
+import faang.school.postservice.entity.model.redis.RedisComment;
+import faang.school.postservice.entity.model.redis.RedisFeed;
+import faang.school.postservice.entity.model.redis.RedisPost;
+import faang.school.postservice.entity.model.redis.RedisUser;
+import faang.school.postservice.mapper.redis.RedisCommentMapper;
+import faang.school.postservice.mapper.redis.RedisPostMapper;
+import faang.school.postservice.mapper.redis.RedisUserMapper;
+import faang.school.postservice.repository.redis.RedisCommentRepository;
+import faang.school.postservice.repository.redis.RedisFeedRepository;
+import faang.school.postservice.repository.redis.RedisPostRepository;
+import faang.school.postservice.repository.redis.RedisUserRepository;
 import faang.school.postservice.service.comment.CommentService;
 import faang.school.postservice.service.post.PostService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.TreeSet;
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,6 +37,9 @@ public class CachedEntityBuilder {
     private final RedisUserRepository redisUserRepository;
     private final CommentService commentService;
     private final PostService postService;
+    private final RedisCommentMapper redisCommentMapper;
+    private final RedisPostMapper redisPostMapper;
+    private final RedisUserMapper redisUserMapper;
 
     @Value("${spring.data.redis.ttl.post}")
     private Long postTtl;
@@ -43,52 +55,38 @@ public class CachedEntityBuilder {
 
     public RedisComment saveCommentToRedis(Long commentId) {
         CommentDto dto = commentService.getById(commentId);
-        RedisComment newComment = RedisComment.builder()
-                .id(commentId)
-                .likesIds(new TreeSet<>())
-                .version(1L)
-                .ttl(commentTtl)
-                .build();
+        RedisComment newComment = redisCommentMapper.toRedisDto(dto);
+        newComment.setVersion(1L);
+        newComment.setTtl(commentTtl);
         redisCommentRepository.save(newComment.getId(), newComment);
         return newComment;
     }
 
     public void saveNewCommentToRedis(CommentDto dto) {
-        RedisComment newComment = RedisComment.builder()
-                .id(dto.getId())
-                .likesIds(new TreeSet<>())
-                .version(1L)
-                .ttl(commentTtl)
-                .build();
+        RedisComment newComment = redisCommentMapper.toRedisDto(dto);
+        newComment.setVersion(1L);
+        newComment.setTtl(commentTtl);
         redisCommentRepository.save(newComment.getId(), newComment);
     }
 
     public RedisPost savePostToRedis(Long postId) {
         PostDto postDto = postService.getById(postId);
-        TreeSet<Long> commentIds = commentService.getAllPostComments(postId).stream()
-                .map(CommentDto::getId).collect(Collectors.toCollection(TreeSet::new));
+        LinkedHashSet<Long> commentIds = commentService.getAllPostComments(postId).stream()
+                .map(CommentDto::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 
-        RedisPost redisPost = RedisPost.builder()
-                .id(postId)
-                .postDto(postDto)
-                .redisCommentsIds(commentIds)
-                .viewerIds(postDto.getViewersIds())
-                .version(1L)
-                .ttl(postTtl)
-                .build();
+        RedisPost redisPost = redisPostMapper.toRedisPost(postDto);
+        redisPost.setCommentsIds(commentIds);
+        redisPost.setVersion(1L);
+        redisPost.setTtl(postTtl);
         redisPostRepository.save(redisPost.getId(), redisPost);
         return redisPost;
     }
 
     public void saveNewPostToRedis(PostDto postDto) {
-        RedisPost redisPost = RedisPost.builder()
-                .id(postDto.getId())
-                .postDto(postDto)
-                .redisCommentsIds(new TreeSet<>())
-                .viewerIds(new HashSet<>())
-                .version(1L)
-                .ttl(postTtl)
-                .build();
+        RedisPost redisPost = redisPostMapper.toRedisPost(postDto);
+        redisPost.setCommentsIds(new LinkedHashSet<>());
+        redisPost.setVersion(1L);
+        redisPost.setTtl(postTtl);
         redisPostRepository.save(redisPost.getId(), redisPost);
     }
 
@@ -101,22 +99,20 @@ public class CachedEntityBuilder {
         HashSet<Long> followersIds = userServiceClient.getFollowers(userId).stream()
                 .map(UserDto::getId).collect(Collectors.toCollection(HashSet::new));
 
-        RedisUser redisUser = RedisUser.builder()
-                .id(userId)
-                .userDto(userDto)
-                .followingsIds(followingsIds)
-                .followersIds(followersIds)
-                .version(1L)
-                .ttl(userTtl)
-                .build();
+        RedisUser redisUser = redisUserMapper.toRedisDto(userDto);
+
+        redisUser.setFollowingsIds(followingsIds);
+        redisUser.setFollowersIds(followersIds);
+        redisUser.setVersion(1L);
+        redisUser.setTtl(userTtl);
 
         redisUserRepository.save(redisUser.getId(), redisUser);
     }
 
     public RedisFeed buildAndSaveNewRedisFeed(Long userId) {
-        TreeSet<Long> postsIds = postService.findUserFollowingsPosts(userId, LocalDateTime.now(), 500).stream()
+        LinkedHashSet<Long> postsIds = postService.findUserFollowingsPosts(userId, LocalDateTime.now(), 500).stream()
                 .map(PostDto::getId)
-                .collect(Collectors.toCollection(TreeSet::new));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         RedisFeed redisFeed = RedisFeed.builder()
                 .userId(userId)

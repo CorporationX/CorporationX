@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 
 @Data
@@ -18,5 +19,5 @@ public class CommentDto {
     private Long postId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<Long> likesIds;
+    private HashSet<Long> likesIds;
 }

@@ -10,7 +10,7 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 
 @Data
 @NoArgsConstructor
@@ -23,8 +23,8 @@ public class RedisUser implements Serializable {
     private Long id;
 
     private String username;
-    private LinkedHashSet<Long> followingsIds;
-    private LinkedHashSet<Long> followersIds;
+    private HashSet<Long> followingsIds;
+    private HashSet<Long> followersIds;
 
     @Version
     private Long version;

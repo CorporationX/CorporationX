@@ -1,15 +1,16 @@
 package faang.school.postservice.mapper.redis;
 
-import faang.school.postservice.entity.dto.user.UserDto;
+import faang.school.postservice.entity.dto.comment.CommentDto;
+import faang.school.postservice.entity.model.redis.RedisComment;
 import faang.school.postservice.entity.model.redis.RedisUser;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.FIELD, unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface RedisUserMapper {
+public interface RedisLikeMapper {
 
-    RedisUser toEntity(UserDto userDto);
+    RedisUser toEntity(CommentDto userDto);
 
-    RedisUser toRedisDto(UserDto userDto);
+    RedisComment toRedisDto(CommentDto comment);
 }

@@ -18,7 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -105,6 +108,20 @@ public class LikeServiceImpl implements LikeService {
         log.info("Like with likeId = {} was removed from comment with commentId = {} by user with userId = {}", like.getId(), commentId, userId);
 
         likeRepository.delete(like);
+    }
+
+    @Override
+    public List<LikeDto> getAllPostLikes(long postId) {
+        return likeRepository.findByPostId(postId).stream()
+                .map(likeMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<LikeDto> getAllCommentLikes(long commentId) {
+        return likeRepository.findByCommentId(commentId).stream()
+                .map(likeMapper::toDto)
+                .toList();
     }
 
     private LikeDto createLikeDto(Long id, Long userId, Consumer<LikeDto> function) {

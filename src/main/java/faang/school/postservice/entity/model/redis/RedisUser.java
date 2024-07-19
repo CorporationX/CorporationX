@@ -1,22 +1,19 @@
 package faang.school.postservice.entity.model.redis;
 
 import faang.school.postservice.entity.dto.user.UserDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
-import java.util.SortedSet;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RedisHash(value = "User", timeToLive = 86400) // timeToLive 24 hr
+@RedisHash(value = "User")
 public class RedisUser implements Serializable {
 
     @Id
@@ -26,6 +23,9 @@ public class RedisUser implements Serializable {
 
     @Version
     private Long version;
+
+    @TimeToLive
+    private Long ttl;
 
     public void incrementVersion() {
         this.version++;

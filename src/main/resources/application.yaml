@@ -21,6 +21,11 @@ spring:
     redis:
       port: 6379
       host: localhost
+      ttl:
+        post: 604800  #1 Week
+        user: 86400 # 24 hrs
+        comment: 86400 # 24 hrs
+        feed: 604800 # 1 Week
 
     kafka:
       port: 9092

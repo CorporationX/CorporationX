@@ -15,6 +15,7 @@ import faang.school.postservice.kafka.producer.PostViewProducer;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
 import faang.school.postservice.service.kafka.KafkaPostService;
+import faang.school.postservice.service.redis.CachedEntityBuilder;
 import faang.school.postservice.service.spelling.SpellingService;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +47,7 @@ public class PostServiceImpl implements PostService {
     private final PostViewProducer postViewPublisher;
     private final KafkaPostService kafkaPostService;
     private final UserContext userContext;
+    private final CachedEntityBuilder cachedEntity;
 
     @Override
     public PostDto getById(Long id) {
@@ -79,6 +80,9 @@ public class PostServiceImpl implements PostService {
         asyncHashtagService.addHashtags(postHashtagDto);
 
         PostDto dto = postMapper.toDto(post);
+
+        cachedEntity.buildAndSaveNewRedisUser(dto.getAuthorId());
+        cachedEntity.buildAndSaveNewRedisPost(dto.getId());
 
         kafkaPostService.sendPostToPublisher(dto);
 

@@ -1,8 +1,10 @@
 package faang.school.postservice.service.comment;
 
+import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.entity.dto.comment.CommentDto;
 import faang.school.postservice.entity.dto.comment.CommentToCreateDto;
 import faang.school.postservice.entity.dto.comment.CommentToUpdateDto;
+import faang.school.postservice.entity.dto.user.UserDto;
 import faang.school.postservice.event.comment.NewCommentEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.comment.CommentMapper;
@@ -12,6 +14,7 @@ import faang.school.postservice.kafka.producer.NewCommentProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
+import faang.school.postservice.service.redis.CachedEntityBuilder;
 import faang.school.postservice.validator.comment.CommentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
     private final CommonServiceMethods commonServiceMethods;
     private final NewCommentProducer newCommentPublisher;
+    private final CachedEntityBuilder cachedEntity;
 
     @Override
     public CommentDto createComment(long postId, long userId, CommentToCreateDto commentDto) {
@@ -48,6 +52,9 @@ public class CommentServiceImpl implements CommentService {
         log.info("Created comment on post {} authored by {}", postId, userId);
 
         CommentDto dto = commentMapper.toDto(comment);
+
+        cachedEntity.buildAndSaveNewRedisUser(dto.getAuthorId());
+        cachedEntity.buildAndSaveNewRedisComment(dto.getId());
         newCommentPublisher.publish(new NewCommentEvent(dto));
 
         return dto;

@@ -10,7 +10,7 @@ import faang.school.postservice.event.post.PostViewEvent;
 import faang.school.postservice.repository.redis.RedisFeedRepository;
 import faang.school.postservice.repository.redis.RedisPostRepository;
 import faang.school.postservice.repository.redis.RedisUserRepository;
-import faang.school.postservice.service.redis.Builder;
+import faang.school.postservice.service.redis.CachedEntityBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +32,7 @@ public class FeedCacheServiceImpl implements FeedCacheService {
     private final RedisFeedRepository redisFeedRepository;
     private final RedisPostRepository redisPostRepository;
     private final RedisUserRepository redisUserRepository;
-    private final Builder builder;
+    private final CachedEntityBuilder cachedEntityBuilder;
 
     @Value("${feed.feed-size}")
     private Integer postsFeedSize;
@@ -42,7 +42,7 @@ public class FeedCacheServiceImpl implements FeedCacheService {
     public SortedSet<PostDto> getNewsFeed(Long userId) {
         RedisFeed redisFeed = redisFeedRepository.getById(userId);
         if (redisFeed == null) {
-            redisFeed = builder.buildAndSaveNewRedisFeed(userId);
+            redisFeed = cachedEntityBuilder.buildAndSaveNewRedisFeed(userId);
         }
         SortedSet<Long> redisPostIds = redisFeed.getRedisPostsIds();
         SortedSet<PostDto> posts = new TreeSet<>(Comparator.comparing(PostDto::getId));
@@ -64,11 +64,11 @@ public class FeedCacheServiceImpl implements FeedCacheService {
         RedisUser redisUser = redisUserRepository.getById(event.getPostDto().getAuthorId());
 
         if (redisPost == null) {
-            redisPost = builder.buildAndSaveNewRedisPost(event.getPostDto().getId());
+            redisPost = cachedEntityBuilder.buildAndSaveNewRedisPost(event.getPostDto().getId());
         }
 
         if (redisUser == null) {
-            builder.buildAndSaveNewRedisUser(event.getPostDto().getAuthorId());
+            cachedEntityBuilder.buildAndSaveNewRedisUser(event.getPostDto().getAuthorId());
         }
 
         addPostToUserFeed(event.getPostDto().getAuthorId(), redisPost);
@@ -98,7 +98,7 @@ public class FeedCacheServiceImpl implements FeedCacheService {
         RedisPost redisPost = redisPostRepository.getById(event.getPostDto().getId());
 
         if (redisPost == null) {
-            redisPost = builder.buildAndSaveNewRedisPost(event.getPostDto().getId());
+            redisPost = cachedEntityBuilder.buildAndSaveNewRedisPost(event.getPostDto().getId());
         }
 
         redisPost.getPostDto().incrementViews();
@@ -121,7 +121,7 @@ public class FeedCacheServiceImpl implements FeedCacheService {
         RedisFeed redisFeed = redisFeedRepository.getById(userId);
 
         if (redisFeed == null) {
-            redisFeed = builder.buildAndSaveNewRedisFeed(userId);
+            redisFeed = cachedEntityBuilder.buildAndSaveNewRedisFeed(userId);
         }
 
         if (redisFeed.getRedisPostsIds().size() >= postsFeedSize) {
@@ -138,7 +138,7 @@ public class FeedCacheServiceImpl implements FeedCacheService {
         RedisFeed redisFeed = redisFeedRepository.getById(userId);
 
         if (redisFeed == null) {
-            redisFeed = builder.buildAndSaveNewRedisFeed(userId);
+            redisFeed = cachedEntityBuilder.buildAndSaveNewRedisFeed(userId);
         }
 
         redisFeed.getRedisPostsIds().remove(redisPost.getId());

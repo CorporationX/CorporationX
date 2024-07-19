@@ -1,6 +1,5 @@
 package faang.school.postservice.entity.model.redis;
 
-import faang.school.postservice.entity.dto.post.PostDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +10,10 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
-import java.util.SortedSet;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.TreeSet;
 
 @Data
 @Builder
@@ -22,12 +24,13 @@ public class RedisPost implements Serializable {
 
     @Id
     private Long id;
-
-    private PostDto postDto;
-
-    SortedSet<Long> redisCommentsIds;
-
-    SortedSet<Long> viewerIds;
+    private String content;
+    private Long authorId;
+    private Long projectId;
+    private HashSet<Long> likesIds;
+    private HashSet<Long> viewersIds;
+    private LinkedHashSet<Long> commentsIds;
+    private LocalDateTime publishedAt;
 
     @TimeToLive
     private Long ttl;

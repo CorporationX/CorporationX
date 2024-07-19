@@ -10,7 +10,8 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
-import java.util.SortedSet;
+import java.util.LinkedHashSet;
+import java.util.TreeSet;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +23,7 @@ public class RedisFeed implements Serializable {
     @Id
     private Long userId;
 
-    private SortedSet<Long> redisPostsIds;
+    private LinkedHashSet<Long> postsIds;
 
     @Version
     private Long version;

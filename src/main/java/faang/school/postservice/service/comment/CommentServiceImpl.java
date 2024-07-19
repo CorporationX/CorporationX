@@ -5,24 +5,36 @@ import faang.school.postservice.entity.dto.comment.CommentDto;
 import faang.school.postservice.entity.dto.comment.CommentToCreateDto;
 import faang.school.postservice.entity.dto.comment.CommentToUpdateDto;
 import faang.school.postservice.entity.dto.user.UserDto;
+import faang.school.postservice.entity.model.redis.RedisComment;
+import faang.school.postservice.entity.model.redis.RedisUser;
 import faang.school.postservice.event.comment.NewCommentEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.comment.CommentMapper;
 import faang.school.postservice.entity.model.Comment;
 import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.kafka.producer.NewCommentProducer;
+import faang.school.postservice.mapper.redis.RedisCommentMapper;
+import faang.school.postservice.mapper.redis.RedisPostMapper;
+import faang.school.postservice.mapper.redis.RedisUserMapper;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
+import faang.school.postservice.repository.redis.RedisCommentRepository;
+import faang.school.postservice.repository.redis.RedisFeedRepository;
+import faang.school.postservice.repository.redis.RedisPostRepository;
+import faang.school.postservice.repository.redis.RedisUserRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
+import faang.school.postservice.service.post.PostService;
 import faang.school.postservice.service.redis.CachedEntityBuilder;
 import faang.school.postservice.validator.comment.CommentValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +48,17 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
     private final CommonServiceMethods commonServiceMethods;
     private final NewCommentProducer newCommentPublisher;
-    private final CachedEntityBuilder cachedEntity;
+    private final UserServiceClient userServiceClient;
+    private final RedisCommentRepository redisCommentRepository;
+    private final RedisUserRepository redisUserRepository;
+    private final RedisCommentMapper redisCommentMapper;
+    private final RedisUserMapper redisUserMapper;
+
+    @Value("${spring.data.redis.ttl.comment}")
+    private Long commentTtl;
+
+    @Value("${spring.data.redis.ttl.user}")
+    private Long userTtl;
 
     @Override
     public CommentDto createComment(long postId, long userId, CommentToCreateDto commentDto) {
@@ -49,14 +71,13 @@ public class CommentServiceImpl implements CommentService {
         commentValidator.validateCreateComment(userId);
 
         comment = commentRepository.save(comment);
-        log.info("Created comment on post {} authored by {}", postId, userId);
-
         CommentDto dto = commentMapper.toDto(comment);
 
-        cachedEntity.buildAndSaveNewRedisUser(dto.getAuthorId());
-        cachedEntity.buildAndSaveNewRedisComment(dto.getId());
+        saveUserToRedis(dto.getAuthorId());
+        saveNewCommentToRedis(dto);
         newCommentPublisher.publish(new NewCommentEvent(dto));
 
+        log.info("Created comment on post {} authored by {}", postId, userId);
         return dto;
     }
 
@@ -101,5 +122,31 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(String.format("Comment with id %d not found", commentId)));
         return commentMapper.toDto(comment);
+    }
+
+    public void saveNewCommentToRedis(CommentDto dto) {
+        RedisComment newComment = redisCommentMapper.toRedisDto(dto);
+        newComment.setVersion(1L);
+        newComment.setTtl(commentTtl);
+        redisCommentRepository.save(newComment.getId(), newComment);
+    }
+
+    public void saveUserToRedis(Long userId) {
+        UserDto userDto = userServiceClient.getUser(userId);
+
+        HashSet<Long> followingsIds = userServiceClient.getFollowings(userId).stream()
+                .map(UserDto::getId).collect(Collectors.toCollection(HashSet::new));
+
+        HashSet<Long> followersIds = userServiceClient.getFollowers(userId).stream()
+                .map(UserDto::getId).collect(Collectors.toCollection(HashSet::new));
+
+        RedisUser redisUser = redisUserMapper.toRedisDto(userDto);
+
+        redisUser.setFollowingsIds(followingsIds);
+        redisUser.setFollowersIds(followersIds);
+        redisUser.setVersion(1L);
+        redisUser.setTtl(userTtl);
+
+        redisUserRepository.save(redisUser.getId(), redisUser);
     }
 }

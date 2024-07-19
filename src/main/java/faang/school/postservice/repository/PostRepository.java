@@ -4,7 +4,10 @@ import faang.school.postservice.entity.model.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -39,4 +42,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.isVerify = 'UNCHECKED'")
     List<Post> findAllUncheckedPosts();
+
+    @Query("""
+        SELECT p FROM Post p
+        WHERE p.authorId = :userId AND p.createdAt <= :date
+        ORDER BY p.createdAt DESC
+        """)
+    List<Post> findUserFollowingsPosts(@Param("userId") Long userId,
+                                       @Param("date") LocalDateTime date,
+                                       Pageable pageable);
 }

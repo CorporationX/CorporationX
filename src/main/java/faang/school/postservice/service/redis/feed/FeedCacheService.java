@@ -1,15 +1,15 @@
 package faang.school.postservice.service.redis.feed;
 
-import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.model.redis.RedisPost;
 import faang.school.postservice.event.post.DeletePostEvent;
 import faang.school.postservice.event.post.NewPostEvent;
 import faang.school.postservice.event.post.PostViewEvent;
 
-import java.util.SortedSet;
+import java.util.LinkedHashSet;
 
 public interface FeedCacheService {
 
-    SortedSet<PostDto> getNewsFeed(Long userId);
+    LinkedHashSet<RedisPost> getNewsFeed(Long userId, Long lastPostId);
 
     void addPostInFeed(NewPostEvent event);
 

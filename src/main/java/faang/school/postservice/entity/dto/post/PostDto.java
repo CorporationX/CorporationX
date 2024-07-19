@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 
 @Data
@@ -15,15 +16,11 @@ public class PostDto {
     private String content;
     private Long authorId;
     private Long projectId;
-    private List<Long> likesIds;
+    private HashSet<Long> likesIds;
+    private HashSet<Long> viewersIds;
     private boolean published;
-//    private LocalDateTime publishedAt; //TODO
+    private LocalDateTime publishedAt;
     private boolean deleted;
-//    private LocalDateTime createdAt;
-//    private LocalDateTime updatedAt;
-    private Long views;
-
-    public void incrementViews() {
-        this.views++;
-    }
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

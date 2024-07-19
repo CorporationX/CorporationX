@@ -1,13 +1,16 @@
 package faang.school.postservice.entity.model.redis;
 
-import faang.school.postservice.entity.dto.user.UserDto;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
+import java.util.HashSet;
 
 @Data
 @NoArgsConstructor
@@ -19,7 +22,9 @@ public class RedisUser implements Serializable {
     @Id
     private Long id;
 
-    private UserDto userDto;
+    private String username;
+    private HashSet<Long> followingsIds;
+    private HashSet<Long> followersIds;
 
     @Version
     private Long version;

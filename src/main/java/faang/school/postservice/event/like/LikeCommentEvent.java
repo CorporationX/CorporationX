@@ -13,5 +13,4 @@ import java.util.SortedSet;
 @AllArgsConstructor
 public class LikeCommentEvent implements Event {
     private LikeDto likeDto;
-//    SortedSet<Long> commentLikesIds;
 }

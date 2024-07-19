@@ -2,15 +2,13 @@ package faang.school.postservice.controller.newsfeed;
 
 import faang.school.postservice.config.context.UserContext;
 import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.model.redis.RedisPost;
 import faang.school.postservice.service.redis.feed.FeedCacheService;
 import faang.school.postservice.service.redis.heater.FeedHeaterService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.SortedSet;
+import java.util.LinkedHashSet;
 
 @RestController
 @RequestMapping("/feed")
@@ -22,9 +20,9 @@ public class NewsFeedController {
     private final FeedHeaterService feedHeaterService;
 
     @GetMapping
-    public SortedSet<PostDto> getNewsFeed() {
+    public LinkedHashSet<RedisPost> getNewsFeed(@RequestParam(value = "lastPostId", required = false) Long lastPostId) {
         long userId = userContext.getUserId();
-        return feedService.getNewsFeed(userId);
+        return feedService.getNewsFeed(userId, lastPostId);
     }
 
     @PostMapping("/heat")
@@ -32,3 +30,4 @@ public class NewsFeedController {
         feedHeaterService.feedHeat();
     }
 }
+

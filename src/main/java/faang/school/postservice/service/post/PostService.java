@@ -6,6 +6,7 @@ import faang.school.postservice.entity.dto.post.PostUpdateDto;
 import faang.school.postservice.entity.model.Post;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PostService {
@@ -33,4 +34,6 @@ public interface PostService {
     void verifyPost(List<Post> posts);
 
     void correctPosts();
+
+    List<PostDto> findUserFollowingsPosts(Long userId, LocalDateTime date, int limit);
 }

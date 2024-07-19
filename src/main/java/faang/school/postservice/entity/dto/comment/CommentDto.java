@@ -16,7 +16,7 @@ public class CommentDto {
     private String content;
     private Long authorId;
     private Long postId;
-//    private LocalDateTime createdAt; //TODO
-//    private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<Long> likesIds;
 }

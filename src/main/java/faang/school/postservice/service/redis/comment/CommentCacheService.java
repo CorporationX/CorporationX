@@ -8,7 +8,5 @@ public interface CommentCacheService {
 
     void addCommentToPost(NewCommentEvent event);
 
-    void updateCommentOnPost(UpdateCommentEvent event);
-
     void deleteCommentFromPost(DeleteCommentEvent event);
 }

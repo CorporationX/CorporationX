@@ -56,8 +56,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, RedisLike> redisLikesTemplate(RedisConnectionFactory redisConnectionFactory) {
-        return createRedisTemplate(redisConnectionFactory, RedisLike.class);
+    public RedisTemplate<String, RedisCommentLike> redisLikesTemplate(RedisConnectionFactory redisConnectionFactory) {
+        return createRedisTemplate(redisConnectionFactory, RedisCommentLike.class);
     }
 
     @Bean
@@ -91,7 +91,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public ZSetOperations<String, RedisLike> redisLikeZSetOps(@Qualifier("redisLikesTemplate") RedisTemplate<String, RedisLike> redisTemplate) {
+    public ZSetOperations<String, RedisCommentLike> redisLikeZSetOps(@Qualifier("redisLikesTemplate") RedisTemplate<String, RedisCommentLike> redisTemplate) {
         return redisTemplate.opsForZSet();
     }
 

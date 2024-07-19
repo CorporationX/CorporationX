@@ -19,6 +19,7 @@ import faang.school.postservice.service.redis.CachedEntityBuilder;
 import faang.school.postservice.service.spelling.SpellingService;
 import faang.school.postservice.validator.post.PostValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
@@ -47,14 +48,15 @@ public class PostServiceImpl implements PostService {
     private final PostViewProducer postViewPublisher;
     private final KafkaPostService kafkaPostService;
     private final UserContext userContext;
-    private final CachedEntityBuilder cachedEntity;
+    @Setter
+    private CachedEntityBuilder cachedEntity;
 
     @Override
     public PostDto getById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Post with id %s not found", id)));
         PostDto dto = postMapper.toDto(post);
-//        publishPostViewEvent(dto); //TODO
+        publishPostViewEvent(dto);
         return dto;
     }
 
@@ -81,8 +83,8 @@ public class PostServiceImpl implements PostService {
 
         PostDto dto = postMapper.toDto(post);
 
-        cachedEntity.buildAndSaveNewRedisUser(dto.getAuthorId());
-        cachedEntity.buildAndSaveNewRedisPost(dto.getId());
+        cachedEntity.saveUserToRedis(dto.getAuthorId());
+        cachedEntity.saveNewPostToRedis(dto);
 
         kafkaPostService.sendPostToPublisher(dto);
 
@@ -191,6 +193,15 @@ public class PostServiceImpl implements PostService {
             }
         });
     }
+
+    @Override
+    public List<PostDto> findUserFollowingsPosts(Long userId, LocalDateTime date, int limit) {
+        return postRepository.findUserFollowingsPosts(userId, date, Pageable.ofSize(limit))
+                .stream()
+                .map(postMapper::toDto)
+                .toList();
+    }
+
 
     private void publishPostViewEvent(PostDto dto) {
         PostViewEvent event = new PostViewEvent(dto, userContext.getUserId(), LocalDateTime.now());

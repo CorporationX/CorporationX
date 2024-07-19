@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -38,12 +41,11 @@ public class CachedEntityBuilder {
     @Value("${spring.data.redis.ttl.feed}")
     private Long feedTtl;
 
-    public RedisComment buildAndSaveNewRedisComment(Long commentId) {
+    public RedisComment saveCommentToRedis(Long commentId) {
         CommentDto dto = commentService.getById(commentId);
         RedisComment newComment = RedisComment.builder()
                 .id(commentId)
-                .commentDto(dto)
-                .redisLikesIds(new TreeSet<>())
+                .likesIds(new TreeSet<>())
                 .version(1L)
                 .ttl(commentTtl)
                 .build();
@@ -51,13 +53,26 @@ public class CachedEntityBuilder {
         return newComment;
     }
 
-    public RedisPost buildAndSaveNewRedisPost(Long postId) {
+    public void saveNewCommentToRedis(CommentDto dto) {
+        RedisComment newComment = RedisComment.builder()
+                .id(dto.getId())
+                .likesIds(new TreeSet<>())
+                .version(1L)
+                .ttl(commentTtl)
+                .build();
+        redisCommentRepository.save(newComment.getId(), newComment);
+    }
+
+    public RedisPost savePostToRedis(Long postId) {
         PostDto postDto = postService.getById(postId);
+        TreeSet<Long> commentIds = commentService.getAllPostComments(postId).stream()
+                .map(CommentDto::getId).collect(Collectors.toCollection(TreeSet::new));
+
         RedisPost redisPost = RedisPost.builder()
                 .id(postId)
                 .postDto(postDto)
-                .redisCommentsIds(new TreeSet<>())
-                .viewerIds(new TreeSet<>())
+                .redisCommentsIds(commentIds)
+                .viewerIds(postDto.getViewersIds())
                 .version(1L)
                 .ttl(postTtl)
                 .build();
@@ -65,25 +80,53 @@ public class CachedEntityBuilder {
         return redisPost;
     }
 
-    public void buildAndSaveNewRedisUser(Long userId) {
+    public void saveNewPostToRedis(PostDto postDto) {
+        RedisPost redisPost = RedisPost.builder()
+                .id(postDto.getId())
+                .postDto(postDto)
+                .redisCommentsIds(new TreeSet<>())
+                .viewerIds(new HashSet<>())
+                .version(1L)
+                .ttl(postTtl)
+                .build();
+        redisPostRepository.save(redisPost.getId(), redisPost);
+    }
+
+    public void saveUserToRedis(Long userId) {
         UserDto userDto = userServiceClient.getUser(userId);
+
+        HashSet<Long> followingsIds = userServiceClient.getFollowings(userId).stream()
+                .map(UserDto::getId).collect(Collectors.toCollection(HashSet::new));
+
+        HashSet<Long> followersIds = userServiceClient.getFollowers(userId).stream()
+                .map(UserDto::getId).collect(Collectors.toCollection(HashSet::new));
+
         RedisUser redisUser = RedisUser.builder()
                 .id(userId)
                 .userDto(userDto)
+                .followingsIds(followingsIds)
+                .followersIds(followersIds)
                 .version(1L)
                 .ttl(userTtl)
                 .build();
+
         redisUserRepository.save(redisUser.getId(), redisUser);
     }
 
     public RedisFeed buildAndSaveNewRedisFeed(Long userId) {
+        TreeSet<Long> postsIds = postService.findUserFollowingsPosts(userId, LocalDateTime.now(), 500).stream()
+                .map(PostDto::getId)
+                .collect(Collectors.toCollection(TreeSet::new));
+
         RedisFeed redisFeed = RedisFeed.builder()
                 .userId(userId)
-                .redisPostsIds(new TreeSet<>())
+                .postsIds(postsIds)
                 .version(1L)
                 .ttl(feedTtl)
                 .build();
+
         redisFeedRepository.save(redisFeed.getUserId(), redisFeed);
         return redisFeed;
     }
+
 }

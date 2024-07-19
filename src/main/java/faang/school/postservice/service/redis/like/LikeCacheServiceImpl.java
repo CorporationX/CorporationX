@@ -31,14 +31,13 @@ public class LikeCacheServiceImpl implements LikeCacheService {
         RedisPost redisPost = redisPostRepository.getById(event.getLikeDto().getPostId());
 
         if (redisPost == null) {
-            redisPost = cachedEntityBuilder.buildAndSaveNewRedisPost(event.getLikeDto().getPostId());
+            redisPost = cachedEntityBuilder.savePostToRedis(event.getLikeDto().getPostId());
         }
 
-        redisPost.getPostDto().getLikesIds().add(event.getLikeDto().getId());
+        redisPost.getLikesIds().add(event.getLikeDto().getId());
         redisPostRepository.save(redisPost.getId(), redisPost);
 
-        log.info("Added like {} to post {}", event.getLikeDto().getId(),
-                event.getLikeDto().getPostId());
+        log.info("Added like {} to post {}", event.getLikeDto().getId(), event.getLikeDto().getPostId());
     }
 
     @Override
@@ -46,15 +45,11 @@ public class LikeCacheServiceImpl implements LikeCacheService {
     public void deleteLikeFromPost(DeletePostLikeEvent event) {
         RedisPost redisPost = redisPostRepository.getById(event.getLikeDto().getPostId());
 
-        if (redisPost == null) {
-            redisPost = cachedEntityBuilder.buildAndSaveNewRedisPost(event.getLikeDto().getPostId());
+        if (redisPost != null) {
+            redisPost.getLikesIds().remove(event.getLikeDto().getId());
+            redisPostRepository.save(redisPost.getId(), redisPost);
+            log.info("Deleted like {} from post {}", event.getLikeDto().getId(), event.getLikeDto().getPostId());
         }
-
-        redisPost.getPostDto().getLikesIds().remove(event.getLikeDto().getId());
-        redisPostRepository.save(redisPost.getId(), redisPost);
-
-        log.info("Deleted like {} from post {}", event.getLikeDto().getId(),
-                event.getLikeDto().getPostId());
     }
 
     @Override
@@ -63,14 +58,13 @@ public class LikeCacheServiceImpl implements LikeCacheService {
         RedisComment redisComment = redisCommentRepository.getById(event.getLikeDto().getCommentId());
 
         if (redisComment == null) {
-            redisComment = cachedEntityBuilder.buildAndSaveNewRedisComment(event.getLikeDto().getCommentId());
+            redisComment = cachedEntityBuilder.saveCommentToRedis(event.getLikeDto().getCommentId());
         }
 
-        redisComment.getRedisLikesIds().add(event.getLikeDto().getId());
+        redisComment.getLikesIds().add(event.getLikeDto().getId());
         redisCommentRepository.save(redisComment.getId(), redisComment);
 
-        log.info("Added like {} to comment {}", event.getLikeDto().getId(),
-                event.getLikeDto().getCommentId());
+        log.info("Added like {} to comment {}", event.getLikeDto().getId(), event.getLikeDto().getCommentId());
     }
 
     @Override
@@ -78,14 +72,10 @@ public class LikeCacheServiceImpl implements LikeCacheService {
     public void deleteLikeFromComment(DeleteCommentLikeEvent event) {
         RedisComment redisComment = redisCommentRepository.getById(event.getLikeDto().getCommentId());
 
-        if (redisComment == null) {
-            redisComment = cachedEntityBuilder.buildAndSaveNewRedisComment(event.getLikeDto().getCommentId());
+        if (redisComment != null) {
+            redisComment.getLikesIds().remove(event.getLikeDto().getId());
+            redisCommentRepository.save(redisComment.getId(), redisComment);
+            log.info("Deleted like {} from comment {}", event.getLikeDto().getId(), event.getLikeDto().getCommentId());
         }
-
-        redisComment.getRedisLikesIds().remove(event.getLikeDto().getId());
-        redisCommentRepository.save(redisComment.getId(), redisComment);
-
-        log.info("Deleted like {} from comment {}", event.getLikeDto().getId(),
-                event.getLikeDto().getCommentId());
     }
 }

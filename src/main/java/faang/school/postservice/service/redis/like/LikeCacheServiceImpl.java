@@ -8,7 +8,7 @@ import faang.school.postservice.event.like.LikeCommentEvent;
 import faang.school.postservice.event.like.LikePostEvent;
 import faang.school.postservice.repository.redis.RedisCommentRepository;
 import faang.school.postservice.repository.redis.RedisPostRepository;
-import faang.school.postservice.service.redis.Builder;
+import faang.school.postservice.service.redis.CachedEntityBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -23,7 +23,7 @@ public class LikeCacheServiceImpl implements LikeCacheService {
 
     private final RedisPostRepository redisPostRepository;
     private final RedisCommentRepository redisCommentRepository;
-    private final Builder builder;
+    private final CachedEntityBuilder cachedEntityBuilder;
 
     @Override
     @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
@@ -31,7 +31,7 @@ public class LikeCacheServiceImpl implements LikeCacheService {
         RedisPost redisPost = redisPostRepository.getById(event.getLikeDto().getPostId());
 
         if (redisPost == null) {
-            redisPost = builder.buildAndSaveNewRedisPost(event.getLikeDto().getPostId());
+            redisPost = cachedEntityBuilder.buildAndSaveNewRedisPost(event.getLikeDto().getPostId());
         }
 
         redisPost.getPostDto().getLikesIds().add(event.getLikeDto().getId());
@@ -47,7 +47,7 @@ public class LikeCacheServiceImpl implements LikeCacheService {
         RedisPost redisPost = redisPostRepository.getById(event.getLikeDto().getPostId());
 
         if (redisPost == null) {
-            redisPost = builder.buildAndSaveNewRedisPost(event.getLikeDto().getPostId());
+            redisPost = cachedEntityBuilder.buildAndSaveNewRedisPost(event.getLikeDto().getPostId());
         }
 
         redisPost.getPostDto().getLikesIds().remove(event.getLikeDto().getId());
@@ -63,7 +63,7 @@ public class LikeCacheServiceImpl implements LikeCacheService {
         RedisComment redisComment = redisCommentRepository.getById(event.getLikeDto().getCommentId());
 
         if (redisComment == null) {
-            redisComment = builder.buildAndSaveNewRedisComment(event.getLikeDto().getCommentId());
+            redisComment = cachedEntityBuilder.buildAndSaveNewRedisComment(event.getLikeDto().getCommentId());
         }
 
         redisComment.getRedisLikesIds().add(event.getLikeDto().getId());
@@ -79,7 +79,7 @@ public class LikeCacheServiceImpl implements LikeCacheService {
         RedisComment redisComment = redisCommentRepository.getById(event.getLikeDto().getCommentId());
 
         if (redisComment == null) {
-            redisComment = builder.buildAndSaveNewRedisComment(event.getLikeDto().getCommentId());
+            redisComment = cachedEntityBuilder.buildAndSaveNewRedisComment(event.getLikeDto().getCommentId());
         }
 
         redisComment.getRedisLikesIds().remove(event.getLikeDto().getId());

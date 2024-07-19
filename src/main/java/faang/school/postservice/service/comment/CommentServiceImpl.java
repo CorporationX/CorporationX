@@ -12,6 +12,7 @@ import faang.school.postservice.kafka.producer.NewCommentProducer;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
+import faang.school.postservice.service.redis.CachedEntityBuilder;
 import faang.school.postservice.validator.comment.CommentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
     private final CommonServiceMethods commonServiceMethods;
     private final NewCommentProducer newCommentPublisher;
+    private final CachedEntityBuilder cachedEntity;
 
     @Override
     public CommentDto createComment(long postId, long userId, CommentToCreateDto commentDto) {
@@ -48,6 +50,8 @@ public class CommentServiceImpl implements CommentService {
         log.info("Created comment on post {} authored by {}", postId, userId);
 
         CommentDto dto = commentMapper.toDto(comment);
+
+        cachedEntity.buildAndSaveNewRedisComment(dto.getId());
         newCommentPublisher.publish(new NewCommentEvent(dto));
 
         return dto;

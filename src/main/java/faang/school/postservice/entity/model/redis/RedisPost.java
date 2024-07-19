@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
 import java.util.SortedSet;
@@ -16,7 +17,7 @@ import java.util.SortedSet;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash(value = "Post", timeToLive = 604800) // timeToLive 1 Week
+@RedisHash(value = "Post")
 public class RedisPost implements Serializable {
 
     @Id
@@ -27,6 +28,9 @@ public class RedisPost implements Serializable {
     SortedSet<Long> redisCommentsIds;
 
     SortedSet<Long> viewerIds;
+
+    @TimeToLive
+    private Long ttl;
 
     @Version
     private Long version;

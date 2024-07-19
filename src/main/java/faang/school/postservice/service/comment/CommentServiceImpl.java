@@ -1,8 +1,10 @@
 package faang.school.postservice.service.comment;
 
+import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.entity.dto.comment.CommentDto;
 import faang.school.postservice.entity.dto.comment.CommentToCreateDto;
 import faang.school.postservice.entity.dto.comment.CommentToUpdateDto;
+import faang.school.postservice.entity.dto.user.UserDto;
 import faang.school.postservice.event.comment.NewCommentEvent;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.mapper.comment.CommentMapper;
@@ -51,6 +53,7 @@ public class CommentServiceImpl implements CommentService {
 
         CommentDto dto = commentMapper.toDto(comment);
 
+        cachedEntity.buildAndSaveNewRedisUser(dto.getAuthorId());
         cachedEntity.buildAndSaveNewRedisComment(dto.getId());
         newCommentPublisher.publish(new NewCommentEvent(dto));
 

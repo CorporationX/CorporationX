@@ -81,7 +81,9 @@ public class PostServiceImpl implements PostService {
 
         PostDto dto = postMapper.toDto(post);
 
+        cachedEntity.buildAndSaveNewRedisUser(dto.getAuthorId());
         cachedEntity.buildAndSaveNewRedisPost(dto.getId());
+
         kafkaPostService.sendPostToPublisher(dto);
 
         return dto;

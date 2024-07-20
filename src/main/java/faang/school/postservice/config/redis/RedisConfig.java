@@ -56,8 +56,13 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, RedisCommentLike> redisLikesTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, RedisCommentLike> redisCommentLikesTemplate(RedisConnectionFactory redisConnectionFactory) {
         return createRedisTemplate(redisConnectionFactory, RedisCommentLike.class);
+    }
+
+    @Bean
+    public RedisTemplate<String, RedisPostLike> redisPostLikesTemplate(RedisConnectionFactory redisConnectionFactory) {
+        return createRedisTemplate(redisConnectionFactory, RedisPostLike.class);
     }
 
     @Bean
@@ -91,7 +96,12 @@ public class RedisConfig {
     }
 
     @Bean
-    public ZSetOperations<String, RedisCommentLike> redisLikeZSetOps(@Qualifier("redisLikesTemplate") RedisTemplate<String, RedisCommentLike> redisTemplate) {
+    public ZSetOperations<String, RedisCommentLike> redisCommentLikeZSetOps(@Qualifier("redisCommentLikesTemplate") RedisTemplate<String, RedisCommentLike> redisTemplate) {
+        return redisTemplate.opsForZSet();
+    }
+
+    @Bean
+    public ZSetOperations<String, RedisPostLike> redisPostLikeZSetOps(@Qualifier("redisPostLikesTemplate") RedisTemplate<String, RedisPostLike> redisTemplate) {
         return redisTemplate.opsForZSet();
     }
 
@@ -99,7 +109,6 @@ public class RedisConfig {
     public ZSetOperations<String, RedisPost> redisPostZSetOps(@Qualifier("redisPostsTemplate") RedisTemplate<String, RedisPost> redisTemplate) {
         return redisTemplate.opsForZSet();
     }
-
     @Bean
     public ZSetOperations<String, RedisUser> redisUserZSetOps(@Qualifier("redisUsersTemplate") RedisTemplate<String, RedisUser> redisTemplate) {
         return redisTemplate.opsForZSet();

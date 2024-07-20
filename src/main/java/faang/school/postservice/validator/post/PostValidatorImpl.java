@@ -2,11 +2,15 @@ package faang.school.postservice.validator.post;
 
 import faang.school.postservice.client.ProjectServiceClient;
 import faang.school.postservice.client.UserServiceClient;
+import faang.school.postservice.entity.dto.user.UserDto;
 import faang.school.postservice.exception.DataValidationException;
 import faang.school.postservice.exception.NotFoundException;
 import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.validator.user.UserValidator;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,7 +18,6 @@ import org.springframework.stereotype.Component;
 public class PostValidatorImpl implements PostValidator {
 
     private final UserServiceClient userService;
-    private final UserValidator userValidator;
     private final ProjectServiceClient projectService;
 
     public void validateAuthor(Long userId, Long projectId) {

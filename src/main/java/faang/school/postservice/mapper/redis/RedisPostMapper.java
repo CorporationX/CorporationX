@@ -11,7 +11,5 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.FIELD, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RedisPostMapper {
 
-    RedisUser toEntity(PostDto userDto);
-
     RedisPost toRedisPost(PostDto postDto);
 }

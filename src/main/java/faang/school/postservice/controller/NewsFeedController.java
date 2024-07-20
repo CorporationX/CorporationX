@@ -1,7 +1,6 @@
-package faang.school.postservice.controller.newsfeed;
+package faang.school.postservice.controller;
 
 import faang.school.postservice.config.context.UserContext;
-import faang.school.postservice.entity.dto.post.PostDto;
 import faang.school.postservice.entity.model.redis.RedisPost;
 import faang.school.postservice.service.redis.feed.FeedCacheService;
 import faang.school.postservice.service.redis.heater.FeedHeaterService;

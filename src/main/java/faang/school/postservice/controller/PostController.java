@@ -1,11 +1,14 @@
 package faang.school.postservice.controller;
 
+import faang.school.postservice.config.context.UserContext;
 import faang.school.postservice.entity.dto.post.PostCreateDto;
 import faang.school.postservice.entity.dto.post.PostDto;
 import faang.school.postservice.entity.dto.post.PostUpdateDto;
 import faang.school.postservice.service.post.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -13,15 +16,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("posts")
+@RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class PostController {
 
+    private static final Logger log = LoggerFactory.getLogger(PostController.class);
     private final PostService postService;
+    private final UserContext userContext;
 
     @GetMapping("{postId}")
     public PostDto getById(@PathVariable Long postId) {
         return postService.getById(postId);
+    }
+
+    @GetMapping("{postId}/view")
+    public void addPostView(@PathVariable Long postId) {
+        postService.addPostView(postId);
     }
 
     @PostMapping
@@ -31,6 +41,8 @@ public class PostController {
 
     @PostMapping("publication/{postId}")
     public PostDto publish(@PathVariable Long postId) {
+        Long userId = userContext.getUserId();
+        log.info("Publishing post {} to user {}", postId, userId);
         return postService.publish(postId);
     }
 

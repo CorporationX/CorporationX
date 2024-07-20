@@ -53,7 +53,13 @@ public class KafkaPostService {
     private void publishNewPostEvent(PostDto dto, List<Long> followerBatch) {
         HashSet<Long> sortedFollowerBatch = new HashSet<>(followerBatch);
         NewPostEvent event = NewPostEvent.builder()
-                .postDto(dto)
+                .id(dto.getId())
+                .content(dto.getContent())
+                .authorId(dto.getAuthorId())
+                .projectId(dto.getProjectId())
+                .likesIds(new HashSet<>())
+                .viewersIds(new HashSet<>())
+                .publishedAt(dto.getPublishedAt())
                 .followersIds(sortedFollowerBatch)
                 .build();
         log.info("Publishing new post event for post ID {} to {} followers", dto.getId(), sortedFollowerBatch.size());

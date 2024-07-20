@@ -24,7 +24,8 @@ public class PostViewProducer implements MessageProducer<PostViewEvent> {
     public void publish(PostViewEvent event) {
         try {
             String message = objectMapper.writeValueAsString(event);
-            if(!event.getPostDto().getAuthorId().equals(event.getViewerId())){
+            if ((event.getAuthorId() != null && event.getProjectId() == null && !event.getAuthorId().equals(event.getViewerId())) ||
+                    (event.getProjectId() != null && event.getAuthorId() == null && !event.getProjectId().equals(event.getViewerId()))) {
                 kafkaTemplate.send(postViewTopic.name(), message);
                 log.info("Published new post view event to Kafka - {}: {}", postViewTopic.name(), message);
             }

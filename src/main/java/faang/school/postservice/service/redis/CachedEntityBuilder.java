@@ -19,6 +19,9 @@ import faang.school.postservice.service.comment.CommentService;
 import faang.school.postservice.service.post.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -53,6 +56,7 @@ public class CachedEntityBuilder {
     @Value("${spring.data.redis.ttl.feed}")
     private Long feedTtl;
 
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public RedisComment saveCommentToRedis(Long commentId) {
         CommentDto dto = commentService.getById(commentId);
         RedisComment newComment = redisCommentMapper.toRedisDto(dto);
@@ -62,6 +66,7 @@ public class CachedEntityBuilder {
         return newComment;
     }
 
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void saveNewCommentToRedis(CommentDto dto) {
         RedisComment newComment = redisCommentMapper.toRedisDto(dto);
         newComment.setVersion(1L);
@@ -69,6 +74,7 @@ public class CachedEntityBuilder {
         redisCommentRepository.save(newComment.getId(), newComment);
     }
 
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public RedisPost savePostToRedis(Long postId) {
         PostDto postDto = postService.getById(postId);
         LinkedHashSet<Long> commentIds = commentService.getAllPostComments(postId).stream()
@@ -82,6 +88,7 @@ public class CachedEntityBuilder {
         return redisPost;
     }
 
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void saveNewPostToRedis(PostDto postDto) {
         RedisPost redisPost = redisPostMapper.toRedisPost(postDto);
         redisPost.setCommentsIds(new LinkedHashSet<>());
@@ -90,6 +97,7 @@ public class CachedEntityBuilder {
         redisPostRepository.save(redisPost.getId(), redisPost);
     }
 
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void saveUserToRedis(Long userId) {
         UserDto userDto = userServiceClient.getUser(userId);
 
@@ -109,6 +117,7 @@ public class CachedEntityBuilder {
         redisUserRepository.save(redisUser.getId(), redisUser);
     }
 
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public RedisFeed buildAndSaveNewRedisFeed(Long userId) {
         LinkedHashSet<Long> postsIds = postService.findUserFollowingsPosts(userId, LocalDateTime.now(), 500).stream()
                 .map(PostDto::getId)
@@ -124,5 +133,4 @@ public class CachedEntityBuilder {
         redisFeedRepository.save(redisFeed.getUserId(), redisFeed);
         return redisFeed;
     }
-
 }

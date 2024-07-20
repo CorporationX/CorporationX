@@ -76,10 +76,9 @@ public class Post {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_verify", length = 64, nullable = false)
-    @ColumnDefault("UNCHECKED")
+    @Column(name = "is_verify", length = 64)
     @Enumerated(EnumType.STRING)
-    private VerificationStatus isVerify;
+    private VerificationStatus isVerify = VerificationStatus.UNCHECKED;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "verified_date")

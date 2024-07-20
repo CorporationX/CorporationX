@@ -13,6 +13,8 @@ public interface PostService {
 
     PostDto getById(Long id);
 
+    void addPostView(Long id);
+
     PostDto create(PostCreateDto postCreateDto);
 
     PostDto publish(Long id);

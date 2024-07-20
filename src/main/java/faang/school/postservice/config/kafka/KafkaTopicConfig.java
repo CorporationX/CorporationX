@@ -20,6 +20,9 @@ public class KafkaTopicConfig {
     @Value("${spring.data.channel.like_post_channel.name}")
     private String likePostTopicName;
 
+    @Value("${spring.data.channel.heat_users_feed.name}")
+    private String heatUsersFeedTopicName;
+
     @Bean
     public NewTopic newCommentTopic() {
         return new NewTopic(newCommentTopicName, 1, (short) 1);
@@ -38,5 +41,10 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic likePostTopic() {
         return new NewTopic(likePostTopicName, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic heatUsersFeedTopic() {
+        return new NewTopic(heatUsersFeedTopicName, 1, (short) 1);
     }
 }

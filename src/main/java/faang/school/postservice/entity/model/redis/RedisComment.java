@@ -24,7 +24,7 @@ public class RedisComment implements Serializable {
     private String content;
     private Long authorId;
     private Long postId;
-    private HashSet<Long> likesIds;
+    private Long likes;
 
     @Version
     private Long version;
@@ -34,5 +34,13 @@ public class RedisComment implements Serializable {
 
     public void incrementVersion() {
         this.version++;
+    }
+
+    public void incrementLikes() {
+        this.likes++;
+    }
+
+    public void decrementLikes() {
+        this.likes--;
     }
 }

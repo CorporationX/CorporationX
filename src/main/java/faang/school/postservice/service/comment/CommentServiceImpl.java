@@ -75,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
 
         saveUserToRedis(dto.getAuthorId());
         saveNewCommentToRedis(dto);
-        newCommentPublisher.publish(new NewCommentEvent(dto));
+//        newCommentPublisher.publish(new NewCommentEvent(dto));
 
         log.info("Created comment on post {} authored by {}", postId, userId);
         return dto;

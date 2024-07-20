@@ -10,5 +10,5 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class DeletePostLikeEvent implements Event {
-    private LikeDto likeDto;
+    private Long postId;
 }

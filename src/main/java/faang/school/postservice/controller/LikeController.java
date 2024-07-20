@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/likes")
+@RequestMapping("/api/v1/likes")
 @RequiredArgsConstructor
 public class LikeController {
 

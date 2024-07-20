@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
 
@@ -13,11 +15,21 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash(value = "CommentLike", timeToLive = 86400) // timeToLive 24 hr
+@RedisHash(value = "CommentLike")
 public class RedisCommentLike implements Serializable {
 
     @Id
     private Long id;
     private Long userId;
     private Long commentId;
+
+    @Version
+    private Long version;
+
+    @TimeToLive
+    private Long ttl;
+
+    public void incrementVersion() {
+        this.version++;
+    }
 }

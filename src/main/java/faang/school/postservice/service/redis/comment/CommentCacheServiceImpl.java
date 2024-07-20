@@ -31,10 +31,10 @@ public class CommentCacheServiceImpl implements CommentCacheService {
     @Override
     @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void addCommentToPost(NewCommentEvent event) {
-        RedisPost redisPost = redisPostRepository.getById(event.getCommentDto().getPostId());
+        RedisPost redisPost = redisPostRepository.getById(event.getPostId());
 
         if (redisPost == null) {
-            redisPost = cachedEntityBuilder.savePostToRedis(event.getCommentDto().getPostId());
+            redisPost = cachedEntityBuilder.savePostToRedis(event.getPostId());
         }
 
         Set<Long> commentsIds = redisPost.getCommentsIds();
@@ -42,9 +42,9 @@ public class CommentCacheServiceImpl implements CommentCacheService {
             commentsIds.remove(commentsIds.iterator().next());
         }
 
-        commentsIds.add(event.getCommentDto().getId());
+        commentsIds.add(event.getCommentId());
         redisPostRepository.save(redisPost.getId(), redisPost);
-        log.info("Added new comment {} to post {}", event.getCommentDto().getId(), event.getCommentDto().getPostId());
+        log.info("Added new comment {} to post {}", event.getCommentId(), event.getPostId());
     }
 
     @Override

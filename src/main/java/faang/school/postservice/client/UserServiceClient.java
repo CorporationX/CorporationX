@@ -19,14 +19,17 @@ import java.util.List;
 public interface UserServiceClient {
 
     @GetMapping("/api/v1/users/{userId}")
-    UserDto getUser(@PathVariable long userId);
+    UserDto getUser(@PathVariable ("userId") long userId);
 
-    @PostMapping("/api/v1/users")
+    @GetMapping("/api/v1/users/all/id")
+    HashSet<Long> getAllUsersIds();
+
+    @GetMapping("/api/v1/users")
     List<UserDto> getUsersByIds(@RequestBody List<Long> ids);
 
     @GetMapping("/api/v1/subscriptions/followers/{followeeId}")
-    List<UserDto> getFollowers(@Positive @Parameter @PathVariable long followeeId);
+    List<UserDto> getFollowers(@Positive @Parameter @PathVariable Long followeeId);
 
     @GetMapping("/api/v1/subscriptions/followings/{followerId}")
-    List<UserDto> getFollowings(@Positive @Parameter @PathVariable long followerId);
+    List<UserDto> getFollowings(@Positive @Parameter @PathVariable Long followerId);
 }

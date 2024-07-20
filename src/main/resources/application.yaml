@@ -47,6 +47,8 @@ spring:
         name: post-view_channel
       new_post:
         name: new-post_channel
+      heat_users_feed:
+        name: heat-users-feed_channel
 
   servlet:
     multipart:
@@ -136,3 +138,4 @@ batch:
   feed:
     size: 500
     posts-fetch: 25
+    heat: 10000

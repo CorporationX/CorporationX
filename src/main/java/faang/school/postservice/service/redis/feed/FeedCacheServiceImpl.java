@@ -99,10 +99,10 @@ public class FeedCacheServiceImpl implements FeedCacheService {
     @Override
     @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void deletePostFromFeed(DeletePostEvent event) {
-        RedisPost redisPost = redisPostRepository.getById(event.getPostDto().getId());
+        RedisPost redisPost = redisPostRepository.getById(event.getPostId());
 
         if (redisPost != null) {
-            RedisPost curentRedisPost = redisPostRepository.getById(event.getPostDto().getId());
+            RedisPost curentRedisPost = redisPostRepository.getById(event.getPostId());
 
             if (curentRedisPost != null && !curentRedisPost.getVersion().equals(redisPost.getVersion())) {
                 throw new OptimisticLockingFailureException("Version conflict: current post version "
@@ -110,10 +110,10 @@ public class FeedCacheServiceImpl implements FeedCacheService {
             }
             redisPost.incrementVersion();
 
-            removePostFromUserFeed(event.getPostDto().getAuthorId(), redisPost);
+            removePostFromUserFeed(event.getAuthorId(), redisPost);
             removePostFromFollowers(event.getFollowersIds(), redisPost);
             log.info("Removed post {} from user {} feed and their followers' feeds",
-                    redisPost.getId(), event.getPostDto().getAuthorId());
+                    redisPost.getId(), event.getAuthorId());
         }
     }
 

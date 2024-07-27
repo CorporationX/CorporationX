@@ -42,7 +42,7 @@ class HashtagCacheServiceImplTest {
         postDto = PostHashtagDto.builder()
                 .id(1L)
                 .content("#hash #tag")
-                .likeIds(List.of(1L, 2L, 3L))
+                .likesIds(List.of(1L, 2L, 3L))
                 .build();
 
         hashtagCacheService = new HashtagCacheServiceImpl(redisTemplate);
@@ -92,7 +92,7 @@ class HashtagCacheServiceImplTest {
         hashtagCacheService.addPostToHashtag(hashtag, postDto);
 
         InOrder inOrder = inOrder(redisTemplate, zSetOps);
-        inOrder.verify(zSetOps).add(hashtag, postDto, postDto.getLikeIds().size());
+        inOrder.verify(zSetOps).add(hashtag, postDto, postDto.getLikesIds().size());
         inOrder.verify(zSetOps).size(hashtag);
     }
 
@@ -103,7 +103,7 @@ class HashtagCacheServiceImplTest {
         hashtagCacheService.addPostToHashtag(hashtag, postDto);
 
         InOrder inOrder = inOrder(redisTemplate, zSetOps);
-        inOrder.verify(zSetOps).add(hashtag, postDto, postDto.getLikeIds().size());
+        inOrder.verify(zSetOps).add(hashtag, postDto, postDto.getLikesIds().size());
         inOrder.verify(zSetOps).size(hashtag);
         inOrder.verify(zSetOps).popMin(hashtag);
     }
@@ -115,7 +115,7 @@ class HashtagCacheServiceImplTest {
         hashtagCacheService.addPostToHashtag(hashtag, postDto);
 
         InOrder inOrder = inOrder(redisTemplate, zSetOps);
-        inOrder.verify(zSetOps).add(hashtag, postDto, postDto.getLikeIds().size());
+        inOrder.verify(zSetOps).add(hashtag, postDto, postDto.getLikesIds().size());
         inOrder.verify(zSetOps).size(hashtag);
     }
 
@@ -132,6 +132,6 @@ class HashtagCacheServiceImplTest {
         hashtagCacheService.updateScore(hashtag, postDto);
 
         InOrder inOrder = inOrder(redisTemplate, zSetOps);
-        inOrder.verify(zSetOps).add(hashtag, postDto, postDto.getLikeIds().size());
+        inOrder.verify(zSetOps).add(hashtag, postDto, postDto.getLikesIds().size());
     }
 }

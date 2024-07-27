@@ -1,17 +1,26 @@
 package faang.school.postservice.service.redis.heater;
 
 import faang.school.postservice.client.UserServiceClient;
+import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.model.redis.RedisFeed;
 import faang.school.postservice.event.heat.HeatUsersFeedEvent;
 import faang.school.postservice.kafka.producer.HeatUsersFeedProducer;
-import faang.school.postservice.service.redis.CachedEntityBuilder;
+import faang.school.postservice.repository.redis.RedisFeedRepository;
+import faang.school.postservice.service.post.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -19,7 +28,11 @@ import java.util.Set;
 public class FeedHeaterServiceImpl implements FeedHeaterService {
     private final UserServiceClient userServiceClient;
     private final HeatUsersFeedProducer producer;
-    private final CachedEntityBuilder cachedEntityBuilder;
+    private final RedisFeedRepository redisFeedRepository;
+    private final PostService postService;
+
+    @Value("${spring.data.redis.ttl.feed}")
+    private Long feedTtl;
 
     @Value("${batch.feed.heat}")
     private int feedHeatSize;
@@ -55,9 +68,26 @@ public class FeedHeaterServiceImpl implements FeedHeaterService {
     @Async("generateUsersFeedExecutor")
     public void generateUsersFeed(HeatUsersFeedEvent event) {
         try {
-            event.getUsersIds().forEach(cachedEntityBuilder::buildAndSaveNewRedisFeed);
+            event.getUsersIds().forEach(this::buildAndSaveNewRedisFeed);
         } catch (Exception e) {
             log.error("Error in generateUsersFeed: ", e);
         }
+    }
+
+    @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
+    public RedisFeed buildAndSaveNewRedisFeed(Long userId) {
+        LinkedHashSet<Long> postsIds = postService.findUserFollowingsPosts(userId, LocalDateTime.now(), 500).stream()
+                .map(PostDto::getId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        RedisFeed redisFeed = RedisFeed.builder()
+                .userId(userId)
+                .postsIds(postsIds)
+                .version(1L)
+                .ttl(feedTtl)
+                .build();
+
+        redisFeedRepository.save(redisFeed.getUserId(), redisFeed);
+        return redisFeed;
     }
 }

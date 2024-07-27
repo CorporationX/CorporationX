@@ -1,12 +1,24 @@
 package faang.school.postservice.service.post;
 
+import faang.school.postservice.client.UserServiceClient;
+import faang.school.postservice.config.context.UserContext;
 import faang.school.postservice.config.moderation.ModerationDictionary;
 import faang.school.postservice.entity.dto.post.PostCreateDto;
 import faang.school.postservice.entity.dto.post.PostDto;
+import faang.school.postservice.entity.dto.post.PostHashtagDto;
 import faang.school.postservice.entity.dto.post.PostUpdateDto;
+import faang.school.postservice.entity.model.VerificationStatus;
+import faang.school.postservice.entity.model.redis.RedisPost;
+import faang.school.postservice.entity.model.redis.RedisUser;
+import faang.school.postservice.kafka.producer.PostViewProducer;
 import faang.school.postservice.mapper.PostMapper;
 import faang.school.postservice.entity.model.Post;
+import faang.school.postservice.mapper.redis.RedisPostMapper;
+import faang.school.postservice.mapper.redis.RedisUserMapper;
 import faang.school.postservice.repository.PostRepository;
+import faang.school.postservice.repository.redis.RedisPostRepository;
+import faang.school.postservice.repository.redis.RedisUserRepository;
+import faang.school.postservice.service.kafka.KafkaPostService;
 import faang.school.postservice.service.spelling.SpellingService;
 import faang.school.postservice.service.hashtag.async.AsyncHashtagService;
 import faang.school.postservice.validator.post.PostValidator;
@@ -45,7 +57,23 @@ class PostServiceImplTest {
     @Mock
     private AsyncHashtagService hashtagService;
     @Mock
+    private UserContext userContext;
+    @Mock
+    private PostViewProducer postViewPublisher;
+    @Mock
+    private RedisUserRepository redisUserRepository;
+    @Mock
+    private UserServiceClient userServiceClient;
+    @Mock
     private SpellingService spellingService;
+    @Mock
+    private KafkaPostService kafkaPostService;
+    @Mock
+    private RedisPostRepository redisPostRepository;
+    @Mock
+    private RedisPostMapper redisPostMapper;
+    @Mock
+    private RedisUserMapper RedisUserMapper;
 
     @InjectMocks
     private PostServiceImpl postServiceImpl;
@@ -54,12 +82,14 @@ class PostServiceImplTest {
     void successCreate() {
         PostCreateDto postCreateDto = new PostCreateDto("test", 1L, 0L);
         PostDto expectedResult = PostDto.builder()
+                .id(0L)
                 .content(postCreateDto.getContent())
                 .authorId(postCreateDto.getAuthorId())
                 .projectId(postCreateDto.getProjectId())
                 .build();
-        Post post = postMapper.toEntity(postCreateDto);
 
+        Post post = postMapper.toEntity(postCreateDto);
+        post.setIsVerify(VerificationStatus.VERIFIED);
         doNothing().when(postValidator).validateAuthor(postCreateDto.getAuthorId(), postCreateDto.getProjectId());
         doNothing().when(postValidator).validatePostContent(postCreateDto.getContent());
         when(postRepository.save(post)).thenReturn(post);
@@ -72,12 +102,26 @@ class PostServiceImplTest {
     void successPublish() {
         Post post = Post.builder()
                 .id(1L)
+                .authorId(1L)
                 .content("test")
                 .published(false)
                 .build();
 
+        PostDto postDto = PostDto.builder()
+                .id(1L)
+                .authorId(1L)
+                .content("test")
+                .published(true)
+                .build();
+
+        RedisUser redisUser = RedisUser.builder().build();
+        RedisPost redisPost = RedisPost.builder().build();
+
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
         when(postRepository.save(post)).thenReturn(post);
+        when(postMapper.toDto(post)).thenReturn(postDto);
+        when(redisUserRepository.getById(post.getAuthorId())).thenReturn(redisUser);
+        when(redisPostMapper.toRedisPost(postDto)).thenReturn(redisPost);
 
         PostDto result = postServiceImpl.publish(1L);
         assertTrue(result.isPublished());

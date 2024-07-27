@@ -5,29 +5,23 @@ import faang.school.postservice.entity.dto.comment.CommentDto;
 import faang.school.postservice.entity.dto.comment.CommentToCreateDto;
 import faang.school.postservice.entity.dto.comment.CommentToUpdateDto;
 import faang.school.postservice.entity.dto.user.UserDto;
+import faang.school.postservice.entity.model.Comment;
+import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.entity.model.redis.RedisComment;
 import faang.school.postservice.entity.model.redis.RedisUser;
 import faang.school.postservice.event.comment.NewCommentEvent;
 import faang.school.postservice.exception.NotFoundException;
-import faang.school.postservice.mapper.comment.CommentMapper;
-import faang.school.postservice.entity.model.Comment;
-import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.kafka.producer.NewCommentProducer;
+import faang.school.postservice.mapper.comment.CommentMapper;
 import faang.school.postservice.mapper.redis.RedisCommentMapper;
-import faang.school.postservice.mapper.redis.RedisPostMapper;
 import faang.school.postservice.mapper.redis.RedisUserMapper;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
 import faang.school.postservice.repository.redis.RedisCommentRepository;
-import faang.school.postservice.repository.redis.RedisFeedRepository;
-import faang.school.postservice.repository.redis.RedisPostRepository;
 import faang.school.postservice.repository.redis.RedisUserRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
-import faang.school.postservice.service.post.PostService;
-import faang.school.postservice.service.redis.CachedEntityBuilder;
 import faang.school.postservice.validator.comment.CommentValidator;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -75,7 +69,11 @@ public class CommentServiceImpl implements CommentService {
 
         saveUserToRedis(dto.getAuthorId());
         saveNewCommentToRedis(dto);
-//        newCommentPublisher.publish(new NewCommentEvent(dto));
+        newCommentPublisher.publish(new NewCommentEvent(
+                postId,
+                post.getAuthorId(),
+                comment.getId(),
+                comment.getAuthorId()));
 
         log.info("Created comment on post {} authored by {}", postId, userId);
         return dto;

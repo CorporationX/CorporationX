@@ -16,5 +16,7 @@ import java.util.SortedSet;
 @AllArgsConstructor
 public class NewCommentEvent implements Event {
     private Long postId;
+    private Long authorId;
     private Long commentId;
+    private Long userId;
 }

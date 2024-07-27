@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LikePostEvent implements Event {
     private Long postId;
+    private Long userId;
+    private Long authorId;
 }

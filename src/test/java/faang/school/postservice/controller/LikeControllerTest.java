@@ -56,7 +56,7 @@ class LikeControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(likeDto);
 
-        mockMvc.perform(post("/likes/post/" + postId)
+        mockMvc.perform(post("/api/v1/likes/post/" + postId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -74,7 +74,7 @@ class LikeControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(likeDto);
 
-        mockMvc.perform(delete("/likes/post/" + postId + "/" + likeId)
+        mockMvc.perform(delete("/api/v1/likes/post/" + postId + "/" + likeId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk());
@@ -92,7 +92,7 @@ class LikeControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(likeDto);
 
-        mockMvc.perform(post("/likes/comment/" + commentId)
+        mockMvc.perform(post("/api/v1/likes/comment/" + commentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -110,7 +110,7 @@ class LikeControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(likeDto);
 
-        mockMvc.perform(delete("/likes/comment/" + commentId + "/" + likeId)
+        mockMvc.perform(delete("/api/v1//likes/comment/" + commentId + "/" + likeId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk());

@@ -78,7 +78,7 @@ public class LikeCacheServiceImpl implements LikeCacheService {
             redisComment = saveCommentToRedis(event.getCommentId());
         }
 
-        redisComment.decrementLikes();
+        redisComment.incrementLikes();
         redisCommentRepository.save(redisComment.getId(), redisComment);
 
         log.info("Added like to comment {}", event.getCommentId());

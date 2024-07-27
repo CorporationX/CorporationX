@@ -1,14 +1,22 @@
 package faang.school.postservice.service.comment;
 
+import faang.school.postservice.client.UserServiceClient;
 import faang.school.postservice.entity.dto.comment.CommentDto;
 import faang.school.postservice.entity.dto.comment.CommentToCreateDto;
 import faang.school.postservice.entity.dto.comment.CommentToUpdateDto;
+import faang.school.postservice.entity.dto.user.UserDto;
+import faang.school.postservice.entity.model.redis.RedisComment;
+import faang.school.postservice.entity.model.redis.RedisUser;
 import faang.school.postservice.mapper.comment.CommentMapper;
 import faang.school.postservice.entity.model.Comment;
 import faang.school.postservice.entity.model.Post;
 import faang.school.postservice.kafka.producer.NewCommentProducer;
+import faang.school.postservice.mapper.redis.RedisCommentMapper;
+import faang.school.postservice.mapper.redis.RedisUserMapper;
 import faang.school.postservice.repository.CommentRepository;
 import faang.school.postservice.repository.PostRepository;
+import faang.school.postservice.repository.redis.RedisCommentRepository;
+import faang.school.postservice.repository.redis.RedisUserRepository;
 import faang.school.postservice.service.commonMethods.CommonServiceMethods;
 import faang.school.postservice.validator.comment.CommentValidator;
 import org.junit.jupiter.api.Test;
@@ -48,23 +56,40 @@ class CommentServiceImplTest {
 
     @Mock
     private NewCommentProducer newCommentPublisher;
+    @Mock
+    private UserServiceClient userServiceClient;
+    @Mock
+    private RedisCommentRepository redisCommentRepository;
+    @Mock
+    private RedisUserRepository redisUserRepository;
+    @Mock
+    private RedisCommentMapper redisCommentMapper;
+    @Mock
+    private RedisUserMapper redisUserMapper;
 
     @InjectMocks
     private CommentServiceImpl commentService;
 
     @Test
     void createComment_success() {
-        long postId = 1L;
-        long userId = 1L;
+        Long postId = 1L;
+        Long userId = 1L;
         CommentToCreateDto commentToCreateDto = new CommentToCreateDto();
         CommentDto commentDto = new CommentDto();
+        commentDto.setAuthorId(1L);
         Post post = new Post();
         Comment comment = new Comment();
+        UserDto userDto = new UserDto();
+        RedisUser redisUser = new RedisUser();
+        RedisComment redisComment = new RedisComment();
 
         when(commonServiceMethods.findEntityById(postRepository, postId, "Post")).thenReturn(post);
         when(commentMapper.toEntity(commentToCreateDto)).thenReturn(comment);
+        when(redisUserMapper.toRedisDto(userDto)).thenReturn(redisUser);
+        when(redisCommentMapper.toRedisDto(commentDto)).thenReturn(redisComment);
         doNothing().when(commentValidator).validateCreateComment(userId);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
+        when(userServiceClient.getUser(userId)).thenReturn(userDto);
         when(commentMapper.toDto(comment)).thenReturn(commentDto);
 
         CommentDto result = commentService.createComment(postId, userId, commentToCreateDto);

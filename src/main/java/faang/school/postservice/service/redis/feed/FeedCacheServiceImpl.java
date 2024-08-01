@@ -112,6 +112,9 @@ public class FeedCacheServiceImpl implements FeedCacheService {
 
             removePostFromUserFeed(event.getAuthorId(), redisPost);
             removePostFromFollowers(event.getFollowersIds(), redisPost);
+
+            redisPostRepository.save(redisPost.getId(), redisPost);
+
             log.info("Removed post {} from user {} feed and their followers' feeds",
                     redisPost.getId(), event.getAuthorId());
         }
@@ -242,6 +245,10 @@ public class FeedCacheServiceImpl implements FeedCacheService {
     @Retryable(value = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 1000))
     public void saveUserToRedis(Long userId) {
         UserDto userDto = userServiceClient.getUser(userId);
+        if (userDto == null) {
+            log.error("UserDto is null for userId: {}", userId);
+            return;
+        }
 
         HashSet<Long> followingsIds = userServiceClient.getFollowings(userId).stream()
                 .map(UserDto::getId).collect(Collectors.toCollection(HashSet::new));
@@ -250,6 +257,10 @@ public class FeedCacheServiceImpl implements FeedCacheService {
                 .map(UserDto::getId).collect(Collectors.toCollection(HashSet::new));
 
         RedisUser redisUser = redisUserMapper.toRedisDto(userDto);
+        if (redisUser == null) {
+            log.error("RedisUser mapping returned null for userId: {}", userId);
+            return;
+        }
 
         redisUser.setFollowingsIds(followingsIds);
         redisUser.setFollowersIds(followersIds);

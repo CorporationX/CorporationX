@@ -73,9 +73,9 @@ public class FeedCacheServiceImplTest {
     @Test
     void testGetNewsFeed_WhenRedisFeedExists() {
         Long userId = 1L;
-        Long lastPostId = null;
         RedisFeed redisFeed = new RedisFeed();
         redisFeed.setUserId(userId);
+        redisFeed.setVersion(1L);
         redisFeed.setPostsIds(new LinkedHashSet<>(Set.of(1L, 2L, 3L)));
 
         when(redisFeedRepository.getById(userId)).thenReturn(redisFeed);
@@ -83,10 +83,11 @@ public class FeedCacheServiceImplTest {
             Long postId = invocation.getArgument(0);
             RedisPost post = new RedisPost();
             post.setId(postId);
+            post.setPublishedAt(LocalDateTime.now());
             return post;
         });
 
-        LinkedHashSet<RedisPost> posts = feedCacheService.getNewsFeed(userId, lastPostId);
+        LinkedHashSet<RedisPost> posts = feedCacheService.getNewsFeed(userId, null);
 
         assertNotNull(posts);
         assertEquals(3, posts.size());
@@ -95,16 +96,16 @@ public class FeedCacheServiceImplTest {
     @Test
     void testGetNewsFeed_WhenRedisFeedDoesNotExist() {
         Long userId = 1L;
-        Long lastPostId = null;
 
         when(redisFeedRepository.getById(userId)).thenReturn(null);
-        when(postService.findUserFollowingsPosts(userId, LocalDateTime.now(), 500)).thenReturn(new ArrayList<>());
+        when(postService.findUserFollowingsPosts(eq(userId), any(LocalDateTime.class), eq(500))).thenReturn(new ArrayList<>());
 
-        LinkedHashSet<RedisPost> posts = feedCacheService.getNewsFeed(userId, lastPostId);
+        LinkedHashSet<RedisPost> posts = feedCacheService.getNewsFeed(userId, null);
 
         assertNotNull(posts);
         assertEquals(0, posts.size());
     }
+
 
     @Test
     void testAddPostInFeed() {
@@ -112,7 +113,7 @@ public class FeedCacheServiceImplTest {
         Long authorId = 2L;
         HashSet<Long> likesIds = new HashSet<>(Arrays.asList(3L, 4L));
         HashSet<Long> viewersIds = new HashSet<>();
-        HashSet<Long> followersIds = new HashSet<>(Arrays.asList(4L));
+        HashSet<Long> followersIds = new HashSet<>(List.of(4L));
         NewPostEvent event = new NewPostEvent(postId, "B", authorId, null, likesIds, viewersIds, LocalDateTime.now(), followersIds);
         RedisPost redisPost = new RedisPost();
         redisPost.setId(postId);
@@ -123,30 +124,37 @@ public class FeedCacheServiceImplTest {
         when(redisUserRepository.getById(authorId)).thenReturn(null);
         when(postService.getById(postId)).thenReturn(new PostDto());
         when(redisPostMapper.toRedisPost(any(PostDto.class))).thenReturn(redisPost);
+        when(userServiceClient.getUser(authorId)).thenReturn(new UserDto());
+        when(redisUserMapper.toRedisDto(any(UserDto.class))).thenReturn(redisUser);
 
         feedCacheService.addPostInFeed(event);
 
-        verify(redisPostRepository, times(2)).save(any(Long.class), any(RedisPost.class));
+        verify(redisPostRepository, times(1)).save(any(Long.class), any(RedisPost.class));
         verify(redisUserRepository).save(any(Long.class), any(RedisUser.class));
-        verify(redisFeedRepository, times(3)).save(any(Long.class), any(RedisFeed.class));
+        verify(redisFeedRepository, times(4)).save(any(Long.class), any(RedisFeed.class));
     }
-
 
     @Test
     void testDeletePostFromFeed() {
         Long postId = 1L;
-        Long authorId = 1L;
-        HashSet<Long> followersIds = new HashSet<>(Arrays.asList(3L, 4L));
+        Long authorId = 2L;
+        HashSet<Long> followersIds = new HashSet<>(List.of(4L));
         DeletePostEvent event = new DeletePostEvent(postId, authorId, followersIds);
         RedisPost redisPost = new RedisPost();
         redisPost.setId(postId);
+        redisPost.setVersion(1L);
+        RedisUser redisUser = new RedisUser();
+        redisUser.setId(authorId);
 
         when(redisPostRepository.getById(postId)).thenReturn(redisPost);
 
         feedCacheService.deletePostFromFeed(event);
 
-        verify(redisPostRepository).save(any(Long.class), any(RedisPost.class));
-        verify(redisFeedRepository, times(3)).save(any(Long.class), any(RedisFeed.class));
+        redisPost.incrementVersion();
+        verify(redisPostRepository, times(1)).save(postId, redisPost);
+
+        verify(redisFeedRepository, times(2)).save(eq(authorId), any(RedisFeed.class));
+        verify(redisFeedRepository, times(2)).save(eq(4L), any(RedisFeed.class));
     }
 
     @Test
@@ -190,6 +198,7 @@ public class FeedCacheServiceImplTest {
         Long userId = 1L;
         UserDto userDto = new UserDto();
         RedisUser redisUser = new RedisUser();
+        redisUser.setId(userId);
 
         when(userServiceClient.getUser(userId)).thenReturn(userDto);
         when(userServiceClient.getFollowings(userId)).thenReturn(List.of(new UserDto(), new UserDto()));

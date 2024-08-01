@@ -12,14 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -28,6 +26,7 @@ import static org.mockito.Mockito.*;
 public class FeedHeaterServiceImplTest {
 
     @InjectMocks
+    @Spy
     private FeedHeaterServiceImpl feedHeaterService;
 
     @Mock
@@ -54,6 +53,9 @@ public class FeedHeaterServiceImplTest {
 
         when(userServiceClient.getAllUsersIds()).thenReturn(userIds);
 
+        // Mocking the sendUsersBatch method to do nothing
+        doNothing().when(feedHeaterService).sendUsersBatch(anySet());
+
         feedHeaterService.feedHeat();
 
         verify(userServiceClient).getAllUsersIds();
@@ -76,7 +78,7 @@ public class FeedHeaterServiceImplTest {
         HashSet<Long> userIds = new HashSet<>(List.of(1L, 2L, 3L));
         HeatUsersFeedEvent event = new HeatUsersFeedEvent(userIds);
 
-        doNothing().when(feedHeaterService).buildAndSaveNewRedisFeed(any(Long.class));
+        doReturn(null).when(feedHeaterService).buildAndSaveNewRedisFeed(any(Long.class));
 
         feedHeaterService.generateUsersFeed(event);
 
@@ -94,7 +96,7 @@ public class FeedHeaterServiceImplTest {
                 .build()).toList();
         LinkedHashSet<Long> postIdsSet = new LinkedHashSet<>(postIds);
 
-        when(postService.findUserFollowingsPosts(userId, LocalDateTime.now(), 500)).thenReturn(posts);
+        when(postService.findUserFollowingsPosts(eq(userId), any(LocalDateTime.class), eq(500))).thenReturn(posts);
 
         RedisFeed result = feedHeaterService.buildAndSaveNewRedisFeed(userId);
 

@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     @Query(nativeQuery = true, value = """
-            SELECT * FROM goal g
+            SELECT g.* FROM goal g
             JOIN user_goal ug ON g.id = ug.goal_id
             WHERE ug.user_id = ?1
             """)
@@ -21,7 +21,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     @Query(nativeQuery = true, value = """
             INSERT INTO goal (title, description, parent_goal_id, status, created_at, updated_at)
-            VALUES (?1, ?2, ?3, 0, NOW(), NOW()) returning goal
+            VALUES (?1, ?2, ?3, 0, NOW(), NOW()) returning *
             """)
     Goal create(String title, String description, Long parent);
 

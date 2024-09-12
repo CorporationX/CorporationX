@@ -10,6 +10,8 @@ import java.util.List;
 
 @Repository
 public interface EventParticipationRepository extends CrudRepository<User, Long> {
+    // сделать из него бин?
+
 
     @Modifying
     @Query(nativeQuery = true, value = "INSERT INTO user_event (event_id, user_id) VALUES (:eventId, :userId)")

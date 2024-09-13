@@ -21,7 +21,7 @@ public interface RecommendationRepository extends CrudRepository<Recommendation,
 
     @Query(nativeQuery = true, value = """
             UPDATE recommendation SET content = :content, updated_at = now()
-            WHERE author_id = :authorId AND receiverId = :receiverId
+            WHERE author_id = :authorId AND receiver_id = :receiverId
             """)
     @Modifying
     void update(long authorId, long receiverId, String content);

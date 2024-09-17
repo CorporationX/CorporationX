@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.service.event.EventPartcipationService;
 
-
 @Controller
 public class EventParticipationController {
     private EventPartcipationService eventParticipationService;
@@ -32,5 +31,4 @@ public class EventParticipationController {
     public void getParticipantsCount(long eventId){
         eventParticipationService.getParticipantsCount(eventId);
     }
-
 }

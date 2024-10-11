@@ -15,10 +15,12 @@ public class EventPartcipationService {
 
     private EventParticipationRepository eventParticipationRepository;
 
+
     @Autowired
     public EventPartcipationService(EventParticipationRepository eventParticipationRepository){
         this.eventParticipationRepository = eventParticipationRepository;
     }
+    // добавить конструктор класса и аннотацию
     @Bean
     public void registerParticipant(long eventId, long userId){
         List<User> usersOnCurrentEvent = eventParticipationRepository.findAllParticipantsByEventId(eventId);

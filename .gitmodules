@@ -25,3 +25,6 @@
 [submodule "infra"]
 	path = infra
 	url = https://github.com/CorporationX/infra.git
+[submodule "search_service"]
+	path = search_service
+	url = https://github.com/YaKokin/search_service.git

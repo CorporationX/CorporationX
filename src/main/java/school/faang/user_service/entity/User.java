@@ -158,4 +158,13 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Premium premium;
+
+    @OneToMany(mappedBy = "user")
+    private List<Education> education;
+
+    @OneToMany(mappedBy = "user")
+    private List<Career> career;
+
+    @OneToOne(mappedBy = "user")
+    private WorkSchedule workSchedule;
 }

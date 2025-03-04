@@ -3,9 +3,13 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.validator.event.EventValidator;
 import school.faang.user_service.validator.user.UserValidator;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -13,6 +17,7 @@ import school.faang.user_service.validator.user.UserValidator;
 public class EventParticipationService {
 
     private final EventParticipationRepository eventParticipationRepository;
+    private final UserMapper userMapper;
     private final UserValidator userValidator;
     private final EventValidator eventValidator;
 
@@ -36,6 +41,11 @@ public class EventParticipationService {
 
         eventParticipationRepository.unregister(eventId, userId);
         log.info("User unregister for event");
+    }
+
+    public List<UserDto> getParticipant(Long eventId) {
+        eventValidator.checkEventExistsById(eventId);
+        return userMapper.toListUserDto(eventParticipationRepository.findAllParticipantsByEventId(eventId));
     }
 
     public void validateDateById(Long eventId, Long userId) {

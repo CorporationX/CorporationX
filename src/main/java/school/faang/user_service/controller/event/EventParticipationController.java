@@ -3,7 +3,10 @@ package school.faang.user_service.controller.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.event.EventParticipationService;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -22,6 +25,12 @@ public class EventParticipationController {
         validateId(userId);
         validateId(eventId);
         eventParticipationService.unregisterParticipant(eventId, userId);
+    }
+
+    public List<UserDto> getParticipation(Long eventId) {
+        validateId(eventId);
+
+        return eventParticipationService.getParticipant(eventId);
     }
 
     private void validateId(Long id) {

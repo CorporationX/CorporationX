@@ -45,7 +45,14 @@ public class EventParticipationService {
 
     public List<UserDto> getParticipant(Long eventId) {
         eventValidator.checkEventExistsById(eventId);
+        log.info("List users participant for event");
         return userMapper.toListUserDto(eventParticipationRepository.findAllParticipantsByEventId(eventId));
+    }
+
+    public void getParticipantCount(Long eventId) {
+        eventValidator.checkEventExistsById(eventId);
+        int countParticipants = eventParticipationRepository.countParticipants(eventId);
+        log.info("Total {} event participants", countParticipants);
     }
 
     public void validateDateById(Long eventId, Long userId) {

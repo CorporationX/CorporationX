@@ -29,8 +29,12 @@ public class EventParticipationController {
 
     public List<UserDto> getParticipation(Long eventId) {
         validateId(eventId);
-
         return eventParticipationService.getParticipant(eventId);
+    }
+
+    public void getParticipantCount(Long eventId) {
+        validateId(eventId);
+        eventParticipationService.getParticipantCount(eventId);
     }
 
     private void validateId(Long id) {

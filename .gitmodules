@@ -1,27 +1,40 @@
 [submodule "user_service"]
 	path = user_service
 	url = https://github.com/CorporationX/user_service.git
-[submodule "post_service"]
-	path = post_service
-	url = https://github.com/CorporationX/post_service.git
+	branch = dev
 [submodule "project_service"]
 	path = project_service
 	url = https://github.com/CorporationX/project_service.git
+	branch = dev
+[submodule "post_service"]
+	path = post_service
+	url = https://github.com/CorporationX/post_service.git
+	branch = dev
 [submodule "payment_service"]
 	path = payment_service
 	url = https://github.com/CorporationX/payment_service.git
+	branch = dev
 [submodule "notification_service"]
 	path = notification_service
 	url = https://github.com/CorporationX/notification_service.git
+	branch = dev
 [submodule "analytics_service"]
 	path = analytics_service
 	url = https://github.com/CorporationX/analytics_service.git
+	branch = dev
 [submodule "achievement_service"]
 	path = achievement_service
 	url = https://github.com/CorporationX/achievement_service.git
+	branch = dev
 [submodule "account_service"]
 	path = account_service
 	url = https://github.com/CorporationX/account_service.git
+	branch = dev
+[submodule "url_shortener_service"]
+	path = url_shortener_service
+	url = https://github.com/CorporationX/url_shortener_service.git
+	branch = dev
 [submodule "infra"]
 	path = infra
 	url = https://github.com/CorporationX/infra.git
+	branch = master
